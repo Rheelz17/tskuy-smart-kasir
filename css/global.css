@@ -1,0 +1,1092 @@
+/* ============================================================
+   GLOBAL.CSS — Tskuy Design System
+   Dipakai oleh semua halaman: kasir, pelanggan, login
+   
+   Cara pakai di tiap halaman:
+   <link rel="stylesheet" href="global.css" />
+   <link rel="stylesheet" href="kasir.css" />   ← override spesifik
+   ============================================================ */
+
+/* ============================================================
+   1. CSS VARIABLES
+   Sumber kebenaran tunggal untuk warna, ukuran, shadow.
+   PERUBAHAN:
+   - Kuning distandardkan ke #efb100 (sebelumnya beda-beda:
+     #fbbf24 di kasir, #eab308 di login, #efb100 di pelanggan)
+   - Oranye/harga distandardkan ke #e07b2a (sebelumnya ada
+     #dd9776 di pelanggan)
+   - Teks utama distandardkan ke #18181B (sebelumnya #1a1a1a,
+     #222, #0f172a di masing-masing file)
+   ============================================================ */
+:root {
+  /* Warna utama */
+  --kuning: #efb100;
+  --kuning-hover: #d9a000;
+  --kuning-gelap: #894b00;
+  --kuning-muda: #fef9e7; /* background chip/badge kuning */
+  --kuning-border: #f5d67a; /* border elemen kuning */
+
+  /* Warna aksen */
+  --oranye: #e07b2a; /* harga, aksen sekunder */
+  --oranye-muda: #fef3e8;
+
+  /* Warna status */
+  --merah: #ef4444;
+  --merah-muda: #fee2e2;
+  --hijau: #22c55e;
+  --hijau-muda: #dcfce7;
+  --biru-muda: #dbeafe;
+
+  /* Teks */
+  /* PERUBAHAN: semua teks utama distandardkan ke #18181B */
+  --teks: #18181b;
+  --teks-sekunder: #6b7280; /* label, keterangan */
+  --teks-tersier: #9ca3af; /* placeholder, hint */
+  --teks-putih: #ffffff;
+
+  /* Background */
+  --bg: #f3f4f6; /* halaman */
+  --bg-putih: #ffffff; /* card, panel */
+  --bg-abu: #f9fafb; /* input, row hover */
+
+  /* Border */
+  --border: #e5e7eb;
+  --border-gelap: #d1d5db;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.07);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+
+  /* Border radius */
+  /* PERUBAHAN: distandardkan, sebelumnya beda-beda per komponen */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-penuh: 999px;
+
+  /* Tinggi elemen standar */
+  --tinggi-header: 68px;
+  --tinggi-sidebar: 60px; /* lebar sidebar */
+}
+
+/* ============================================================
+   2. RESET & BASE
+   PERUBAHAN: digabung dari ketiga file, dihilangkan duplikasi
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* PERUBAHAN: font-family, color, background distandardkan */
+  font-family: "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--teks);
+  font-size: 14px; /* base font size */
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+select,
+textarea {
+  font-family: "Poppins", sans-serif;
+}
+
+/* ============================================================
+   3. TIPOGRAFI
+   PERUBAHAN: skala baru, sebelumnya tidak ada standar global.
+   Kasir: judul 22px, Login: 28px — distandardkan ke tengah 24px.
+   ============================================================ */
+
+/* Judul halaman — h1 */
+/* PERUBAHAN: kasir 22px + login 28px → distandardkan 24px */
+.text-h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--teks);
+  line-height: 1.3;
+}
+
+/* Judul section — h2 */
+/* PERUBAHAN: kasir 16px + pelanggan 20px → distandardkan 20px */
+.text-h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--teks);
+  line-height: 1.35;
+}
+
+/* Sub judul — h3 */
+/* PERUBAHAN: semua file 15px → naik tipis ke 16px */
+.text-h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--teks);
+  line-height: 1.4;
+}
+
+/* Body utama */
+/* PERUBAHAN: kasir 13px + pelanggan 14px → distandardkan 14px */
+.text-body {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--teks);
+  line-height: 1.6;
+}
+
+/* Label form */
+/* Sama di semua file: 12px 600 — tidak berubah */
+.text-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teks-sekunder);
+}
+
+/* Keterangan kecil */
+/* PERUBAHAN: range 10-12px di semua file → distandardkan 11px */
+.text-kecil {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--teks-tersier);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   4. TOMBOL (BUTTON)
+   PERUBAHAN: radius, padding, font distandardkan.
+   Sebelumnya: radius 20px di kasir, 12px di login, 10px di pelanggan
+   Sekarang: radius-md (12px) untuk semua tombol biasa,
+             radius-penuh untuk pill/rounded
+   ============================================================ */
+
+/* Base tombol — semua varian pakai ini sebagai dasar */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md); /* PERUBAHAN: distandardkan 12px */
+  font-size: 14px; /* PERUBAHAN: distandardkan 14px */
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    opacity 0.2s,
+    transform 0.1s;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Varian: Primary (kuning) */
+/* PERUBAHAN: warna distandardkan ke --kuning (#efb100) */
+.btn-primary {
+  background: var(--kuning);
+  color: var(--teks-putih);
+}
+
+.btn-primary:hover {
+  background: var(--kuning-hover);
+}
+
+/* Varian: Danger (merah) */
+.btn-danger {
+  background: var(--merah);
+  color: var(--teks-putih);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Varian: Ghost / Outline */
+/* PERUBAHAN: sebelumnya border warna berbeda-beda, distandardkan */
+.btn-ghost {
+  background: var(--bg-putih);
+  color: var(--teks-sekunder);
+  border: 1.5px solid var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-abu);
+  border-color: var(--border-gelap);
+}
+
+/* Varian: Outline kuning */
+.btn-outline-kuning {
+  background: var(--bg-putih);
+  color: var(--kuning-gelap);
+  border: 1.5px solid var(--kuning);
+}
+
+.btn-outline-kuning:hover {
+  background: var(--kuning-muda);
+}
+
+/* Varian: Disabled */
+.btn:disabled,
+.btn-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Modifier ukuran */
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 15px;
+  border-radius: var(--radius-lg);
+}
+
+/* Modifier shape: pill/rounded */
+/* PERUBAHAN: sebelumnya border-radius 20px atau 25px bercampur,
+   sekarang pakai class --pill yang konsisten */
+.btn--pill {
+  border-radius: var(--radius-penuh);
+}
+
+/* Modifier: full width */
+.btn--block {
+  width: 100%;
+}
+
+/* ============================================================
+   5. INPUT & FORM
+   PERUBAHAN: height, border, radius distandardkan.
+   Sebelumnya: height 36-42px campur, radius 8-12px campur
+   ============================================================ */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teks-sekunder);
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  height: 40px; /* PERUBAHAN: distandardkan 40px */
+  padding: 0 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); /* PERUBAHAN: distandardkan 8px */
+  font-size: 13px;
+  font-family: "Poppins", sans-serif;
+  color: var(--teks);
+  background: var(--bg-putih);
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--kuning); /* PERUBAHAN: distandardkan ke --kuning */
+}
+
+.form-input::placeholder {
+  color: var(--teks-tersier);
+}
+
+.form-input[readonly] {
+  background: var(--bg-abu);
+  color: var(--teks-sekunder);
+  cursor: default;
+}
+
+/* Wrapper untuk input dengan icon */
+.input-icon-wrap {
+  position: relative;
+}
+
+.input-icon-wrap .form-input {
+  padding-right: 40px;
+}
+
+.input-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--teks-tersier);
+  pointer-events: none;
+}
+
+/* Select wrapper */
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap .form-select {
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  color: var(--teks-tersier);
+}
+
+/* Hint / error text */
+.form-hint {
+  font-size: 11px;
+  color: var(--teks-tersier);
+}
+
+.form-error {
+  font-size: 11px;
+  color: var(--merah);
+}
+
+/* ============================================================
+   6. BADGE & STATUS
+   PERUBAHAN: distandardkan dari berbagai definisi yang tersebar
+   di ketiga file
+   ============================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: var(--radius-penuh);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* PERUBAHAN: nama class distandardkan, sebelumnya
+   .status-badge.success di kasir-admin, .badge di kasir-kasir */
+.badge-sukses {
+  background: var(--hijau-muda);
+  color: #166534;
+}
+
+.badge-gagal {
+  background: var(--merah-muda);
+  color: #991b1b;
+}
+
+.badge-kuning {
+  background: var(--kuning-muda);
+  color: var(--kuning-gelap);
+}
+
+.badge-biru {
+  background: var(--biru-muda);
+  color: #1d4ed8;
+}
+
+.badge-abu {
+  background: var(--bg);
+  color: var(--teks-sekunder);
+}
+
+/* ============================================================
+   7. CARD
+   PERUBAHAN: radius dan shadow distandardkan
+   ============================================================ */
+.card {
+  background: var(--bg-putih);
+  border-radius: var(--radius-lg); /* PERUBAHAN: distandardkan 16px */
+  border: 1px solid var(--border);
+  padding: 16px;
+}
+
+.card-shadow {
+  box-shadow: var(--shadow-md);
+  border: none;
+}
+
+/* ============================================================
+   8. POPUP / OVERLAY SYSTEM
+   PERUBAHAN: digabung dari kasir.css dan popup.css,
+   teknik :target dipertahankan (tanpa JS)
+   ============================================================ */
+.popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Muncul saat id di-target via href="#id" */
+.popup-overlay:target {
+  display: flex;
+}
+
+.popup-box {
+  background: var(--bg-putih);
+  border-radius: var(--radius-xl); /* PERUBAHAN: distandardkan 20px */
+  padding: 28px;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Header popup dengan background kuning */
+.popup-header-kuning {
+  background: var(--kuning);
+  color: var(--teks-putih);
+  padding: 16px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Tombol close X */
+.popup-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--merah-muda);
+  color: var(--merah);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.popup-close:hover {
+  background: #fecaca;
+}
+
+/* Close putih — untuk header kuning */
+.popup-close-putih {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--teks-putih);
+  position: static; /* tidak absolute, ikut flow header */
+}
+
+.popup-close-putih:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* ============================================================
+   9. TABEL
+   PERUBAHAN: distandardkan dari detail-penjualan.css dan
+   manajemen-menu.css yang sebelumnya terpisah
+   ============================================================ */
+.table-container {
+  background: var(--bg-putih);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* PERUBAHAN: thead kuning distandardkan ke --kuning */
+thead {
+  background: var(--kuning);
+  color: var(--teks-putih);
+}
+
+th,
+td {
+  padding: 13px 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: var(--kuning-muda); /* PERUBAHAN: hover kuning muda */
+}
+
+/* ============================================================
+   10. PAGINATION
+   PERUBAHAN: distandardkan dari detail-penjualan.css
+   ============================================================ */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-number {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: var(--bg-putih);
+  color: var(--teks-sekunder);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.page-number.active,
+.page-number:hover {
+  background: var(--kuning);
+  color: var(--teks-putih);
+  border-color: var(--kuning);
+}
+
+.page-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teks);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 2px;
+}
+
+.page-link.disabled {
+  color: var(--teks-tersier);
+  cursor: default;
+}
+
+/* ============================================================
+   11. CUSTOM RADIO (untuk popup filter)
+   PERUBAHAN: dipindah dari popup.css ke global karena
+   dipakai di beberapa halaman
+   ============================================================ */
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--teks);
+  padding: 4px 0;
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-gelap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+
+.radio-custom::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--kuning);
+  display: none;
+}
+
+.radio-option input[type="radio"]:checked + .radio-custom {
+  border-color: var(--kuning);
+}
+
+.radio-option input[type="radio"]:checked + .radio-custom::after {
+  display: block;
+}
+
+/* ============================================================
+   12. TOGGLE SWITCH
+   PERUBAHAN: dipindah dari popup.css ke global
+   ============================================================ */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teks-sekunder);
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-label {
+  width: 40px;
+  height: 22px;
+  background: var(--border-gelap);
+  border-radius: var(--radius-penuh);
+  display: block;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-label::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--bg-putih);
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s;
+}
+
+.toggle-input:checked + .toggle-label {
+  background: var(--hijau);
+}
+
+.toggle-input:checked + .toggle-label::after {
+  left: 21px;
+}
+
+/* ============================================================
+   13. SIDEBAR (NAVIGASI KIRI)
+   PERUBAHAN: digabung dari kasir.css dan detail-penjualan.css,
+   sebelumnya ada perbedaan width (60px vs 70px vs 90px)
+   dan background (putih vs gelap vs abu)
+   — distandardkan ke width 64px, background gelap
+   ============================================================ */
+.sidebar {
+  width: 64px; /* PERUBAHAN: distandardkan 64px */
+  background: #1e1e2e; /* PERUBAHAN: distandardkan gelap */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  flex-shrink: 0;
+  border-radius: 0 20px 20px 0;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-putih);
+  overflow: hidden;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* PERUBAHAN: shape icon dari bulat (50%) ke persegi rounded (12px) */
+.nav-item {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm); /* PERUBAHAN: 8px bukan 50% */
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #6b7280;
+}
+
+.nav-item:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--bg-putih);
+}
+
+/* PERUBAHAN: active state kuning (bukan hitam seperti di kasir sebelumnya) */
+.nav-item.active {
+  background: var(--kuning);
+  color: #1e1e2e;
+}
+
+.nav-item.logout {
+  color: var(--merah);
+}
+
+.nav-item.logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* ============================================================
+   14. HEADER
+   PERUBAHAN: height distandardkan ke 68px (sebelumnya
+   72px di kasir-admin, 68px di kasir, 62-80px di pelanggan)
+   ============================================================ */
+.main-header {
+  height: var(--tinggi-header); /* 68px */
+  background: var(--bg-putih);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Notifikasi */
+.notif-wrapper {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg-abu);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: var(--oranye);
+  color: var(--teks-putih);
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-putih);
+}
+
+/* User card di header */
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-penuh);
+  background: var(--bg-abu);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.user-card:hover {
+  border-color: var(--kuning);
+}
+
+.user-avatar img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* PERUBAHAN: ukuran teks user-name distandardkan */
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teks);
+  display: block;
+}
+
+.user-role {
+  font-size: 11px;
+  color: var(--teks-tersier);
+  display: block;
+}
+
+/* ============================================================
+   15. SEARCH BAR
+   PERUBAHAN: distandardkan dari 3 variasi berbeda
+   ============================================================ */
+.search-wrapper {
+  position: relative;
+  border-radius: var(--radius-penuh);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-wrapper input {
+  height: 38px;
+  width: 100%;
+  border: 1.5px solid var(--border);
+  background: var(--bg-putih);
+  border-radius: var(--radius-penuh);
+  padding: 0 44px 0 18px;
+  font-size: 13px;
+  color: var(--teks);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-wrapper input:focus {
+  border-color: var(--kuning);
+}
+
+.search-wrapper input::placeholder {
+  color: var(--teks-tersier);
+}
+
+.search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--kuning);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+/* ============================================================
+   16. SCROLLBAR KUSTOM
+   PERUBAHAN: digabung dari 3 file, sebelumnya hanya ada
+   di beberapa elemen saja
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-gelap);
+  border-radius: var(--radius-penuh);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--teks-tersier);
+}
+
+/* ============================================================
+   17. RESPONSIVE — BREAKPOINT GLOBAL
+   PERUBAHAN: breakpoint disatukan dan distandardkan.
+   Sebelumnya: kasir pakai 1024px + 820px,
+               pelanggan pakai 1200px + 900px + 600px + 420px,
+               login pakai 900px + 768px + 480px
+   Sekarang 4 breakpoint konsisten:
+   - 1280px: layar besar ke medium
+   - 1024px: tablet landscape
+   - 768px:  tablet portrait
+   - 480px:  mobile
+   ============================================================ */
+
+/* 1280px: mulai kurangi padding, grid lebih compact */
+@media (max-width: 1280px) {
+  .main-header {
+    padding: 0 20px;
+  }
+}
+
+/* 1024px: tablet landscape */
+@media (max-width: 1024px) {
+  :root {
+    --tinggi-header: 62px;
+  }
+
+  /* Sembunyikan label teks user, hanya tampilkan avatar */
+  .user-name,
+  .user-role {
+    display: none;
+  }
+
+  .user-card {
+    padding: 6px 8px;
+  }
+
+  /* Popup lebih kecil */
+  .popup-box {
+    max-width: 440px;
+    padding: 22px;
+  }
+
+  /* Tabel font lebih kecil */
+  th,
+  td {
+    padding: 11px 12px;
+    font-size: 12px;
+  }
+}
+
+/* 768px: tablet portrait */
+@media (max-width: 768px) {
+  :root {
+    --tinggi-header: 58px;
+  }
+
+  .main-header {
+    padding: 0 14px;
+  }
+
+  .sidebar {
+    width: 54px;
+  }
+
+  .nav-item {
+    width: 38px;
+    height: 38px;
+  }
+
+  .popup-box {
+    max-width: 94vw;
+    padding: 20px;
+  }
+
+  /* Teks h1 sedikit lebih kecil di tablet */
+  .text-h1 {
+    font-size: 20px;
+  }
+
+  .text-h2 {
+    font-size: 17px;
+  }
+}
+
+/* 480px: mobile */
+@media (max-width: 480px) {
+  :root {
+    --tinggi-header: 54px;
+  }
+
+  .main-header {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .sidebar {
+    width: 48px;
+  }
+
+  .nav-item {
+    width: 34px;
+    height: 34px;
+  }
+
+  .popup-box {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+    padding: 18px;
+  }
+
+  .text-h1 {
+    font-size: 18px;
+  }
+
+  .text-h2 {
+    font-size: 15px;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 9px 16px;
+  }
+
+  th,
+  td {
+    padding: 10px 10px;
+    font-size: 11px;
+  }
+}

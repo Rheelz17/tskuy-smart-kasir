@@ -1,0 +1,1199 @@
+/* ==================== PERUBAHAN UTAMA CSS ====================
+   1. HAPUS semua selector radio button hack:
+      - .popup-toggle, .filter-radio { display: none }
+      - #toggle-xxx:checked ~ .popup-overlay
+      - #toggle-xxx:checked ~ #popup-xxx
+      - #mood-xxx:checked ~ ... (filter menu)
+      - #filter-makanan:checked ~ ... (filter kategori)
+      - #fa-xxx:checked ~ ... (filter antrian)
+   
+   2. TAMBAH sistem baru berbasis class:
+      - .popup-overlay.is-open  → overlay muncul
+      - .popup.is-open          → popup muncul dengan animasi fade
+      - .notif-panel.is-open    → notif panel dropdown muncul
+      - .menu-card--hidden      → card menu disembunyikan JS
+      - .antrian-card--hidden   → card antrian disembunyikan JS
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #f0f0f0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ==================== HEADER ==================== */
+.main-header {
+  height: 72px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  background: #eab308;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.search-container {
+  position: relative;
+  width: 45%;
+}
+
+.search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-bar {
+  height: 40px;
+  width: 100%;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 25px;
+  padding: 0 44px 0 18px;
+  font-size: 13px;
+  color: #555;
+  outline: none;
+}
+
+.search-bar::placeholder { color: #bbb; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/*
+  PERUBAHAN: .notif-wrapper dan .user-card sebelumnya adalah <label>.
+  Sekarang <button>, jadi reset style default button di sini.
+*/
+.notif-wrapper {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 50px;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: #e07b2a;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 50px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.user-avatar img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  display: block;
+}
+
+.user-role {
+  font-size: 10px;
+  color: #94a3b8;
+  display: block;
+}
+
+/* ==================== MAIN LAYOUT ==================== */
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==================== SIDEBAR ==================== */
+.sidebar {
+  width: 60px;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-item {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  color: #efb100;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.nav-item:hover { background: #f1f5f9; }
+.nav-item.active { background: #292d32; color: #efb100; }
+.nav-item.logout { color: #e95322; }
+.nav-item.logout:hover { background: #fee2e2; }
+
+/* ==================== CONTENT AREA ==================== */
+.content-area {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.content-area::-webkit-scrollbar { width: 5px; }
+.content-area::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+/* ==================== QUEUE SECTION ==================== */
+.queue-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #222;
+}
+
+/*
+  PERUBAHAN: .see-all sebelumnya <a> atau <label>.
+  Sekarang <button>, style disesuaikan.
+*/
+.see-all {
+  font-size: 12px;
+  color: #aaa;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.see-all:hover { color: #eab308; }
+
+.queue-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.queue-container {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.queue-container::-webkit-scrollbar { display: none; }
+
+/*
+  PERUBAHAN: .queue-card sebelumnya <label> (for="toggle-detail-antrian").
+  Sekarang <div data-open="...">. Cursor pointer dan hover tetap sama.
+*/
+.queue-card {
+  flex-shrink: 0;
+  min-width: calc(50% - 8px);
+  scroll-snap-align: start;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.queue-card:hover {
+  filter: brightness(0.95);
+  transform: translateY(-2px);
+}
+
+.queue-green { background: #dcfce7; }
+.queue-yellow { background: #fef9c3; }
+.queue-red { background: #fee2e2; }
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.table-number { font-weight: 700; font-size: 14px; color: #1a2e1a; }
+.order-id { font-size: 11px; color: #888; margin-top: 2px; }
+.time-status { font-size: 10px; color: #777; white-space: nowrap; }
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.badge-dine { background: #ede9fe; color: #6d28d9; }
+.badge-takeaway { background: #dbeafe; color: #1d4ed8; }
+
+.nav-arrow {
+  background: #fff;
+  border: 1px solid #eee;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.nav-arrow:hover { background: #fef3c7; border-color: #fbbf24; }
+
+.pagination-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.dot { width: 8px; height: 8px; background: #e5e7eb; border-radius: 50%; }
+.dot.active { background: #fbbf24; width: 20px; border-radius: 4px; }
+
+/* ==================== MOOD SECTION ==================== */
+.mood-section {
+  background: #fff;
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+
+.section-label { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 4px; }
+.section-labelmini { font-size: 11px; color: #aaa; font-weight: 400; margin-bottom: 10px; }
+
+.kategori-mood {
+  display: flex;
+  gap: 8px;
+  background: #f3f4f6;
+  border-radius: 30px;
+  padding: 6px 10px;
+}
+
+/*
+  PERUBAHAN: .mood sebelumnya <label> bergantung radio.
+  Sekarang <button>. Reset border/background default button,
+  pertahankan visual yang sama.
+  Class .active-mood ditambah/hapus oleh JS (bukan :checked selector).
+*/
+.mood {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+  transition: all 0.2s;
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+}
+
+.mood:hover { border-color: #fbbf24; color: #92400e; }
+
+.mood.active-mood {
+  background: #fff;
+  border-color: #fbbf24;
+  color: #92400e;
+  font-weight: 600;
+}
+
+/* ==================== MENU SECTION ==================== */
+.menu-choice {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  flex: 1;
+}
+
+.kategori-menu { margin-bottom: 14px; }
+
+.kategori-menu-btn {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: #f3f4f6;
+  border-radius: 30px;
+  padding: 6px 10px;
+  margin-top: 8px;
+}
+
+/*
+  PERUBAHAN: .menu-tab sebelumnya <label> bergantung radio.
+  Sekarang <button>. Class .active-tab dikontrol JS.
+*/
+.menu-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 13px;
+  background: #fff;
+  cursor: pointer;
+  color: #555;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.menu-tab small { font-size: 10px; color: #aaa; font-weight: 400; }
+.menu-tab:hover { border-color: #fbbf24; }
+
+.menu-tab.active-tab {
+  background: #fff;
+  border-color: #fbbf24;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.menu-tab.active-tab small { color: #d97706; }
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/*
+  PERUBAHAN: .menu-card sebelumnya <label>.
+  Sekarang <div data-open="...">.
+  Tambah cursor: pointer karena bukan label/button.
+*/
+.menu-card {
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.menu-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/*
+  BARU: Class untuk menyembunyikan card yang tidak cocok filter.
+  Sebelumnya dikontrol CSS sibling selector yang panjang.
+  Sekarang JS tinggal toggle class ini.
+*/
+.menu-card--hidden {
+  display: none !important;
+}
+
+.card-img { width: 100%; aspect-ratio: 1; background: #f3f4f6; overflow: hidden; }
+.card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.card-body { padding: 10px 12px 12px; }
+.card-judul { font-size: 12px; font-weight: 700; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-desc { font-size: 10px; color: #aaa; margin-top: 2px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-price { font-size: 12px; color: #e07b2a; font-weight: 600; margin-top: 4px; }
+
+.qty-card {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.qty-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  background: white;
+  transition: background 0.2s;
+}
+
+.qty-btn.plus { border: 1.5px solid #facc15; color: #facc15; }
+.qty-btn.plus:hover { background: #fef3c7; }
+.qty-btn.minus { border: 1.5px solid #cbd5e1; color: #64748b; }
+.qty-btn.minus:hover { background: #f1f5f9; }
+.qty-tambah { font-size: 11px; color: #facc15; font-weight: 600; }
+
+/* ==================== CART SIDEBAR ==================== */
+.cart-sidebar {
+  width: 30%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.cart-header {
+  background: #fbbf24;
+  color: white;
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cart-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+
+/*
+  PERUBAHAN: .clear-btn sebelumnya <label>.
+  Sekarang <button>. Style dipertahankan.
+*/
+.clear-btn {
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.clear-btn:hover { background: #dc2626; }
+
+.cart-content { flex: 1; overflow-y: auto; padding: 16px; }
+.cart-content::-webkit-scrollbar { width: 4px; }
+.cart-content::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+
+.cart-section-label { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 10px; }
+
+.customer-section { margin-bottom: 20px; }
+
+.customer-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #eee;
+  border-radius: 10px;
+  background: #fafafa;
+  font-size: 12px;
+  color: #555;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.customer-input:focus { border-color: #fbbf24; }
+.customer-input::placeholder { color: #ccc; }
+
+.order-details { display: flex; flex-direction: column; gap: 18px; }
+
+.item-card-mini { display: flex; gap: 12px; align-items: flex-start; }
+.mini-img { width: 58px; height: 58px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+.mini-info { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.mini-header { display: flex; justify-content: space-between; align-items: center; }
+.mini-name { font-size: 13px; font-weight: 700; color: #222; }
+
+.delete-item {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mini-desc { font-size: 10px; color: #aaa; }
+
+.badge-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #fef9c3;
+  color: #854d0e;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+  margin: 4px 0;
+}
+
+.mini-price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+.mini-price { font-size: 12px; color: #e07b2a; font-weight: 600; }
+.mini-qty { display: flex; align-items: center; gap: 6px; }
+.qty-val { font-size: 13px; font-weight: 600; min-width: 16px; text-align: center; color: #222; }
+
+/* ==================== SUMMARY ==================== */
+.summary-section { padding: 14px 16px; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+.summary-label { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 10px; }
+
+.summary-card { background: #f8fafc; border-radius: 12px; padding: 12px 14px; }
+
+.summary-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.summary-row:last-child { margin-bottom: 0; }
+.summary-row .label { color: #94a3b8; font-size: 13px; font-weight: 500; }
+.summary-row .value { color: #222; font-size: 13px; font-weight: 700; }
+.summary-row.total .total-label { color: #222; font-size: 14px; font-weight: 700; }
+.summary-row.total .total-value { color: #222; font-size: 15px; font-weight: 800; }
+
+.garis { border-top: 1.5px dashed #e2e8f0; margin: 10px 0; }
+
+/* ==================== CART FOOTER ==================== */
+.cart-footer { padding: 14px 16px; border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+
+/*
+  PERUBAHAN: .order-btn sebelumnya <label>.
+  Sekarang <button>. Style dipertahankan, hapus display: flex !important yang
+  dulu dibutuhkan karena label tidak flex secara default.
+*/
+.order-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 14px rgba(251,191,36,0.45);
+  transition: all 0.2s;
+}
+
+.order-btn:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 6px 20px rgba(251,191,36,0.55);
+  transform: translateY(-1px);
+}
+
+/* ==================== POPUP SYSTEM ==================== */
+/*
+  PERUBAHAN BESAR: Seluruh sistem radio button hack dihapus.
+  
+  SEBELUMNYA:
+    .popup-toggle { display: none }
+    .filter-radio { display: none }
+    #toggle-payment:checked ~ .popup-overlay { display: block }
+    #toggle-payment:checked ~ #popup-payment { display: block }
+    ... (13 blok selector panjang)
+  
+  SEKARANG:
+    - Overlay dikontrol via class .is-open
+    - Popup dikontrol via class .is-open
+    - Animasi fade in/out via opacity + visibility + transform
+*/
+
+.popup-overlay {
+  display: none;         /* Default: tersembunyi */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+}
+
+/* Overlay muncul saat JS menambahkan class .is-open */
+.popup-overlay.is-open {
+  display: block;
+}
+
+/*
+  Semua popup: default tersembunyi (opacity 0, tidak interaktif).
+  Animasi fade menggunakan opacity + visibility + scale kecil.
+  Saat JS tambahkan .is-open → fade in muncul.
+*/
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.97);
+  width: 380px;
+  background: #fff;
+  border-radius: 20px;
+  z-index: 300;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+
+  /* State default: tersembunyi */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+}
+
+/*
+  BARU: Popup muncul saat JS tambahkan class .is-open.
+  Scale kembali ke 1 bersamaan dengan fade in.
+*/
+.popup.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+}
+
+.popup-header-yellow {
+  background: #fbbf24;
+  border-bottom: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/*
+  PERUBAHAN: .popup-close sebelumnya <label>.
+  Sekarang <button data-close>. Style dipertahankan.
+*/
+.popup-close {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: none;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.popup-close:hover { background: #e5e7eb; }
+.popup-close-white { background: rgba(255,255,255,0.25); }
+.popup-close-white:hover { background: rgba(255,255,255,0.4); }
+
+.popup-close-float {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #f3f4f6;
+  z-index: 1;
+}
+
+.popup-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.popup-total-label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: -8px; }
+.popup-total-amount { font-size: 30px; font-weight: 800; color: #e07b2a; margin-bottom: 4px; }
+
+/*
+  PERUBAHAN: .popup-btn sebelumnya <label>.
+  Sekarang <button>. Hapus text-decoration: none (tidak relevan untuk button).
+*/
+.popup-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: #fbbf24;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+
+.popup-btn:hover { background: #f59e0b; }
+.popup-btn-danger { background: #ef4444; }
+.popup-btn-danger:hover { background: #dc2626; }
+.popup-btn-green { background: #22c55e; }
+.popup-btn-green:hover { background: #16a34a; }
+
+/* ==================== PAYMENT OPTIONS ==================== */
+/*
+  PERUBAHAN: .payment-option sebelumnya <label>.
+  Sekarang <button>. Reset button defaults.
+*/
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #fff;
+  width: 100%;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.payment-option:hover { border-color: #fbbf24; background: #fffbeb; }
+.payment-option-icon { width: 44px; height: 44px; background: #fef3c7; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.payment-option-text { flex: 1; font-size: 15px; font-weight: 600; color: #222; }
+.payment-option-arrow { display: flex; align-items: center; }
+
+/* ==================== KONFIRMASI QRIS ==================== */
+.popup-confirm { text-align: center; }
+.popup-body-confirm { align-items: center; padding-top: 40px; }
+.confirm-title { font-size: 18px; font-weight: 800; color: #222; line-height: 1.3; }
+.confirm-desc { font-size: 12px; color: #aaa; text-align: center; line-height: 1.6; }
+
+/* ==================== QR CODE ==================== */
+.qris-logo { display: flex; justify-content: center; margin: 4px 0; }
+.qr-code-box { display: flex; justify-content: center; background: #fff; border-radius: 12px; padding: 10px; border: 1px solid #f0f0f0; }
+.qr-img { width: 180px; height: 180px; display: block; }
+.qris-waiting { font-size: 12px; color: #aaa; text-align: center; }
+
+/* ==================== TUNAI ==================== */
+.tunai-label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: -8px; }
+.tunai-input { width: 100%; padding: 13px 16px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 15px; font-weight: 600; color: #333; text-align: center; background: #fff; outline: none; }
+
+.tunai-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/*
+  PERUBAHAN: .preset-btn sebelumnya <label>.
+  Sekarang <button>. Reset button defaults.
+*/
+.preset-btn { padding: 12px; border-radius: 12px; border: 1.5px solid #e5e7eb; background: #f3f4f6; font-size: 13px; font-weight: 600; color: #555; text-align: center; cursor: pointer; transition: all 0.2s; }
+.preset-btn:hover { border-color: #fbbf24; background: #fffbeb; color: #92400e; }
+.preset-active { border-color: #fbbf24; background: #fef9c3; color: #92400e; }
+
+.tunai-kembalian { width: 100%; padding: 13px 16px; border-radius: 12px; background: #fef9c3; font-size: 15px; font-weight: 700; color: #92400e; text-align: center; }
+
+/* ==================== BERHASIL ==================== */
+.success-title { font-size: 20px; font-weight: 800; color: #222; text-align: center; margin-top: 16px; }
+.success-icon { width: 80px; height: 80px; border: 3px solid #22c55e; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+
+.struk-divider { border-top: 1px solid #e5e7eb; margin: 2px 0; }
+.struk-rows { display: flex; flex-direction: column; gap: 8px; }
+.struk-row { display: flex; justify-content: space-between; align-items: center; }
+.struk-label { font-size: 13px; color: #555; }
+.struk-value { font-size: 13px; color: #222; }
+.struk-bold { font-weight: 700; }
+.struk-kembalian { background: #f8fafc; padding: 10px 12px; border-radius: 10px; }
+.struk-printing { font-size: 12px; color: #aaa; text-align: center; }
+
+/* ==================== WARNING POPUP ==================== */
+.popup-warning { width: 380px; border-radius: 20px; overflow: hidden; }
+.popup-body-warning { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 28px 28px 24px; }
+.warning-icon-wrap { width: 68px; height: 68px; background: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+.warning-title { font-size: 17px; font-weight: 800; color: #111; line-height: 1.4; }
+.warning-desc { font-size: 12px; color: #aaa; line-height: 1.6; }
+.warning-actions { display: flex; gap: 10px; width: 100%; margin-top: 6px; }
+
+/*
+  PERUBAHAN: .btn-batal-warning dan .btn-confirm-warning sebelumnya <label>.
+  Sekarang <button>. Reset defaults.
+*/
+.btn-batal-warning { flex: 1; padding: 13px; background: #fee2e2; color: #ef4444; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; transition: background 0.2s; }
+.btn-batal-warning:hover { background: #fecaca; }
+.btn-confirm-warning { flex: 2; padding: 13px; background: #ef4444; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; transition: background 0.2s; }
+.btn-confirm-warning:hover { background: #dc2626; }
+
+/* ==================== ALASAN BATALKAN ==================== */
+.alasan-intro { font-size: 13px; color: #333; line-height: 1.6; }
+.alasan-list { display: flex; flex-direction: column; border: 1.5px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+.alasan-option { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+.alasan-option:last-of-type { border-bottom: none; }
+.alasan-option:hover { background: #fffbeb; }
+.alasan-option input[type="radio"] { accent-color: #fbbf24; width: 16px; height: 16px; flex-shrink: 0; }
+.alasan-text { font-size: 13px; color: #333; }
+.alasan-input { width: 100%; padding: 11px 14px; border: none; border-top: 1px solid #f0f0f0; font-size: 12px; color: #555; outline: none; background: #fafafa; }
+.alasan-input::placeholder { color: #ccc; }
+.alasan-note { font-size: 12px; color: #aaa; }
+
+.btn-kembali { display: block; width: 100%; padding: 13px; background: #f3f4f6; border: none; border-radius: 12px; color: #555; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; margin-top: -6px; transition: background 0.2s; }
+.btn-kembali:hover { background: #e5e7eb; }
+
+/* ==================== DETAIL ANTRIAN ==================== */
+.detail-antrian-title { font-size: 18px; font-weight: 800; color: #222; text-align: center; }
+.detail-antrian-meta { font-size: 12px; color: #888; text-align: center; margin-top: -8px; }
+
+.detail-item-list { border: 1.5px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fffbeb; }
+.detail-item { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.detail-item-name { font-size: 13px; font-weight: 700; color: #222; }
+.detail-item-note { display: inline-flex; align-items: center; gap: 5px; background: #fef9c3; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; width: fit-content; }
+.detail-item-divider { border-top: 1px solid #e5e7eb; }
+
+/* ==================== DETAIL MENU POPUP ==================== */
+.popup-menu-detail { width: 680px; max-width: 95vw; }
+.menu-detail-inner { display: flex; }
+.menu-detail-img-wrap { width: 260px; padding: 16px; flex-shrink: 0; }
+.menu-detail-img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 300px; border-radius: 12px; }
+.menu-detail-info { flex: 1; padding: 24px 20px 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; max-height: 380px; }
+.menu-detail-info::-webkit-scrollbar { width: 4px; }
+.menu-detail-info::-webkit-scrollbar-thumb { background: #eee; border-radius: 4px; }
+.menu-detail-name { font-size: 20px; font-weight: 800; color: #222; margin-top: 8px; }
+.menu-detail-price { font-size: 18px; font-weight: 700; color: #e07b2a; margin-top: -6px; }
+.menu-detail-desc { font-size: 12px; color: #888; line-height: 1.6; margin-top: -4px; }
+.menu-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid #f0f0f0; }
+.menu-detail-label { font-size: 13px; font-weight: 700; color: #222; }
+.menu-detail-qty { display: flex; align-items: center; gap: 10px; }
+.menu-detail-section { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #f0f0f0; padding-top: 10px; }
+.menu-detail-wajib { font-size: 11px; color: #e07b2a; font-weight: 600; margin-top: -6px; }
+
+.level-list { display: flex; flex-direction: column; border: 1.5px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+.level-option { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; font-size: 13px; color: #444; transition: background 0.15s; }
+.level-option:last-child { border-bottom: none; }
+.level-option:hover { background: #fffbeb; }
+.level-check { width: 16px; height: 16px; accent-color: #fbbf24; flex-shrink: 0; }
+
+.menu-detail-catatan { padding: 14px 20px 0; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #f0f0f0; }
+.catatan-input { width: 100%; padding: 11px 14px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 12px; color: #555; outline: none; transition: border-color 0.2s; }
+.catatan-input:focus { border-color: #fbbf24; }
+.catatan-input::placeholder { color: #ccc; }
+.menu-detail-footer { padding: 14px 20px 16px; }
+
+/* ==================== ANTRIAN FULL POPUP ==================== */
+/*
+  PERUBAHAN: popup-antrian-full sebelumnya display: none di default,
+  muncul via #toggle-antrian-full:checked ~ ... { display: flex !important }.
+  Sekarang muncul via .is-open seperti popup lainnya.
+  Override khusus: saat .is-open, gunakan flex bukan block.
+*/
+.popup-antrian-full {
+  width: 780px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: none;         /* hidden default */
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Override: antrian full butuh display:flex bukan block */
+.popup-antrian-full.is-open {
+  display: flex !important;
+}
+
+.antrian-full-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px 16px; flex-shrink: 0; }
+.antrian-full-title { font-size: 22px; font-weight: 800; color: #111; }
+
+/*
+  PERUBAHAN: .antrian-close sebelumnya <label>.
+  Sekarang <button data-close>. Reset button defaults.
+*/
+.antrian-close { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent; transition: background 0.2s; }
+.antrian-close:hover { background: #f3f4f6; }
+
+.antrian-tabs { display: flex; gap: 10px; padding: 0 24px 16px; flex-shrink: 0; }
+
+/*
+  PERUBAHAN: .antrian-tab sebelumnya <label for="fa-xxx">.
+  Sekarang <button data-filter="xxx">.
+  Class .antrian-tab-active dikontrol JS.
+*/
+.antrian-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.antrian-tab:hover { border-color: #fbbf24; color: #92400e; }
+
+.antrian-tab.antrian-tab-active {
+  background: #fbbf24;
+  border-color: #fbbf24;
+  color: #fff;
+}
+
+.antrian-tab.antrian-tab-active .tab-badge {
+  background: #fff;
+  color: #92400e;
+  border: none;
+}
+
+.tab-badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 30px; }
+.tab-badge-yellow { background: #fff; color: #92400e; }
+.tab-badge-outline { background: transparent; border: 1.5px solid currentColor; color: inherit; }
+
+.antrian-full-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 24px 24px; overflow-y: auto; }
+.antrian-full-grid::-webkit-scrollbar { width: 5px; }
+.antrian-full-grid::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+/*
+  PERUBAHAN: .antrian-card sebelumnya <label>.
+  Sekarang <div data-open="...">. Tambah cursor: pointer.
+*/
+.antrian-card {
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.antrian-card:hover { filter: brightness(0.96); transform: translateY(-1px); }
+
+.antrian-green { background: #dcfce7; }
+.antrian-yellow { background: #fef9c3; }
+.antrian-red { background: #fee2e2; }
+
+/*
+  BARU: Class untuk menyembunyikan card antrian yang tidak cocok filter.
+  Sebelumnya dikontrol CSS sibling selector radio.
+*/
+.antrian-card--hidden { display: none !important; }
+
+.antrian-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.antrian-table { font-size: 15px; font-weight: 800; color: #111; }
+.antrian-time { font-size: 11px; color: #777; }
+.antrian-order-id { font-size: 12px; color: #666; margin-top: -4px; }
+
+/* ==================== NOTIF PANEL ==================== */
+/*
+  PERUBAHAN: .notif-panel sebelumnya dikontrol via
+  #toggle-notif:checked ~ #popup-notif-panel { display: flex }.
+  Sekarang dikontrol JS via class .is-open.
+*/
+.notif-panel {
+  display: none;         /* default tersembunyi */
+  position: fixed;
+  top: 76px;
+  right: 24px;
+  width: 430px;
+  max-width: calc(100vw - 24px);
+  background: #f4f4f4;
+  border: 1px solid #cfcfcf;
+  border-radius: 0 0 18px 18px;
+  z-index: 350;
+  overflow: hidden;
+  box-shadow: 0 16px 38px rgba(0,0,0,0.18);
+}
+
+/* Notif panel muncul saat JS tambahkan .is-open */
+.notif-panel.is-open {
+  display: block;
+}
+
+.notif-panel-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; border-bottom: 1px solid #d9d9d9; }
+.notif-panel-header h3 { font-size: 18px; font-weight: 700; color: #222; }
+
+/*
+  PERUBAHAN: .notif-read-link sebelumnya <label>.
+  Sekarang <button data-close>. Reset button defaults.
+*/
+.notif-read-link { font-size: 12px; font-weight: 600; color: #e1a900; cursor: pointer; background: none; border: none; }
+
+.notif-panel-list { max-height: 510px; overflow-y: auto; background: #f6f6f6; }
+.notif-panel-list::-webkit-scrollbar { width: 4px; }
+.notif-panel-list::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 10px; }
+
+/*
+  PERUBAHAN: .notif-panel-item sebelumnya <label>.
+  Sekarang <div data-close>. Tambah cursor: pointer.
+*/
+.notif-panel-item { display: flex; gap: 14px; padding: 18px 20px; background: #f7f7f7; border-bottom: 1px solid #d9d9d9; cursor: pointer; }
+.notif-panel-item:hover { background: #fdf8e7; }
+.notif-panel-icon-wrap { width: 54px; display: flex; justify-content: center; flex-shrink: 0; padding-top: 2px; }
+.notif-panel-content { display: flex; flex-direction: column; gap: 2px; }
+.notif-panel-title { font-size: 18px; font-weight: 700; color: #222; line-height: 1.2; }
+.notif-panel-desc, .notif-panel-order { font-size: 14px; font-weight: 600; color: #666; line-height: 1.35; }
+.notif-panel-time { position: relative; font-size: 13px; color: #808080; margin-top: 4px; padding-left: 18px; }
+.notif-panel-time::before { content: ""; position: absolute; left: 0; top: 50%; width: 12px; height: 12px; border: 1.6px solid #8d8d8d; border-radius: 50%; transform: translateY(-50%); }
+.notif-panel-time::after { content: ""; position: absolute; left: 6px; top: calc(50% - 3px); width: 1.6px; height: 4px; background: #8d8d8d; transform: translateX(-50%); }
+
+/*
+  PERUBAHAN: .notif-panel-footer sebelumnya <label>.
+  Sekarang <button data-close>. Reset button defaults, width 100%.
+*/
+.notif-panel-footer { display: block; width: 100%; padding: 16px 20px; text-align: center; background: #fff; font-size: 16px; font-weight: 700; color: #222; cursor: pointer; border: none; }
+.notif-panel-footer:hover { background: #fafafa; }
+
+/* ==================== PROFIL POPUP ==================== */
+.popup-profil { width: 620px; max-width: calc(100vw - 32px); border: 2px solid #d8a500; border-radius: 24px; }
+.popup-body-profil { background: #f3f4f6; padding: 22px 18px 18px; gap: 14px; }
+.profil-top { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.profil-avatar img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.profil-name { font-size: 22px; font-weight: 600; color: #222; line-height: 1.2; }
+.profil-role { font-size: 13px; color: #7b8491; }
+.profil-field-wrap { display: flex; flex-direction: column; gap: 8px; }
+.profil-label { font-size: 14px; font-weight: 600; color: #444; padding-left: 12px; }
+.profil-field { min-height: 40px; padding: 12px 14px; border: 1.5px solid #b8bcc4; border-radius: 10px; background: #fff; font-size: 14px; color: #2f3136; display: flex; align-items: center; }
+.profil-actions { display: flex; justify-content: flex-end; margin-top: 4px; }
+.profil-btn-close { width: 188px; margin-top: 0; border-radius: 12px; }
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .main-header { padding: 0 16px; height: 62px; }
+  .cart-sidebar { width: 320px; min-width: 320px; }
+  .search-container { width: 36%; }
+  .search-bar { font-size: 12px; }
+  .user-info { display: none; }
+  .user-card { padding: 6px 8px; }
+  .menu-grid { grid-template-columns: repeat(3, 1fr); }
+  .popup { width: 88vw; max-width: 460px; border-radius: 18px; }
+  .popup-warning { width: 88vw; max-width: 420px; }
+  .popup-menu-detail { width: 86vw; max-width: 640px; }
+  .popup-antrian-full { width: 86vw; max-width: 680px; max-height: 85vh; }
+  .antrian-full-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 20px 20px; }
+  .kategori-menu-btn { overflow-x: auto; scrollbar-width: none; }
+  .kategori-menu-btn::-webkit-scrollbar { display: none; }
+  .menu-tab { flex-shrink: 0; }
+}
+
+@media (max-width: 820px) {
+  .main-header { padding: 0 12px; height: 58px; }
+  .search-container { width: 30%; }
+  .sidebar { width: 54px; }
+  .content-area { padding: 10px; gap: 10px; }
+  .menu-grid { grid-template-columns: repeat(2, 1fr); }
+  .cart-sidebar { width: 280px; min-width: 280px; }
+  .popup { width: 92vw; max-width: 400px; }
+  .popup-menu-detail { width: 94vw; max-width: 420px; max-height: 88vh; overflow-y: auto; }
+  .menu-detail-inner { flex-direction: column; }
+  .menu-detail-img-wrap { width: 100%; height: 180px; }
+  .menu-detail-img { min-height: 180px; }
+  .menu-detail-info { max-height: none; overflow-y: visible; padding: 16px; gap: 10px; }
+  .popup-antrian-full { width: 94vw; max-height: 88vh; }
+  .antrian-full-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px 18px; }
+  .antrian-tabs { flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; }
+  .kategori-mood { overflow-x: auto; scrollbar-width: none; }
+  .kategori-mood::-webkit-scrollbar { display: none; }
+  .notif-panel { top: 68px; right: 12px; width: calc(100vw - 24px); }
+}
