@@ -23,6 +23,7 @@ class RoleMiddleware
             'super_admin' => 1,
             'kasir'       => 2,
             'pelanggan'   => 3,
+            'koki'   => 4,
         ];
 
         // Cek apakah role user sesuai dengan role yang diizinkan untuk buka halaman tersebut
