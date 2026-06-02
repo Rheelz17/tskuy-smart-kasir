@@ -1,66 +1,99 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
-
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Warkop Tskuy — Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Pastikan nama file CSS lu udah bener -->
+    <link rel="stylesheet" href="{{ asset('css/style-login&regist.css') }}" />
+  </head>
+  <body>
+    <section class="page page-register" id="page-register">
+      <div class="auth-layout auth-layout-register">
+        <div class="auth-illus-col">
+          <div class="illus-bg">
+            <div class="illus-pattern"></div>
+          </div>
         </div>
 
-        <!-- Username -->
-        <div class="mt-4">
-            <x-input-label for="username" :value="__('Username')" />
-            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('username')" class="mt-2" />
+        <div class="auth-form-col auth-form-col-register">
+          <div class="auth-card auth-card-register">
+            <div class="brand">
+              <div class="brand-logo">
+                <img src="{{ asset('image/logo_warkop.png') }}" alt="Tskuy Kasir Logo" class="logo-login-img" />
+              </div>
+              <div class="brand-text">
+                <span class="brand-sub">Warkop</span>
+                <span class="brand-name">Tskuy</span>
+              </div>
+            </div>
+
+            <p class="auth-greeting">Selamat Bergabung</p>
+            <h1 class="auth-title">Buat akun</h1>
+
+            <!-- Tampilkan Error Validasi -->
+            @if ($errors->any())
+                <div style="color: #ef4444; font-size: 12px; margin-bottom: 10px;">
+                    Pastikan semua data diisi dengan benar dan username/email belum terdaftar.
+                </div>
+            @endif
+
+            <!-- FORM REGISTRASI DIMULAI DI SINI -->
+            <form method="POST" action="{{ route('register') }}">
+              @csrf
+              <div class="register-grid">
+                
+                <div class="form-group">
+                  <label class="form-label">Nama lengkap <span class="required">*</span></label>
+                  <input type="text" name="name" class="form-input" placeholder="Masukkan Nama Lengkap" value="{{ old('name') }}" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Nama pengguna <span class="required">*</span></label>
+                  <input type="text" name="username" class="form-input" placeholder="Masukkan nama pengguna" value="{{ old('username') }}" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Alamat Email <span class="required">*</span></label>
+                  <input type="email" name="email" class="form-input" placeholder="Masukkan email" value="{{ old('email') }}" required />
+                  <span class="form-hint">Gunakan email aktif anda</span>
+                </div>
+
+                <!-- TAMBAHAN: Kolom Nomor HP/WhatsApp -->
+                <div class="form-group">
+                  <label class="form-label">Nomor WhatsApp / HP</label>
+                  <input type="text" name="phone" class="form-input" placeholder="Opsional (08xxx)" value="{{ old('phone') }}" />
+                  <span class="form-hint">Untuk info pesanan</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Kata Sandi <span class="required">*</span></label>
+                  <div class="input-icon-wrap">
+                    <input type="password" name="password" class="form-input" placeholder="Buat kata sandi" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Masukkan Ulang Kata Sandi <span class="required">*</span></label>
+                  <div class="input-icon-wrap">
+                    <input type="password" name="password_confirmation" class="form-input" placeholder="Konfirmasi kata sandi" required />
+                  </div>
+                  <span class="form-hint">Ulangi kata sandi yang telah anda masukkan</span>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-primary" style="margin-top: 24px;">Registrasi</button>
+            </form>
+
+            <p class="auth-footer-text" style="margin-top: 16px;">
+              Sudah punya akun?
+              <a href="{{ route('login') }}" class="auth-link">Masuk</a>
+            </p>
+          </div>
         </div>
-
-        <!-- Phone Number -->
-        <div>
-            <x-input-label for="phone" :value="__('Phone Number')" />
-            <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full" :value="old('phone')" autocomplete="tel" />
-            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
-        </div>
-
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+      </div>
+    </section>
+  </body>
+</html>
