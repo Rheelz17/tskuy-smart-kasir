@@ -9,9 +9,15 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        // Membuat role sesuai urutan ID
-        Role::create(['name' => 'super_admin']); // ID: 1
-        Role::create(['name' => 'kasir']);       // ID: 2
-        Role::create(['name' => 'pelanggan']);   // ID: 3
+        $roles = [
+            ['id' => 1, 'name' => 'super_admin'],
+            ['id' => 2, 'name' => 'kasir'],
+            ['id' => 3, 'name' => 'pelanggan'],
+            ['id' => 4, 'name' => 'koki'],
+        ];
+
+        foreach ($roles as $role) {
+            Role::updateOrCreate(['id' => $role['id']], $role);
+        }
     }
 }

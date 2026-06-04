@@ -6,7 +6,7 @@
 @section('header_subtitle', 'Melihat dan mengelola laporan transaksi warkop.')
 
 @section('content')
-
+<!-- Title mobile -->
 <div class="page-title-section">
     <h1 class="page-title">Detail Penjualan</h1>
     <p class="page-subtitle">Melihat dan mengelola laporan transaksi warkop.</p>
@@ -65,7 +65,6 @@
     </div>
 
     <!-- Tabel desktop -->
-
     <x-tabel-penjualan />
 </main>
 @endsection

@@ -38,7 +38,6 @@
             Tambah Menu
         </button>
     </div>
-
     
     <!-- Action bar desktop (search + filter + export) -->
     <div class="action-bar">
@@ -60,14 +59,7 @@
         </div>
     </div>
 
-    <!--
-    CARD LIST — mobile only
-    data-jabatan di setiap card → karyawan.js filter saat tab diklik
-    class btn-hapus-karyawan + data-nama → karyawan.js isi popup hapus
-    class btn-edit-karyawan → karyawan.js buka popup edit (nanti)
-    -->
     <div class="karyawan-card-list">
-
         <div class="karyawan-card" data-jabatan="kasir">
             <img src="https://i.pravatar.cc/150?img=5" alt="Fahri" class="karyawan-thumb">
             <div class="karyawan-card-info">

@@ -1,116 +1,116 @@
     <div class="card-grid">
-    <div class="trx-card-grid">
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-010</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 14:20</p>
-        <p class="trx-card-items">2x Extra Joss Susu, 1x Es Kopi ABC</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 35.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
+        <div class="trx-card-grid">
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-010</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 14:20</p>
+            <p class="trx-card-items">2x Extra Joss Susu, 1x Es Kopi ABC</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 35.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-009</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 14:10</p>
+            <p class="trx-card-items">2x Kopi Susu, 1x Indomie Bangladesh</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 35.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-008</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 14:00</p>
+            <p class="trx-card-items">1x Pancong Coklat, 1x Nasi Goreng, 1x Indomie</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 38.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-007</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 13:21</p>
+            <p class="trx-card-items">2x Nasi Goreng, 2x Mix Platter, 1x Ovomaltine</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 67.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-006</span><span class="status-badge failed">Gagal</span></div>
+            <p class="trx-card-date">2 Apr 2026, 12:20</p>
+            <p class="trx-card-items">2x Extra Joss Susu, 2x Indomie Bangladesh</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 45.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-005</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 12:10</p>
+            <p class="trx-card-items">1x Mie Bangladesh, 1x Pancong Keju</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 23.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-004</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 10:20</p>
+            <p class="trx-card-items">1x Es Kopi ABC, 1x Indomie Bangladesh</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 27.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-003</span><span class="status-badge pending">Pending</span></div>
+            <p class="trx-card-date">2 Apr 2026, 10:02</p>
+            <p class="trx-card-items">2x Pancong Coklat, 1x Indomie Bangladesh</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 35.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-002</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 09:30</p>
+            <p class="trx-card-items">1x Americano, 1x Pisang Goreng</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 23.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
+            <div class="trx-card">
+            <div class="trx-card-top"><span class="trx-card-id">#TRX-001</span><span class="status-badge success">Sukses</span></div>
+            <p class="trx-card-date">2 Apr 2026, 09:05</p>
+            <p class="trx-card-items">3x Teh Tarik, 2x Risoles Mayo</p>
+            <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 40.000</span></div>
+            <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Lihat Detail</button>
+            </div>
         </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-009</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 14:10</p>
-        <p class="trx-card-items">2x Kopi Susu, 1x Indomie Bangladesh</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 35.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-008</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 14:00</p>
-        <p class="trx-card-items">1x Pancong Coklat, 1x Nasi Goreng, 1x Indomie</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 38.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-007</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 13:21</p>
-        <p class="trx-card-items">2x Nasi Goreng, 2x Mix Platter, 1x Ovomaltine</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 67.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-006</span><span class="status-badge failed">Gagal</span></div>
-        <p class="trx-card-date">2 Apr 2026, 12:20</p>
-        <p class="trx-card-items">2x Extra Joss Susu, 2x Indomie Bangladesh</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 45.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-005</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 12:10</p>
-        <p class="trx-card-items">1x Mie Bangladesh, 1x Pancong Keju</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 23.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-004</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 10:20</p>
-        <p class="trx-card-items">1x Es Kopi ABC, 1x Indomie Bangladesh</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 27.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-003</span><span class="status-badge pending">Pending</span></div>
-        <p class="trx-card-date">2 Apr 2026, 10:02</p>
-        <p class="trx-card-items">2x Pancong Coklat, 1x Indomie Bangladesh</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 35.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-002</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 09:30</p>
-        <p class="trx-card-items">1x Americano, 1x Pisang Goreng</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">QRIS</span><span class="trx-card-amount">Rp. 23.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-        <div class="trx-card">
-        <div class="trx-card-top"><span class="trx-card-id">#TRX-001</span><span class="status-badge success">Sukses</span></div>
-        <p class="trx-card-date">2 Apr 2026, 09:05</p>
-        <p class="trx-card-items">3x Teh Tarik, 2x Risoles Mayo</p>
-        <div class="trx-card-footer"><span class="trx-card-payment">Tunai</span><span class="trx-card-amount">Rp. 40.000</span></div>
-        <button class="trx-card-detail-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12.5 10C12.5 11.3807 11.3807 12.5 9.99998 12.5C8.61931 12.5 7.5 11.3807 7.5 10C7.5 8.61925 8.61931 7.5 9.99998 7.5C11.3807 7.5 12.5 8.61925 12.5 10Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M10.0026 4.16675C6.27125 4.16675 3.11268 6.61915 2.05078 10.0001C3.11266 13.381 6.27125 15.8334 10.0026 15.8334C13.734 15.8334 16.8925 13.381 17.9545 10.0001C16.8925 6.61917 13.734 4.16675 10.0026 4.16675Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Lihat Detail</button>
-        </div>
-    </div>
     </div>
 
 
