@@ -31,5 +31,16 @@ class UserSeeder extends Seeder
             'role_id'     => 2, // Terhubung ke kasir
             'is_active'   => true,
         ]);
+
+        User::create([
+            'employee_id' => 'CUST-001',
+            'name'        => 'Ica Apriyanti Rahayu',
+            'username'    => 'icaeeee',
+            'email'       => 'ica@tskuy.com',
+            'phone'       => '08298763453',
+            'password'    => Hash::make('password123'),
+            'role_id'     => 3, // Terhubung ke kasir
+            'is_active'   => true,
+        ]);
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,10 +10,12 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-{
-    $this->call([
-        RoleSeeder::class,
-        UserSeeder::class,
-    ]);
-}
+    {
+        // Panggil semua seeder di sini sesuai urutan yang bener
+        $this->call([
+            RoleSeeder::class,
+            UserSeeder::class,
+            MenuSeeder::class,
+        ]);
+    }
 }
