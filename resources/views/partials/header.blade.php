@@ -4,7 +4,7 @@
             <img src="{{ asset('image/logo_warkop.png') }}" alt="Tskuy Kasir Logo" class="logo-img">
         </div>
 
-        @if(Request::is('kasir/pos'))
+        @if(Request::is('kasir/pos', 'pelanggan/orders')) {{-- ini buat di pelanggan juga ada fitur search --}}
         <div class="search-container">
             <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="11" cy="11" r="7" stroke="#fbbf24" stroke-width="2" />

@@ -1,11 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\koki\KokiController; // Jalur subfolder koki yang benar
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\KaryawanController;
-use App\Http\Controllers\KokiController;
+use App\Http\Controllers\pelanggan\MenuController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth; // <-- Tambahan wajib untuk ngecek sesi login
+use Illuminate\Support\Facades\Auth;
 
 // ==========================================
 // RUTE UTAMA (SPLASH SCREEN / REDIRECT)
@@ -20,13 +21,14 @@ Route::get('/', function () {
         } elseif ($roleId == 2) {
             return redirect('/kasir/pos');
         } elseif ($roleId == 3) {
-            return redirect('/koki');
+            return redirect('/pelanggan/orders'); // Role 3 masuk Pelanggan
+        } elseif ($roleId == 4) {
+            return redirect('/koki');             // Role 4 masuk Koki
         } else {
-            return redirect('/pelanggan/orders');
+            return redirect('/');
         }
     }
 
-    // Kalau belum login, tampilkan Splash Screen
     return view('splash');
 });
 
@@ -39,9 +41,11 @@ Route::get('/dashboard', function () {
     } elseif ($roleId == 2) {
         return redirect('/kasir/pos');
     } elseif ($roleId == 3) {
-        return redirect('/koki');
+        return redirect('/pelanggan/orders'); // Role 3 masuk Pelanggan
+    } elseif ($roleId == 4) {
+        return redirect('/koki');             // Role 4 masuk Koki
     } else {
-        return redirect('/pelanggan/orders');
+        return redirect('/');
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -75,12 +79,12 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
 // AREA KASIR
 // ==========================================
 Route::middleware(['auth', 'role:kasir'])->group(function () {
-// 1. Rute Halaman Utama POS Kasir (Ditambahkan Name)
+    // 1. Rute Halaman Utama POS Kasir
     Route::get('/kasir/pos', function () {
         return view('kasir.pos');
     })->name('kasir.pos');
 
-    // 2. Rute Baru Halaman Manajemen Menu (Sesuai Struktur Folder Baru)
+    // 2. Rute Baru Halaman Manajemen Menu
     Route::get('/kasir/manajemen-menu', function () {
         return view('kasir.manajemenMenu');
     })->name('kasir.manajemen-menu');
@@ -94,20 +98,10 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
 // ==========================================
 // AREA PELANGGAN
 // ==========================================
-use App\Http\Controllers\pelanggan\MenuController;
-
 // Rute buat di-scan di QR Code Meja (contoh: tskuy.com/table/4)
 Route::get('/table/{number}', [MenuController::class, 'initializeTable'])->name('table.init');
 
-// Timpa rute order lu yang lama jadi memanggil MenuController
-Route::middleware(['auth', 'role:pelanggan'])->group(function () {
-    // Hapus rute Closure yang lama, ganti pakai ini
-    Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
-});
-
-// PENTING: Karena pelanggan belum login harus bisa liat menu, 
-// pindahkan rute pelanggan.orders KELUAR dari middleware auth!
-// Jadinya taruh rute ini di luar/bebas:
+// Karena pelanggan belum login harus bisa liat menu, taruh rute ini di luar/bebas middleware:
 Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
 
 // ==========================================
@@ -132,5 +126,4 @@ Route::middleware(['auth', 'role:koki'])->prefix('koki')->name('koki.')->group(f
 
     // POST /koki/{id}/batalkan  → batalkan pesanan (AJAX, hanya saat 'menunggu')
     Route::post('/{id}/batalkan',    [KokiController::class, 'batalkan'])  ->name('batalkan');
-
 });

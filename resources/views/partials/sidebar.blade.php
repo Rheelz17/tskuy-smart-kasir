@@ -1,45 +1,13 @@
 <aside class="sidebar">
     <nav class="side-nav">
         {{-- ==================== MENU KHUSUS ADMIN ==================== --}}
-        @if(auth()->user()->role_id == 1)
+        @if(auth()->check() && auth()->user()->role_id == 1)
             <a class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}" title="Dashboard">
-                <svg width="22" height="22" viewBox="0 0 43 43" fill="none">
-                <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M17.059 18.061H12.181a2.72 2.72 0 00-2.721 2.676V30.866a2.72 2.72 0 002.721 2.675h4.878a2.72 2.72 0 002.721-2.675V20.737a2.72 2.72 0 00-2.721-2.676z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-                <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M17.059 7.741H12.181A2.72 2.72 0 009.46 10.31v1.744a2.72 2.72 0 002.721 2.568h4.878a2.72 2.72 0 002.721-2.568V10.31a2.72 2.72 0 00-2.721-2.568z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-                <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M25.941 23.221h4.876a2.72 2.72 0 002.723-2.676V10.418a2.72 2.72 0 00-2.723-2.677h-4.876a2.72 2.72 0 00-2.721 2.677v10.127a2.72 2.72 0 002.721 2.676z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-                <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M25.941 33.541h4.876a2.72 2.72 0 002.723-2.568v-1.744a2.72 2.72 0 00-2.723-2.568h-4.876a2.72 2.72 0 00-2.721 2.568v1.744a2.72 2.72 0 002.721 2.568z"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
                 </svg>
             </a>
             <a class="nav-item {{ request()->routeIs('admin.penjualan') ? 'active' : '' }}" href="{{ route('admin.penjualan') }}" title="Detail Penjualan">
@@ -78,7 +46,7 @@
                 </svg>
             </a>
             {{-- ==================== MENU KHUSUS KASIR ==================== --}}
-        @else
+        @elseif(auth()->check() && auth()->user()->role_id == 2)
             <a href="{{ route('kasir.pos') }}" class="nav-item {{ request()->routeIs('kasir.pos') ? 'active' : '' }}" title="Dashboard Kasir">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                     <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
@@ -111,17 +79,26 @@
                         fill="currentColor"/>
                 </svg>
             </a>
+        {{-- ==================== MENU KHUSUS KOKI / DAPUR (Role 4) ==================== --}}
+        @elseif(auth()->check() && auth()->user()->role_id == 4)
+            <a href="{{ route('koki.index') }}" class="nav-item {{ request()->routeIs('koki.index') ? 'active' : '' }}" title="Antrian Dapur">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </a>
+        {{-- ==================== MENU KHUSUS PELANGGAN (Atau Guest) ==================== --}}
+        @else
+            <!-- Beranda Menu -->
+            <a href="{{ route('pelanggan.orders') }}" class="nav-item {{ request()->routeIs('pelanggan.orders') ? 'active' : '' }}" title="Pesan Menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" /><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" /><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" /><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" /></svg>
+            </a>
+            <!-- Riwayat Pesanan -->
+            <a href="#" class="nav-item" title="Riwayat Pesanan Kamu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </a>
         @endif
     </nav>
 
     <div class="sidebar-bottom">
-        <a href="#" class="nav-item" title="Pengaturan">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-        </a>
-
+        @auth
         <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
             @csrf
             <button type="submit" class="nav-item logout" title="Keluar" style="width: 100%; display: flex; align-items: center; justify-content: center; padding: 0; background: none; border: none; cursor: pointer; color: inherit;">
@@ -132,5 +109,10 @@
                 </svg>
             </button>
         </form>
+        @else
+        <a href="{{ route('login') }}" class="nav-item" title="Login Dulu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+        </a>
+        @endauth
     </div>
 </aside>
