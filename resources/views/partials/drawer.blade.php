@@ -16,6 +16,7 @@
                 @if(Auth::check())
                     @if(Auth::user()->role_id == 1) Admin
                     @elseif(Auth::user()->role_id == 2) Kasir
+                    @elseif(Auth::user()->role_id == 4) Koki {{-- <-- PERBAIKAN 1: Teks label koki mobile --}}
                     @else Pelanggan
                     @endif
                 @else
@@ -56,6 +57,12 @@
                 Manajemen Menu
             </a>
 
+        {{-- ==================== MENU KHUSUS KOKI / DAPUR ==================== --}}
+        @elseif(auth()->check() && auth()->user()->role_id == 4) {{-- <-- PERBAIKAN 2: Navigasi rute koki mobile --}}
+            <a class="drawer-nav-item {{ request()->routeIs('koki.index') ? 'active' : '' }}" href="{{ route('koki.index') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                Antrian Dapur
+            </a>
         {{-- ==================== MENU KHUSUS PELANGGAN ==================== --}}
         @else
             <a class="drawer-nav-item {{ request()->routeIs('pelanggan.orders') ? 'active' : '' }}" href="{{ route('pelanggan.orders') }}">
