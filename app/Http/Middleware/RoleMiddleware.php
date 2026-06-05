@@ -26,6 +26,11 @@ class RoleMiddleware
             'koki'   => 4,
         ];
 
+        // Cek apakah role yang diminta ada di peta
+        if (!isset($roles[$role])) {
+            abort(403, 'Role tidak dikenali.');
+        }
+
         // Cek apakah role user sesuai dengan role yang diizinkan untuk buka halaman tersebut
         if ($userRole != $roles[$role]) {
             // Kalau ketahuan nyusup, kasih error 403 (Akses Ditolak)
