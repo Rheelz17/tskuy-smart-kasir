@@ -23,12 +23,16 @@ class RoleMiddleware
             'super_admin' => 1,
             'kasir'       => 2,
             'pelanggan'   => 3,
-            'koki'   => 4,
+            'koki'        => 4,   // ← TAMBAHAN: role dapur/koki
         ];
 
-        // Cek apakah role user sesuai dengan role yang diizinkan untuk buka halaman tersebut
+        // Cek apakah role yang diminta ada di peta
+        if (!isset($roles[$role])) {
+            abort(403, 'Role tidak dikenali.');
+        }
+
+        // Cek apakah role user sesuai dengan role yang diizinkan
         if ($userRole != $roles[$role]) {
-            // Kalau ketahuan nyusup, kasih error 403 (Akses Ditolak)
             abort(403, 'Hayo! Lu nggak punya akses ke halaman ini.');
         }
 
