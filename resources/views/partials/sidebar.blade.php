@@ -3,7 +3,7 @@
         {{-- ==================== MENU KHUSUS ADMIN ==================== --}}
         @if(auth()->check() && auth()->user()->role_id == 1)
             <a class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}" title="Dashboard">
-                <svg width="22" height="22" viewBox="0 0 43 43" fill="none">
+                {{-- <svg width="22" height="22" viewBox="0 0 43 43" fill="none">
                 <path
                     fill-rule="evenodd"
                     clip-rule="evenodd"
@@ -40,6 +40,12 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                 />
+                </svg> --}}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+                    <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+                    <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
+                    <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8" />
                 </svg>
             </a>
             <a class="nav-item {{ request()->routeIs('admin.penjualan') ? 'active' : '' }}" href="{{ route('admin.penjualan') }}" title="Detail Penjualan">

@@ -3,15 +3,12 @@
 @section('title', 'Pilih Menu - Warkop Tskuy')
 
 @section('styles')
-<!-- Panggil CSS Kasir POS -->
 <link rel="stylesheet" href="{{ asset('css/style-dashboardKasir.css') }}" />
-<!-- Panggil CSS tambahan buat Pelanggan (Floating mobile cart dll) -->
 <link rel="stylesheet" href="{{ asset('css/pelanggan.css') }}" />
 @endsection
 
 @section('content')
 <main class="content-area">
-    <!-- REKOMENDASI & MOOD -->
     <section class="mood-section">
         <p class="section-label">Rekomendasi & Performa Menu:</p>
         <p class="section-labelmini">Pilih menu berdasarkan mood atau suasana hatimu!</p>
@@ -32,7 +29,6 @@
         </div>
     </section>
 
-    <!-- PILIHAN KATEGORI & GRID MENU -->
     <section class="menu-choice">
         <div class="kategori-menu">
             <p class="section-label">Pilihan Menu:</p>
@@ -51,7 +47,6 @@
             </div>
         </div>
 
-        <!-- GRID MENU KARTU -->
         <div class="menu-grid">
             @if(isset($categories))
                 @foreach($categories as $category)
@@ -81,7 +76,6 @@
     </section>
 </main>
 
-<!-- KERANJANG KANAN (CART SIDEBAR) -->
 <aside class="cart-sidebar">
     <div class="cart-header">
         <div class="cart-title">
@@ -101,22 +95,17 @@
     </div>
 
     <div class="cart-content">
-        <!-- Hilangkan Input Customer Section karena ini untuk Pelanggan -->
         <div class="order-details" id="cart-items-container">
             <div class="cart-empty" id="cart-empty-msg" style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 0; color: #aaa; font-size: 13px;">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V6L18 2H6Z" stroke="#ddd" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 6H21" stroke="#ddd" stroke-width="1.8"/></svg>
                 <p>Keranjang masih kosong</p>
             </div>
-            <!-- Item akan dirender oleh JS di sini -->
-        </div>
+            </div>
     </div>
 
     <div class="summary-section">
         <p class="summary-label">Ringkasan Order</p>
         <div class="summary-card">
-            <!-- <div class="summary-row"><span class="label">Subtotal</span><span class="summary-subtotal value">Rp0</span></div> -->
-            <!-- <div class="summary-row"><span class="label">Tax (10%)</span><span class="summary-tax value">Rp0</span></div> -->
-            <!-- <div class="garis"></div> -->
             <div class="summary-row total"><span class="label total-label">Total</span><span class="value total-value" id="cart-total-price">Rp 0</span></div>
         </div>
     </div>
@@ -126,7 +115,6 @@
     </div>
 </aside>
 
-<!-- Floating Bar Khusus HP -->
 <div class="bar-keranjang-hp" id="floating-cart-bar">
     <div class="info-keranjang-hp">
         <span class="label-total-hp">Total Pesanan</span>
@@ -140,7 +128,6 @@
 @endsection
 
 @section('page_popups')
-    <!-- Modals Login Warning -->
     <div class="popup" id="popup-login-warning">
         <div class="popup-body" style="text-align: center; padding: 40px 25px;">
             <div style="font-size: 60px; margin-bottom: 15px;">🔒</div>
@@ -153,7 +140,50 @@
         </div>
     </div>
 
-    <!-- Modals Detail Menu -->
+    <div class="popup" id="popup-payment">
+        <div class="popup-header popup-header-yellow">
+            <span>Pilih Metode Pemesanan</span>
+            <button class="popup-close popup-close-white" data-close>&times;</button>
+        </div>
+        <div class="popup-body" style="text-align: center; padding: 24px 20px;">
+            <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Silakan pilih bagaimana lu ingin memproses pesanan di <strong>Meja {{ $tableNumber ?? 'ini' }}</strong>:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="popup-btn" id="choice-open-bill" style="background: #222; color: #fff; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; border: none; cursor: pointer;">
+                    <span style="font-size: 20px;">📝</span>
+                    <div style="text-align: left;">
+                        <p style="font-size: 13px; font-weight: 700; margin: 0;">Buka Sesi Open Bill</p>
+                        <p style="font-size: 11px; color: #aaa; margin: 0; font-weight: 400;">Kirim ke dapur dulu, tambahkan pesanan lagi nanti, bayar pas mau balik</p>
+                    </div>
+                </button>
+
+                <button class="popup-btn" id="choice-pay-now" style="background: #efb100; color: #fff; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; border: none; cursor: pointer;">
+                    <span style="font-size: 20px;">💳</span>
+                    <div style="text-align: left;">
+                        <p style="font-size: 13px; font-weight: 700; margin: 0;">Bayar Langsung Lunas</p>
+                        <p style="font-size: 11px; color: #fff7d6; margin: 0; font-weight: 400;">Langsung bayar lunas seluruh item di keranjang via QRIS sekarang</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="popup-qris-payment">
+        <div class="popup-header popup-header-yellow">
+            <span>Bayar Instan QRIS</span>
+            <button class="popup-close popup-close-white" data-close>&times;</button>
+        </div>
+        <div class="popup-body" style="text-align: center; padding: 20px;">
+            <p style="font-size: 13px; color: #666; margin-bottom: 5px;">Total Transaksi:</p>
+            <p class="popup-total-amount" id="popup-qris-total" style="font-size: 24px; font-weight: 800; color: #e07b2a; margin-bottom: 15px;">Rp 0</p>
+            <div class="qr-code-box" style="display: inline-block; padding: 10px; background: #fff; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TskuyInstantPay" alt="QR Code">
+            </div>
+            <p style="font-size: 11px; color: #ef4444; font-weight: 600; margin-bottom: 10px;">🔴 Menunggu verifikasi pembayaran otomatis...</p>
+            <button class="popup-btn" id="btn-instant-paid" style="background: #22c55e; border: none; width: 100%; padding: 12px; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer;">Simulasi Bayar Sukses (Testing)</button>
+        </div>
+    </div>
+
     @if(isset($categories))
         @foreach($categories as $category)
             @foreach($category->menus as $menu)

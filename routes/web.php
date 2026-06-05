@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\koki\KokiController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\KaryawanController;
 use Illuminate\Support\Facades\Route;
@@ -11,19 +12,22 @@ use Illuminate\Support\Facades\Auth; // <-- Tambahan wajib untuk ngecek sesi log
 // ==========================================
 Route::get('/', function () {
     // Kalau user sudah login, arahkan ke halaman jabatannya
-    if (Auth::check()) {
+   if (Auth::check()) {
         $roleId = Auth::user()->role_id;
         
         if ($roleId == 1) {
             return redirect('/admin/dashboard');
         } elseif ($roleId == 2) {
             return redirect('/kasir/pos');
+        } elseif ($roleId == 3) {
+            return redirect('/pelanggan/orders'); // <-- PERBAIKAN: Role 3 ke Pelanggan
+        } elseif ($roleId == 4) {
+            return redirect('/koki');             // <-- PERBAIKAN: Role 4 ke Koki
         } else {
-            return redirect('/pelanggan/orders');
+            return redirect('/');
         }
     }
 
-    // Kalau belum login, tampilkan Splash Screen
     return view('splash');
 });
 
@@ -35,8 +39,12 @@ Route::get('/dashboard', function () {
         return redirect('/admin/dashboard');
     } elseif ($roleId == 2) {
         return redirect('/kasir/pos');
+    } elseif ($roleId == 3) {
+        return redirect('/pelanggan/orders'); // <-- PERBAIKAN: Role 3 ke Pelanggan
+    } elseif ($roleId == 4) {
+        return redirect('/koki');             // <-- PERBAIKAN: Role 4 ke Koki
     } else {
-        return redirect('/pelanggan/orders');
+        return redirect('/');
     }
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -104,3 +112,28 @@ Route::middleware(['auth', 'role:pelanggan'])->group(function () {
 // pindahkan rute pelanggan.orders KELUAR dari middleware auth!
 // Jadinya taruh rute ini di luar/bebas:
 Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
+
+// ==========================================
+// AREA KOKI (CHEF)
+// ==========================================
+Route::middleware(['auth', 'role:koki'])->prefix('koki')->name('koki.')->group(function () {
+
+    // GET  /koki           → daftar antrian
+    Route::get('/',                  [KokiController::class, 'index'])     ->name('index');
+
+    // GET  /koki/{id}      → detail satu pesanan
+    Route::get('/{id}',              [KokiController::class, 'detail'])    ->name('detail');
+
+    // GET  /koki/{id}/selesai → halaman sukses setelah pesanan selesai
+    Route::get('/{id}/selesai',      [KokiController::class, 'selesai'])   ->name('selesai');
+
+    // POST /koki/{orderId}/item/{itemId}/toggle → toggle centang satu item (AJAX)
+    Route::post('/{orderId}/item/{itemId}/toggle', [KokiController::class, 'toggleItem'])->name('item.toggle');
+
+    // POST /koki/{id}/selesaikan → tandai seluruh pesanan selesai (AJAX)
+    Route::post('/{id}/selesaikan',  [KokiController::class, 'selesaikan'])->name('selesaikan');
+
+    // POST /koki/{id}/batalkan  → batalkan pesanan (AJAX, hanya saat 'menunggu')
+    Route::post('/{id}/batalkan',    [KokiController::class, 'batalkan'])  ->name('batalkan');
+
+});
