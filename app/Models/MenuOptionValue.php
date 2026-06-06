@@ -12,7 +12,7 @@ class MenuOptionValue extends Model
     protected $fillable = ['option_id', 'value', 'addtional_price'];
 
     protected $casts = [
-        'addtional_price' => 'decimal:2'
+        'additional_price' => 'decimal:2'
     ];
 
     //Relasi: Nilai varian ini merujuk pada grup opsi tertentu 

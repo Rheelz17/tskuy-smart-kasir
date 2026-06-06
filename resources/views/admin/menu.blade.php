@@ -17,12 +17,20 @@
             <input type="text" placeholder="Apa yang kamu mau coba?">
             <span class="search-icon"><svg width="18" height="18" viewBox="0 0 26 26" fill="none"><path d="M25.103 22.071L19.66 16.628A10.721 10.721 0 1010.721 21.443c2.182 0 4.212-.662 5.907-1.786l5.443 5.443a2.143 2.143 0 003.032-3.03zM3.216 10.721a7.505 7.505 0 1115.01 0 7.505 7.505 0 01-15.01 0z" fill="#F8B602"/></svg></span>
         </div>
+        <!-- <div class="category-tabs" style="margin-bottom:14px;">
+            <button class="tab active" data-kategori="all">All</button>
+            <button class="tab" data-kategori="makanan">Makanan</button>
+            <button class="tab" data-kategori="minuman">Minuman</button>
+            <button class="tab" data-kategori="cemilan">Cemilan</button>
+        </div> -->
+        <div class="category-tabs" style="margin-bottom:14px;">
+            <button class="tab active filter-tab" data-kategori="all">All</button>
+            @foreach($categories as $cat)
+                <button class="tab filter-tab" data-kategori="{{ $cat->id }}">{{ $cat->name }}</button>
+            @endforeach
+        </div>
         <div class="action-buttons-row">
-            <button class="btn-outline">
-            <svg width="16" height="16" viewBox="0 0 22 22" fill="none"><path d="M19.25 5.5H17.417M19.25 11H14.667M19.25 16.5H14.667M6.417 18.333V12.431c0-.19 0-.286-.018-.377a1.375 1.375 0 00-.332-.673L3.071 7.735c-.12-.149-.179-.224-.22-.307a1.375 1.375 0 00-.213-.639V5.134c0-.514 0-.77.1-.967a.917.917 0 01.4-.4C3.336 3.667 3.592 3.667 4.105 3.667h8.067c.513 0 .77 0 .966.1.177.088.317.228.405.4.1.198.1.454.1.967v1.685c0 .19 0 .286-.018.377a1.375 1.375 0 01-.332.673l-3.026 3.746c-.12.149-.179.224-.22.307a1.375 1.375 0 01-.213.639v3.152L6.417 18.333z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Filter
-            </button>
-            <button class="btn-outline">
+            <button class="btn-outline" id="btnExport">
             <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15.603 14.095V5.284M13.132 7.549l1.375-1.742a2.32 2.32 0 013.563 0l1.375 1.742M21.639 19.836H9.567M11.768 10.893C5.511 12.51 6.009 17.071 6.009 17.071s-.498 4.577 5.759 6.174a13.124 13.124 0 007.663 0c6.255-1.616 5.759-6.174 5.759-6.174s.496-4.578-5.759-6.178z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Export
             </button>
@@ -42,301 +50,97 @@
     <!-- Action bar desktop (search + filter + export) -->
     <div class="action-bar">
         <div class="category-tabs" style="margin-bottom:14px;">
-        <button class="tab active" data-kategori="all">All</button>
-        <button class="tab" data-kategori="makanan">Makanan</button>
-        <button class="tab" data-kategori="minuman">Minuman</button>
-        <button class="tab" data-kategori="cemilan">Cemilan</button>
+            <button class="tab active" data-kategori="all">All</button>
+            <button class="tab" data-kategori="makanan">Makanan</button>
+            <button class="tab" data-kategori="minuman">Minuman</button>
+            <button class="tab" data-kategori="snack">Snack</button>
         </div>
         <div class="action-right">
             <div class="search-wrapper">
-            <input type="text" placeholder="Cari Menu...">
-            <span class="search-icon"><svg width="16" height="16" viewBox="0 0 26 26" fill="none"><path d="M25.103 22.071L19.66 16.628A10.721 10.721 0 1010.721 21.443c2.182 0 4.212-.662 5.907-1.786l5.443 5.443a2.143 2.143 0 003.032-3.03zM3.216 10.721a7.505 7.505 0 1115.01 0 7.505 7.505 0 01-15.01 0z" fill="#F8B602"/></svg></span>
+                <input type="text" placeholder="Cari Menu...">
+                <span class="search-icon"><svg width="16" height="16" viewBox="0 0 26 26" fill="none"><path d="M25.103 22.071L19.66 16.628A10.721 10.721 0 1010.721 21.443c2.182 0 4.212-.662 5.907-1.786l5.443 5.443a2.143 2.143 0 003.032-3.03zM3.216 10.721a7.505 7.505 0 1115.01 0 7.505 7.505 0 01-15.01 0z" fill="#F8B602"/></svg></span>
             </div>
             <button class="btn-outline" id="btnExport">
-            <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15.603 14.095V5.284M13.132 7.549l1.375-1.742a2.32 2.32 0 013.563 0l1.375 1.742M21.639 19.836H9.567M11.768 10.893C5.511 12.51 6.009 17.071 6.009 17.071s-.498 4.577 5.759 6.174a13.124 13.124 0 007.663 0c6.255-1.616 5.759-6.174 5.759-6.174s.496-4.578-5.759-6.178z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Export
+                <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15.603 14.095V5.284M13.132 7.549l1.375-1.742a2.32 2.32 0 013.563 0l1.375 1.742M21.639 19.836H9.567M11.768 10.893C5.511 12.51 6.009 17.071 6.009 17.071s-.498 4.577 5.759 6.174a13.124 13.124 0 007.663 0c6.255-1.616 5.759-6.174 5.759-6.174s.496-4.578-5.759-6.178z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Export
             </button>
         </div>
     </div>
 
-    <div class="karyawan-card-list">
-        <div class="karyawan-card" data-jabatan="kasir">
-            <img src="https://i.pravatar.cc/150?img=5" alt="Fahri" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Fahri Eka Pratama</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP001 | Kasir</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0821-8422-9314</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Fahri Eka Pratama"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Fahri Eka Pratama"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <!-- CARD LIST — mobile only -->
+    <div class="menu-card-list">
+        @foreach($menus as $item)
+        <div class="menu-card" data-kategori="{{ $item->category_id }}">
+            <img src="{{ $item->image ? asset('storage/' . $item->image) : asset('images/default-menu.jpg') }}" 
+                alt="{{ $item->name }}" 
+                class="menu-thumb">
+            
+            <div class="menu-card-info">
+                <div class="menu-card-top">
+                    <p class="menu-card-name">{{ $item->name }}</p>
+                    <label class="switch-toggle-container">
+                        <input type="checkbox" 
+                            class="toggle-status-menu" 
+                            data-id="{{ $item->id }}" 
+                            data-nama="{{ $item->name }}" 
+                            {{ $item->is_available ? 'checked' : '' }}>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                
+                <p class="menu-card-meta">
+                    MN-{{ sprintf('%03d', $item->id) }} | {{ $item->category->name ?? 'Kategori' }}
+                </p>
+                
+                <div class="menu-card-bottom">
+                    <div class="menu-card-price-stock">
+                        <span class="menu-price">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+                        <span class="menu-stock">(Stok: {{ $item->stock }})</span>
+                    </div>
+                    
+                    <div class="tindakan-col">
+                        <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
+                        
+                        <a href="#" class="btn-tindakan btn-edit-menu" 
+                        data-id="{{ $item->id }}"
+                        data-nama="{{ $item->name }}"
+                        data-deskripsi="{{ $item->description }}"
+                        data-kategori="{{ $item->category_id }}"
+                        data-stok="{{ $item->stock }}"
+                        data-harga="{{ $item->price }}"
+                        data-foto="{{ $item->image }}">
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                                <rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/>
+                                <path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                        
+                        <a href="#" class="btn-tindakan btn-hapus-menu" data-id="{{ $item->id }}" data-nama="{{ $item->name }}">
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                                <rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/>
+                                <path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             </div>
-            </div>
         </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=8" alt="Juniansyah" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Juniansyah Raka</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP002 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0898-8274-987</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Juniansyah Raka"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Juniansyah Raka"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="admin">
-            <img src="https://i.pravatar.cc/150?img=12" alt="Kurniawan" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Kurniawan Dwi Suyono</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP003 | Admin</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0878-9183-8765</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Kurniawan Dwi Suyono"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Kurniawan Dwi Suyono"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="kasir">
-            <img src="https://i.pravatar.cc/150?img=15" alt="Rafliansyah" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Rafliansyah Firman</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP004 | Kasir</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0812-7452-8174</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Rafliansyah Firman"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Rafliansyah Firman"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="kasir">
-            <img src="https://i.pravatar.cc/150?img=18" alt="Herman" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Herman Nasution</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP005 | Kasir</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0878-8241-1112</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Herman Nasution"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Herman Nasution"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=20" alt="Asep" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Asep Irfanudin</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP006 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0872-8274-888</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Asep Irfanudin"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Asep Irfanudin"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=22" alt="Kamala" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Kamala Juan Siregar</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP007 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0821-9824-3456</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Kamala Juan Siregar"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Kamala Juan Siregar"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=25" alt="Paris" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Paris Agustinus</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP008 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0812-9999-2222</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Paris Agustinus"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Paris Agustinus"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
+        @endforeach
     </div>
 
     <footer class="content-footer-mobile">
-        <p class="data-info">Menampilkan 8 dari 9 karyawan</p>
+        <p class="data-info">Memmuat data...</p>
         <div class="pagination">
-            <button class="page-link disabled">Sebelumnya</button>
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-link">Selanjutnya</button>
         </div>
     </footer>
 
     <!-- Tabel desktop -->
-    <div class="table-container">
-        <table id="tabel-menu">
-            <thead>
-                <tr>
-                    <th class="col-foto">Foto</th>
-                    <th class="col-left">Nama</th>
-                    <th>ID Menu</th>
-                    <th>Kategori</th>
-                    <th>Stok</th>
-                    <th>Harga</th>
-                    <th>Status</th>
-                    <th>Tindakan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-kategori="minuman">
-                    <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                    <td class="col-left text-bold">Kopi Susu Tskuy</td>
-                    <td>MNU001</td>
-                    <td>Minuman</td>
-                    <td><span class="notelp-badge">50 Porsi</span></td>
-                    <td>Rp 15.000</td>
-                    <td>
-                        <div class="popup-form-toggle" style="padding: 0; margin: 0; justify-content: center; border: none;">
-                            <label class="popup-toggle-switch">
-                                <input type="checkbox" class="toggle-status-menu" data-id="{{ $menu->id ?? '1' }}" checked>
-                                <div class="popup-toggle-track">
-                                    <div class="popup-toggle-thumb"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="tindakan-col">
-                            <a href="#" class="btn-tindakan btn-edit-menu" data-id="MNU001" data-nama="Kopi Susu Tskuy" data-kategori="minuman" data-stok="50" data-harga="15000" data-status="tersedia">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </a>
-                            <a href="#" class="btn-tindakan btn-hapus-menu" data-nama="Kopi Susu Tskuy">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr data-kategori="makanan">
-                    <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                    <td class="col-left text-bold">Roti Bakar Cokelat</td>
-                    <td>MNU002</td>
-                    <td>Makanan</td>
-                    <td><span class="notelp-badge">20 Porsi</span></td>
-                    <td>Rp 18.000</td>
-                    <td>
-                        <div class="popup-form-toggle" style="padding: 0; margin: 0; justify-content: center; border: none;">
-                            <label class="popup-toggle-switch">
-                                <input type="checkbox" class="toggle-status-menu" data-id="{{ $menu->id ?? '1' }}" checked>
-                                <div class="popup-toggle-track">
-                                    <div class="popup-toggle-thumb"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="tindakan-col">
-                            <a href="#" class="btn-tindakan btn-edit-menu" data-id="MNU002" data-nama="Roti Bakar Cokelat" data-kategori="makanan" data-stok="20" data-harga="18000" data-status="tersedia">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </a>
-                            <a href="#" class="btn-tindakan btn-hapus-menu" data-nama="Roti Bakar Cokelat">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr data-kategori="cemilan">
-                    <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                    <td class="col-left text-bold">French Fries</td>
-                    <td>MNU003</td>
-                    <td>Cemilan</td>
-                    <td><span class="notelp-badge">0 Porsi</span></td>
-                    <td>Rp 12.000</td>
-                    <td>
-                        <div class="popup-form-toggle" style="padding: 0; margin: 0; justify-content: center; border: none;">
-                                <label class="popup-toggle-switch">
-                                    <input type="checkbox" class="toggle-status-menu" data-id="{{ $menu->id ?? '1' }}" checked>
-                                    <div class="popup-toggle-track">
-                                        <div class="popup-toggle-thumb"></div>
-                                    </div>
-                                </label>
-                            </div>
-                    </td>
-                    <td>
-                        <div class="tindakan-col">
-                            <a href="#" class="btn-tindakan btn-edit-menu" data-id="MNU003" data-nama="French Fries" data-kategori="cemilan" data-stok="0" data-harga="12000" data-status="habis">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </a>
-                            <a href="#" class="btn-tindakan btn-hapus-menu" data-nama="French Fries">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    @include('components.menu-tabel', ['menus' => $menus])
 
     <footer class="content-footer">
-        <p class="data-info">Menampilkan 8 dari 9 karyawan</p>
+        <p class="data-info">Memuat data...</p>
         <div class="pagination">
-            <button class="page-link disabled">Sebelumnya</button>
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-link">Selanjutnya</button>
         </div>
     </footer>
   </main>
@@ -345,173 +149,197 @@
 
 @section('page_popups')
     <div class="popup popup-form-karyawan" id="popup-tambah-menu">
-        <div class="popup-form-header">
-            <div>
-                <h2 class="popup-form-title">Tambah Menu Baru</h2>
-                <p class="popup-form-subtitle">Isi kolom di bawah untuk menambahkan menu kuliner baru</p>
-            </div>
-            <button class="popup-close-merah" data-close aria-label="Tutup">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" fill="#fee2e2"/>
-                    <path d="M15 9L9 15M9 9L15 15" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
-
-        <div class="popup-form-body">
-            <div class="popup-form-foto-col">
-                <div class="popup-upload-area" id="popup-tambah-upload-area">
-                    <input type="file" class="popup-upload-input" id="popup-tambah-input-foto" accept="image/jpg,image/jpeg,image/png">
-                    <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
-                        <path d="M32 32L24 24L16 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M24 24V40" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M40.82 36.82A10 10 0 0034 18h-2.52A16 16 0 108 36.92" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <form id="form-tambah-menu" action="{{ route('admin.menu.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="popup-form-header">
+                <div>
+                    <h2 class="popup-form-title">Tambah Menu Baru</h2>
+                    <p class="popup-form-subtitle">Isi kolom di bawah untuk menambahkan menu kuliner baru</p>
+                </div>
+                <button type="button" class="popup-close-merah" data-close aria-label="Tutup">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" fill="#fee2e2"/>
+                        <path d="M15 9L9 15M9 9L15 15" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                    <p class="popup-upload-label">Unggah Foto Menu</p>
-                    <p class="popup-upload-hint">Klik atau seret foto produk ke sini (JPG / PNG).</p>
-                    <img src="" alt="Preview" class="popup-upload-preview" id="popup-tambah-preview">
-                </div>
+                </button>
             </div>
 
-            <div class="popup-form-fields-col">
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-tambah-id">ID Menu</label>
-                    <input type="text" class="popup-form-input" id="popup-tambah-id" value="MNU004" readonly>
-                </div>
-
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-tambah-nama">Nama Menu</label>
-                    <input type="text" class="popup-form-input" id="popup-tambah-nama" placeholder="Masukkan Nama Menu...">
-                </div>
-
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-tambah-kategori">Kategori</label>
-                    <div class="popup-select-wrapper">
-                        <select class="popup-form-select" id="popup-tambah-kategori">
-                            <option value="" disabled selected>Pilih Kategori</option>
-                            <option value="makanan">Makanan</option>
-                            <option value="minuman">Minuman</option>
-                            <option value="cemilan">Cemilan</option>
-                        </select>
-                        <div class="popup-select-chevron">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
+            <div class="popup-form-body">
+                <div class="popup-form-foto-col">
+                    <div class="popup-upload-area" id="popup-tambah-upload-area">
+                        <input type="file" class="popup-upload-input" id="popup-tambah-input-foto" name="image" accept="image/jpg,image/jpeg,image/png">
+                        <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+                            <path d="M32 32L24 24L16 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M24 24V40" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M40.82 36.82A10 10 0 0034 18h-2.52A16 16 0 108 36.92" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p class="popup-upload-label">Unggah Foto Menu</p>
+                        <p class="popup-upload-hint">Klik atau seret foto produk ke sini (JPG / PNG).</p>
+                        <img src="" alt="Preview" class="popup-upload-preview" id="popup-tambah-preview">
                     </div>
                 </div>
 
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-tambah-stok">Stok Porsi</label>
-                    <input type="number" class="popup-form-input" id="popup-tambah-stok" min="0" placeholder="Contoh: 50">
-                </div>
+                <div class="popup-form-fields-col">
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-tambah-id">ID Menu</label>
+                        <input type="text" class="popup-form-input" id="popup-tambah-id" value="Otomatis" readonly style="background-color: #f3f4f6; color: #9ca3af;">
+                    </div>
 
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-tambah-harga">Harga Jual (Rp)</label>
-                    <input type="number" class="popup-form-input" id="popup-tambah-harga" min="0" placeholder="Contoh: 15000">
-                </div>
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-tambah-nama">Nama Menu</label>
+                        <input type="text" class="popup-form-input" id="popup-tambah-nama" name="name" placeholder="Masukkan Nama Menu..." required>
+                    </div>
 
-                <div class="popup-form-toggle">
-                    <span class="popup-toggle-label">Status</span>
-                    <label class="popup-toggle-switch">
-                        <input type="checkbox" id="popup-tambah-akses">
-                        <div class="popup-toggle-track">
-                            <div class="popup-toggle-thumb"></div>
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-tambah-deskripsi">Deskripsi</label>
+                        <textarea class="popup-form-input" id="popup-tambah-deskripsi" name="description" rows="2" placeholder="Masukkan Deskripsi singkat rasa atau porsi menu..." style="resize: none; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; font-family: inherit;"></textarea>
+                    </div>
+
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-tambah-kategori">Kategori</label>
+                        <div class="popup-select-wrapper">
+                            <select class="popup-form-select" id="popup-tambah-kategori" name="category_id" required>
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                @if(isset($categories))
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}">{{ ucfirst($category->name) }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="1">Makanan</option>
+                                    <option value="2">Minuman</option>
+                                    <option value="3">Cemilan</option>
+                                @endif
+                            </select>
+                            <div class="popup-select-chevron">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
                         </div>
-                    </label>
-                </div>
+                    </div>
 
-                <div class="popup-form-actions">
-                    <button class="popup-btn-batal" data-close>Batal</button>
-                    <button class="popup-btn-simpan" id="popup-btn-tambah-simpan">Simpan Menu</button>
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-tambah-stok">Stok Porsi</label>
+                        <input type="number" class="popup-form-input" id="popup-tambah-stok" name="stock" min="0" placeholder="Contoh: 50" required>
+                    </div>
+
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-tambah-harga">Harga Jual (Rp)</label>
+                        <input type="number" class="popup-form-input" id="popup-tambah-harga" name="price" min="0" placeholder="Contoh: 15000" required>
+                    </div>
+
+                    <div class="popup-form-toggle">
+                        <span class="popup-toggle-label">Tersedia (Aktif)</span>
+                        <label class="popup-toggle-switch">
+                            <input type="checkbox" id="popup-tambah-status" name="is_available" value="1" checked>
+                            <div class="popup-toggle-track">
+                                <div class="popup-toggle-thumb"></div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="popup-form-actions">
+                        <button type="button" class="popup-btn-batal" data-close>Batal</button>
+                        <button type="submit" class="popup-btn-simpan" id="popup-btn-tambah-simpan">Simpan Menu</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <div class="popup popup-form-karyawan" id="popup-edit-menu">
-        <div class="popup-form-header">
-            <div>
-                <h2 class="popup-form-title">Edit Data Menu</h2>
-                <p class="popup-form-subtitle">Silahkan sesuaikan info menu kuliner yang ingin diubah.</p>
+        <form id="form-edit-menu" enctype="multipart/form-data">
+            @csrf
+            <div class="popup-form-header">
+                <div>
+                    <h2 class="popup-form-title">Edit Data Menu</h2>
+                    <p class="popup-form-subtitle">Silahkan sesuaikan info menu kuliner yang ingin diubah.</p>
+                </div>
+                <button class="popup-close-merah" data-close aria-label="Tutup">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" fill="#fee2e2"/>
+                        <path d="M15 9L9 15M9 9L15 15" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
             </div>
-            <button class="popup-close-merah" data-close aria-label="Tutup">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" fill="#fee2e2"/>
-                    <path d="M15 9L9 15M9 9L15 15" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
 
-        <div class="popup-form-body">
-            <div class="popup-form-foto-col">
-                <div class="popup-foto-edit-wrap">
-                    <img src="" alt="Foto Menu" class="popup-foto-edit-img" id="popup-edit-foto-img">
-                    
-                    <div class="popup-foto-edit-actions">
-                        <button class="popup-btn-foto-edit" id="popup-edit-btn-ganti-foto" title="Ganti Foto">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <button class="popup-btn-foto-hapus" id="popup-edit-btn-hapus-foto" title="Hapus Foto">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
+            <div class="popup-form-body">
+                <div class="popup-form-foto-col">
+                    <div class="popup-foto-edit-wrap">
+                        <img src="" alt="Foto Menu" class="popup-foto-edit-img" id="popup-edit-foto-img">
+                        
+                        <div class="popup-foto-edit-actions">
+                            <button type="button" class="popup-btn-foto-edit" id="popup-edit-btn-ganti-foto" title="Ganti Foto">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <button type="button" class="popup-btn-foto-hapus" id="popup-edit-btn-hapus-foto" title="Hapus Foto">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <input type="file" id="popup-edit-input-foto" accept="image/jpg,image/jpeg,image/png" style="display:none;">
                     </div>
-                    <input type="file" id="popup-edit-input-foto" accept="image/jpg,image/jpeg,image/png" style="display:none;">
-                </div>
-            </div>
-
-            <div class="popup-form-fields-col">
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-edit-id">ID Menu</label>
-                    <input type="text" class="popup-form-input" id="popup-edit-id" readonly>
                 </div>
 
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-edit-nama">Nama Menu</label>
-                    <input type="text" class="popup-form-input" id="popup-edit-nama" placeholder="Nama Menu">
-                </div>
+                <div class="popup-form-fields-col">
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-edit-id">ID Menu</label>
+                        <input type="text" class="popup-form-input" id="popup-edit-id" readonly>
+                    </div>
 
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-edit-kategori">Kategori</label>
-                    <div class="popup-select-wrapper">
-                        <select class="popup-form-select" id="popup-edit-kategori">
-                            <option value="" disabled>Pilih Kategori</option>
-                            <option value="makanan">Makanan</option>
-                            <option value="minuman">Minuman</option>
-                            <option value="cemilan">Cemilan</option>
-                        </select>
-                        <div class="popup-select-chevron">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                                <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-edit-nama">Nama Menu</label>
+                        <input type="text" class="popup-form-input" id="popup-edit-nama" placeholder="Nama Menu">
+                    </div>
+
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-edit-deskripsi">Deskripsi Menu</label>
+                        <textarea class="popup-form-input" id="popup-edit-deskripsi" rows="2" placeholder="Deskripsi singkat menu..."></textarea>
+                    </div>
+
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-edit-kategori">Kategori</label>
+                        <div class="popup-select-wrapper">
+                            <select class="popup-form-select" id="popup-edit-kategori">
+                                <option value="" disabled selected>Pilih Kategori</option>
+                                <option value="1">Makanan</option>
+                                <option value="2">Minuman</option>
+                                <option value="3">Cemilan</option>
+                            </select>
+                            <div class="popup-select-chevron">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-edit-stok">Stok Porsi</label>
-                    <input type="number" class="popup-form-input" id="popup-edit-stok" min="0">
-                </div>
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-edit-stok">Stok Porsi</label>
+                        <input type="number" class="popup-form-input" id="popup-edit-stok" min="0">
+                    </div>
 
-                <div class="popup-form-group">
-                    <label class="popup-form-label" for="popup-edit-harga">Harga Jual (Rp)</label>
-                    <input type="number" class="popup-form-input" id="popup-edit-harga" min="0">
-                </div>
+                    <div class="popup-form-group">
+                        <label class="popup-form-label" for="popup-edit-harga">Harga Jual (Rp)</label>
+                        <input type="number" class="popup-form-input" id="popup-edit-harga" min="0">
+                    </div>
 
-                <div class="popup-form-actions">
-                    <button class="popup-btn-batal" data-close>Batal</button>
-                    <button class="popup-btn-simpan" id="popup-btn-edit-simpan">Simpan Perubahan</button>
+                    <div class="popup-form-actions">
+                        <button class="popup-btn-batal" data-close>Batal</button>
+                        <button class="popup-btn-simpan" id="popup-btn-edit-simpan">Simpan Perubahan</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
-
+    
     <div class="popup popup-warning" id="popup-hapus-menu">
+        <input type="hidden" id="popup-hapus-db-id">
+
         <button class="popup-close popup-close-float" data-close>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="#555" stroke-width="1.8" />

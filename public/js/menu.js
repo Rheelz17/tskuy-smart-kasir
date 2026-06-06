@@ -1,13 +1,6 @@
 /* ============================================================
    menu.js — Logika khusus halaman Manajemen Menu
    Dipanggil SETELAH admin.js (atau popup core utama Anda)
-   Berisi:
-   1. Tab filter kategori (All / Makanan / Minuman / Cemilan)
-      → filter card mobile + baris tabel desktop
-   2. Tombol hapus → isi nama ke popup konfirmasi, buka popup
-   3. Search real-time
-   4. Tombol tambah & edit → pre-fill data & open popup
-   5. Toggle Status → update status ketersediaan instan di tabel
 ============================================================ */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -67,9 +60,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (btnHapus) {
       e.preventDefault();
       const namaMenu = btnHapus.dataset.nama;
+      const idMenu = btnHapus.dataset.id
 
       const elNama = document.getElementById("popup-hapus-nama-menu");
       if (elNama) elNama.textContent = namaMenu;
+
+      const elId = document.getElementById("popup-hapus-db-id");
+      if (elId) elId.value = idMenu;
 
       window._openPopup?.("popup-hapus-menu");
     }
@@ -82,10 +79,15 @@ document.addEventListener("DOMContentLoaded", function () {
       if (btnHapus) {
         e.preventDefault();
         e.stopPropagation();
+
         const namaMenu = btnHapus.dataset.nama;
+        const idMenu = btnHapus.dataset.id;
 
         const elNama = document.getElementById("popup-hapus-nama-menu");
         if (elNama) elNama.textContent = namaMenu;
+
+        const elId = document.getElementById("popup-hapus-db-id");
+        if (elId) elId.value = idMenu;
 
         window._openPopup?.("popup-hapus-menu");
       }
@@ -117,6 +119,134 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /* ============================================================
+     3. PROSES AJAX — ABSOLUTE BACKEND CONNECTORS
+  ============================================================ */
+  // A. PROSES AJAX: SIMPAN (TAMBAH)
+  document.getElementById("popup-btn-tambah-simpan")?.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    // Buat FormData untuk menangani file upload foto produk
+    const formData = new FormData();
+    formData.append("name", document.getElementById("popup-tambah-nama").value);
+    formData.append("description", document.getElementById("popup-tambah-deskripsi").value);
+    formData.append("category_id", document.getElementById("popup-tambah-kategori").value);
+    formData.append("stock", document.getElementById("popup-tambah-stok").value);
+    formData.append("price", document.getElementById("popup-tambah-harga").value);
+
+    // Ambil status ketersediaan (1 jika dicentang, 0 jika tidak)
+    const aksesInput = document.getElementById("popup-tambah-status");
+    if (aksesInput && aksesInput.checked) {
+        formData.append("is-available", "1");
+    } else {
+        // Mengirimkan string "0". 
+        formData.append("is-available", "0");
+    }    
+
+    // Ambil input file foto
+    const fotoInput = document.getElementById("popup-tambah-input-foto");
+    if (fotoInput && fotoInput.files[0]) {
+        formData.append("foto", fotoInput.files[0]);
+    }
+
+    const currentToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    // Kirim data ke endpoint Laravel
+    fetch("/admin/menu", {
+        method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": currentToken,
+            "Accept": "application/json"
+        },
+        body: formData
+    })
+    .then(res => {
+        if (!res.ok) {
+            // Jika backend melempar error validasi (422) atau error server (500)
+            throw new Error("Server error atau validasi gagal");
+        }
+        return res.json();
+    })
+    .then(dataMenu => {
+        if (dataMenu.success) {
+            window.location.reload(); // Reload halaman jika berhasil untk sinkronisasi data baru
+        } else {
+            alert("Gagal menambahkan menu: " + (dataMenu.message || "Periksa kembali inputan Anda."));
+        }
+    })
+    .catch(err => console.error("Error:", err));
+  });
+
+  // B. PROSES AJAX: UPDATE (EDIT)
+  document.getElementById("popup-btn-edit-simpan")?.addEventListener("click", function (e) {
+    e.preventDefault();
+    const dbId = document.getElementById("popup-edit-id").value;
+    const currentToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    if (!dbId) {
+        alert("ID Menu tidak valid!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", document.getElementById("popup-edit-nama").value);
+    formData.append("description", document.getElementById("popup-edit-deskripsi").value);
+    formData.append("category_id", document.getElementById("popup-edit-kategori").value);
+    formData.append("stock", document.getElementById("popup-edit-stok").value);
+    formData.append("price", document.getElementById("popup-edit-harga").value);    
+    // Method Spoofing Laravel karena FormData tidak mendukung PUT secara murni saat upload file
+    formData.append("_method", "PUT");
+
+    if (inputFoto && inputFoto.files[0]) {
+        formData.append("image", inputFoto.files[0]);
+    }
+
+    fetch(`/admin/menu/${dbId}`, {
+        method: "POST", // Tetap POST, dibantu _method PUT di atas
+        headers: {
+            "X-CSRF-TOKEN": currentToken,
+            "Accept": "application/json"
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(dataMenu => {
+        if (dataMenu.success) {
+            window.location.reload();
+        } else {
+            alert("Gagal memperbarui data: " + (dataMenu.message || "Periksa kembali inputan Anda."));
+        }
+    })
+    .catch(err => console.error("Error:", err));
+  });
+
+  /*  3. KONFIRMASI HAPUS — tombol "Ya, Hapus" */
+  document.getElementById("btn-confirm-hapus")?.addEventListener("click", function () {
+    const dbId = document.getElementById("popup-hapus-db-id").value;
+    const currentToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (!dbId) {
+        alert("ID Menu tidak ditemukan!");
+        return;
+    }
+    fetch(`/admin/menu/${dbId}`, {
+        method: "DELETE",
+        headers: {
+            "X-CSRF-TOKEN": currentToken,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+    })
+    .then(res => res.json())
+    .then(dataMenu => {
+        if (dataMenu.success) {
+            window.location.reload();
+        } else {
+            alert("Gagal menghapus menu: " + (dataMenu.message || "Terjadi kesalahan."));
+        }
+        window._closePopup?.();
+    })
+    .catch(err => console.error("Error:", err));
+  });
+
+  /* ============================================================
      4. TOMBOL EDIT MENU (PRE-FILL DATA POPUP)
      Klik tombol edit → pindahkan dataset menu ke form fields popup edit
   ============================================================ */
@@ -124,22 +254,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnTambahMenu = document.getElementById("btn-tambah-menu");
   if (btnTambahMenu) {
     btnTambahMenu.addEventListener("click", function (e) {
-      e.preventDefault();
-      
-      // Reset input form tambah sebelum dibuka agar bersih
-      document.getElementById("popup-tambah-nama") ? document.getElementById("popup-tambah-nama").value = "" : null;
-      document.getElementById("popup-tambah-kategori") ? document.getElementById("popup-tambah-kategori").value = "" : null;
-      document.getElementById("popup-tambah-stok") ? document.getElementById("popup-tambah-stok").value = "" : null;
-      document.getElementById("popup-tambah-harga") ? document.getElementById("popup-tambah-harga").value = "" : null;
-      
-      const previewFotoTambah = document.getElementById('popup-tambah-preview');
-      if (previewFotoTambah) previewFotoTambah.src = "";
-      
-      const uploadAreaTambah = document.getElementById('popup-tambah-upload-area');
-      if (uploadAreaTambah) uploadAreaTambah.classList.remove('has-foto');
-
-      // Panggil core popup untuk memunculkan popup tambah menu
-      window._openPopup?.("popup-tambah-menu");
+      if (window.innerWidth <= 480) {
+        // Mobile: navigasi ke halaman terpisah
+        window.location.href = '/admin/menu/tambah';
+      } else {
+        // Desktop: buka popup
+        e.preventDefault();
+        // Panggil core popup untuk memunculkan popup tambah menu
+        window._openPopup?.("popup-tambah-menu");
+      }      
     });
   }
 
@@ -170,17 +293,19 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("popup-edit-id").value = dataset.id || "";
     if (document.getElementById("popup-edit-nama")) 
       document.getElementById("popup-edit-nama").value = dataset.nama || "";
+    if (document.getElementById("popup-edit-deskripsi")) 
+      document.getElementById("popup-edit-deskripsi").value = dataset.deskripsi || "";
     if (document.getElementById("popup-edit-kategori")) 
-      document.getElementById("popup-edit-kategori").value = dataset.kategori || "";
+      document.getElementById("popup-edit-kategori").value = dataset.kategori || ""; // Mengisi ID kategori
     if (document.getElementById("popup-edit-stok")) 
-      document.getElementById("popup-edit-stok").value = dataset.stok || "";
+      document.getElementById("popup-edit-stok").value = dataset.stok || "0";
     if (document.getElementById("popup-edit-harga")) 
-      document.getElementById("popup-edit-harga").value = dataset.harga || "";
+      document.getElementById("popup-edit-harga").value = dataset.harga || "0";
 
-    // Set default preview foto menu (bisa diganti asset url database nanti)
+    // Mengeset preview foto menu asli dari database, jika kosong arahkan ke placeholder default
     const popupEditFotoImg = document.getElementById("popup-edit-foto-img");
     if (popupEditFotoImg) {
-      popupEditFotoImg.src = "https://i.pravatar.cc/300?img=5"; 
+      popupEditFotoImg.src = dataset.foto ? `/storage/${dataset.foto}` : "/images/default-menu.jpg"; 
     }
 
     // Buka popup edit menu
@@ -192,18 +317,92 @@ document.addEventListener("DOMContentLoaded", function () {
      Mengubah status aktif/tidak langsung dari baris tabel menu
   ============================================================ */
   tabelMenu?.addEventListener("change", function (e) {
-    if (e.target.classList.contains("toggle-status-menu")) {
-      const checkbox = e.target;
-      const menuId = checkbox.dataset.id;
-      const isTersedia = checkbox.checked; // true = Tersedia, false = Habis
+    // if (e.target.classList.contains("toggle-status-menu")) {
+    //   const checkbox = e.target;
+    //   const menuId = checkbox.dataset.id;
+    //   const namaMenu = checkbox.dataset.nama || `ID ${menuId}`; // Mengambil nama menu jika ada di dataset
+    //   const isTersedia = checkbox.checked ? "1" : "0"; 
+    //   const currentToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    //   const statusAwal = !checkbox.checked;
 
-      console.log(`Menu ${menuId} status diubah ke: ${isTersedia ? "Tersedia" : "Habis"}`);
-      
-      if (typeof window.showToast === "function") {
-        window.showToast(`Status menu ${menuId} berhasil diperbarui ✓`);
-      }
+    //   // Ubah URL ke endpoint khusus toggle-status dengan method PATCH
+    //   fetch(`/admin/menu/${menuId}/toggle-status`, {
+    //       method: "PATCH",
+    //       headers: {
+    //           "X-CSRF-TOKEN": currentToken,
+    //           "Content-Type": "application/json",
+    //           "Accept": "application/json"
+    //       },
+    //       body: JSON.stringify({
+    //           is_available: isTersedia
+    //       })
+    //   })
+    //   .then(res => res.json())
+    //   .then(dataMenu => {
+    //       if (dataMenu.success) {
+    //           if (typeof window.showToast === "function") {
+    //               const teksStatus = checkbox.checked ? "Tersedia" : "Habis";
+    //               window.showToast(`Status ${namaMenu} diubah menjadi [${teksStatus}] ✓`);
+    //           }
+    //       } else {
+    //           checkbox.checked = statusAwal;
+    //           alert("Gagal memperbarui status: " + (dataMenu.message || "Terjadi kesalahan."));
+    //       }
+    //   })
+    //   .catch(err => {
+    //       console.error("Error:", err);
+    //       checkbox.checked = statusAwal;
+    //       alert("Terjadi kesalahan koneksi saat memperbarui status.");
+    //   });
+    // }
+    if (e.target.classList.contains("toggle-status-menu")) {
+      eksekusiToggleStatus(e.target);
     }
   });
+
+  const cardListMenu = document.querySelector(".menu-card-list");
+  cardListMenu?.addEventListener("change", function (e) {
+    if (e.target.classList.contains("toggle-status-menu")) {
+      eksekusiToggleStatus(e.target);
+    }
+  });
+
+  function eksekusiToggleStatus(checkbox) {
+    const menuId = checkbox.dataset.id;
+    const namaMenu = checkbox.dataset.nama || `ID ${menuId}`;
+    const isTersedia = checkbox.checked ? "1" : "0"; 
+    const currentToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const statusAwal = !checkbox.checked;
+
+    fetch(`/admin/menu/${menuId}/toggle-status`, {
+        method: "PATCH",
+        headers: {
+            "X-CSRF-TOKEN": currentToken,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            is_available: isTersedia
+        })
+    })
+    .then(res => res.json())
+    .then(dataMenu => {
+        if (dataMenu.success) {
+            if (typeof window.showToast === "function") {
+                const teksStatus = checkbox.checked ? "Tersedia" : "Habis";
+                window.showToast(`Status ${namaMenu} diubah menjadi [${teksStatus}] ✓`);
+            }
+        } else {
+            checkbox.checked = statusAwal;
+            alert("Gagal memperbarui status: " + (dataMenu.message || "Terjadi kesalahan."));
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        checkbox.checked = statusAwal;
+        alert("Terjadi kesalahan koneksi saat memperbarui status.");
+    });
+  } 
 
   /* ============================================================
      7. INTERAKSI POP-UP EXPORT DATA MENU
@@ -291,7 +490,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const popupTambahUploadArea = document.getElementById('popup-tambah-upload-area');
   const popupTambahPreview    = document.getElementById('popup-tambah-preview');
 
-  popupTambahUploadArea?.addEventListener('click', () => popupTambahInputFoto?.click());
+  popupTambahUploadArea?.addEventListener('click', (e) => {
+    e.preventDefault(); 
+    popupTambahInputFoto?.click();
+  });
 
   popupTambahInputFoto?.addEventListener('change', function () {
     const file = this.files[0];
@@ -304,30 +506,33 @@ document.addEventListener("DOMContentLoaded", function () {
     reader.readAsDataURL(file);
   });
 
-  /* Ganti foto popup edit */
-  const popupEditInputFoto  = document.getElementById('popup-edit-input-foto');
-  const popupEditFotoImg    = document.getElementById('popup-edit-foto-img');
+/*  A. LOGIKAL FOTO POPUP EDIT (TRIGGER & PREVIEW) Ganti foto popup edit */
+  const btnGantiFoto = document.getElementById("popup-edit-btn-ganti-foto");
+  const inputFoto = document.getElementById("popup-edit-input-foto");
+  const imgPreview = document.getElementById("popup-edit-foto-img");
 
-  document.getElementById('popup-edit-btn-ganti-foto')?.addEventListener('click', function(e) {
+// Klik icon pensil emas -> memicu klik input file asli yang tersembunyi
+  btnGantiFoto?.addEventListener("click", function () {
     e.preventDefault();
-    popupEditInputFoto?.click();
+    inputFoto?.click();
   });
 
-  popupEditInputFoto?.addEventListener('change', function () {
-    const file = this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => { 
-      if (popupEditFotoImg) popupEditFotoImg.src = e.target.result; 
-    };
-    reader.readAsDataURL(file);
+  // Saat user memilih foto baru, ganti gambar preview di popup secara realtime
+  inputFoto?.addEventListener("change", function () {
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            if (imgPreview) imgPreview.src = e.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+    }
   });
 
-  /* Hapus foto popup edit */
-  document.getElementById('popup-edit-btn-hapus-foto')?.addEventListener('click', function (e) {
+  // Tombol Hapus Foto di Popup Edit
+  document.getElementById("popup-edit-btn-hapus-foto")?.addEventListener("click", function () {
     e.preventDefault();
-    if (popupEditFotoImg) popupEditFotoImg.src = "https://i.pravatar.cc/300?img=5"; // generic placeholder
-    if (popupEditInputFoto) popupEditInputFoto.value = ""; // clear file path
+    if (imgPreview) imgPreview.src = "/images/default-menu.jpg"; // Path default foto menu kosong
+    if (inputFoto) inputFoto.value = ""; // Reset input file
   });
 
   document.querySelectorAll('[data-close], .btn-batal').forEach(btn => {
@@ -336,4 +541,160 @@ document.addEventListener("DOMContentLoaded", function () {
       window._closePopup?.(); // Menutup pop-up yang sedang aktif
     });
   });
+
+
+  // ============================================================
+  // FUNGSI UTAMA: FILTER DAN PAGINASI MULTI-DEVICE
+  // ============================================================
+  let currentPage = 1;
+  const itemsPerPage = 6;
+
+  function updateTampilanDanPaginasi() {
+    // 1. Ambil kriteria filter aktif (Tab + Search Keyword)
+    const tabAktif = document.querySelector(".category-tabs .tab.active");
+    const filterKategori = tabAktif ? tabAktif.dataset.kategori : "all";
+    
+    const searchInput = document.querySelector(".search-wrapper input");
+    const keyword = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+    // ------------------------------------------------------------
+    // A. PROSES UNTUK DESKTOP (TABEL TR)
+    // ------------------------------------------------------------
+    const rows = document.querySelectorAll("#tabel-menu tbody tr");
+    let matchedRows = [];
+
+    // Filter tahap awal: Kumpulkan data yang lolos pencarian & tab
+    rows.forEach((row) => {
+      const rowKategori = row.dataset.kategori;
+      const text = row.textContent.toLowerCase();
+
+      const cocokKategori = (filterKategori === "all" || rowKategori === filterKategori);
+      const cocokSearch = text.includes(keyword);
+
+      if (cocokKategori && cocokSearch) {
+        matchedRows.push(row);
+      } else {
+        row.style.display = "none"; // Sembunyikan langsung jika tidak lolos kriteria
+      }
+    });
+    // Hitung total halaman desktop
+    const totalRows = matchedRows.length;
+    const totalPagesRows = Math.ceil(totalRows / itemsPerPage) || 1;
+    
+    // Cegah error index jika halaman aktif melampaui total halaman baru setelah difilter
+    if (currentPage > totalPagesRows) currentPage = totalPagesRows;
+
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const endIdx = startIdx + itemsPerPage;
+
+    // Tampilkan data desktop hanya yang masuk range halaman aktif
+    matchedRows.forEach((row, index) => {
+      if (index >= startIdx && index < endIdx) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    // Update Info & Tombol Paginasi Desktop
+    const infoDesktop = document.querySelector(".content-footer .data-info");
+    if (infoDesktop) {
+      const displayStart = totalRows === 0 ? 0 : startIdx + 1;
+      const displayEnd = Math.min(endIdx, totalRows);
+      infoDesktop.textContent = `Menampilkan ${displayStart} sampai ${displayEnd} dari ${totalRows} menu`;
+    }
+    renderPaginationButtons(document.querySelector(".content-footer .pagination"), totalPagesRows);
+
+    // ------------------------------------------------------------
+    // B. PROSES UNTUK MOBILE (CARD LIST)
+    // ------------------------------------------------------------
+    const cards = document.querySelectorAll(".karyawan-card");
+    let matchedCards = [];
+
+    // Filter tahap awal mobile card
+    cards.forEach((card) => {
+      const cardKategori = card.dataset.kategori;
+      const text = card.textContent.toLowerCase();
+
+      const cocokKategori = (filterKategori === "all" || cardKategori === filterKategori);
+      const cocokSearch = text.includes(keyword);
+
+      if (cocokKategori && cocokSearch) {
+        matchedCards.push(card);
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    // Hitung total halaman mobile
+    const totalCards = matchedCards.length;
+    const totalPagesCards = Math.ceil(totalCards / itemsPerPage) || 1;
+
+    // Tampilkan data mobile card sesuai range halaman aktif
+    matchedCards.forEach((card, index) => {
+      if (index >= startIdx && index < endIdx) {
+        card.style.display = "";
+      } else {
+        card.style.display = "none";
+      }
+    });
+
+    // Update Info & Tombol Paginasi Mobile
+    const infoMobile = document.querySelector(".content-footer-mobile .data-info");
+    if (infoMobile) {
+      const displayStart = totalCards === 0 ? 0 : startIdx + 1;
+      const displayEnd = Math.min(endIdx, totalCards);
+      infoMobile.textContent = `Menampilkan ${displayStart} sampai ${displayEnd} dari ${totalCards} menu`;
+    }
+    renderPaginationButtons(document.querySelector(".content-footer-mobile .pagination"), totalPagesCards);
+  }
+
+  // ============================================================
+  // FUNGSI GENERATOR TOMBOL PAGINASI DINAMIS
+  // ============================================================
+  function renderPaginationButtons(container, totalPages) {
+    if (!container) return;
+    container.innerHTML = "";
+
+    // 1. Tombol Sebelumnya
+    const prevBtn = document.createElement("button");
+    prevBtn.className = `page-link ${currentPage === 1 ? "disabled" : ""}`;
+    prevBtn.textContent = "Sebelumnya";
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        updateTampilanDanPaginasi();
+      }
+    });
+    container.appendChild(prevBtn);
+
+    // 2. Angka-angka Halaman
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement("button");
+      pageBtn.className = `page-number ${currentPage === i ? "active" : ""}`;
+      pageBtn.textContent = i;
+      pageBtn.addEventListener("click", () => {
+        currentPage = i;
+        updateTampilanDanPaginasi();
+      });
+      container.appendChild(pageBtn);
+    }
+
+    // 3. Tombol Selanjutnya
+    const nextBtn = document.createElement("button");
+    nextBtn.className = `page-link ${currentPage === totalPages ? "disabled" : ""}`;
+    nextBtn.textContent = "Selanjutnya";
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        updateTampilanDanPaginasi();
+      }
+    });
+    container.appendChild(nextBtn);
+  }
+
+  // Jalankan fungsi pertama kali saat halaman berhasil dimuat
+  updateTampilanDanPaginasi();
 });

@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KokiController;
+use App\Http\Controllers\CashierOrderController;
+use App\Http\Controllers\AdminMenuController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; // <-- Tambahan wajib untuk ngecek sesi login
 
@@ -68,7 +70,26 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Halaman Karyawan (Dihandle KaryawanController)
     Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan');
     Route::get('/karyawan/tambah', [KaryawanController::class, 'tambah'])->name('karyawan.tambah');
-    Route::get('/karyawan/edit', [KaryawanController::class, 'edit'])->name('karyawan.edit');
+    Route::get('/karyawan/{id}/edit', [KaryawanController::class, 'edit'])->name('karyawan.edit'); 
+    
+    // Proses Edit Karyawan (Passing ID lewat URL parameter lebih aman & rapi)
+    Route::post('/karyawan/store', [KaryawanController::class, 'store'])->name('karyawan.store');
+    Route::put('/karyawan/{id}/update', [KaryawanController::class, 'update'])->name('karyawan.update'); //  Untuk proses update data
+    Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy'])->name('karyawan.destroy'); // Untuk proses hapus data
+
+    // 1. Halaman Utama Manajemen Menu (Desktop Table & Mobile Cards)
+    Route::get('/menu', [AdminMenuController::class, 'index'])->name('menu');
+    // 2. Halaman Tambah Menu Khusus Mobile full-page
+    Route::get('/menu/tambah', [AdminMenuController::class, 'tambah'])->name('menu.tambah');
+    // 3. Proses Simpan Menu Baru (AJAX POST dari Desktop Popup / Mobile Page)
+    Route::post('/menu', [AdminMenuController::class, 'store'])->name('menu.store');
+    // 4. Halaman Edit Menu Khusus Mobile full-page
+    Route::get('/menu/{id}/edit', [AdminMenuController::class, 'edit'])->name('menu.edit');
+    // 5. Proses Update Menu (AJAX PUT dari Desktop Popup / Mobile Page)
+    Route::put('/menu/{id}', [AdminMenuController::class, 'update'])->name('menu.update');
+    // 6. Proses Hapus Menu (AJAX DELETE dengan proteksi transaksi)
+    Route::delete('/menu/{id}', [AdminMenuController::class, 'destroy'])->name('menu.destroy');
+    Route::patch('/menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus']);
 });
 
 // ==========================================
@@ -89,7 +110,15 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
     Route::get('/kasir/penjualan', function () {
         return view('kasir.penjualan');
     })->name('kasir.penjualan');
+
+    // API ENDPOINT UNTUK MEMPROSES CHEKOUT KASIR & MEMINTA TOKEN MIDTRANS
+    Route::post('/kasir/order/checkout', [CashierOrderController::class, 'checkout'])->name('kasir.order.checkout');
 });
+
+// ==========================================
+// WEBHOOK NOTIFIKASI MIDTRANS (Wajib di luar Auth Middleware)
+// ==========================================
+Route::post('/api/midtrans/notification', [CashierOrderController::class, 'handleNotification']);
 
 // ==========================================
 // AREA PELANGGAN

@@ -17,11 +17,13 @@
             <input type="text" placeholder="Apa yang kamu mau coba?">
             <span class="search-icon"><svg width="18" height="18" viewBox="0 0 26 26" fill="none"><path d="M25.103 22.071L19.66 16.628A10.721 10.721 0 1010.721 21.443c2.182 0 4.212-.662 5.907-1.786l5.443 5.443a2.143 2.143 0 003.032-3.03zM3.216 10.721a7.505 7.505 0 1115.01 0 7.505 7.505 0 01-15.01 0z" fill="#F8B602"/></svg></span>
         </div>
+        <div class="category-tabs" style="margin-top: 10px; margin-bottom: 10px; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;">
+            <button class="tab active" data-jabatan="all">All</button>
+            <button class="tab" data-jabatan="admin">Admin</button>
+            <button class="tab" data-jabatan="kasir">Kasir</button>
+            <button class="tab" data-jabatan="koki">Koki</button>
+        </div>
         <div class="action-buttons-row">
-            <button class="btn-outline">
-            <svg width="16" height="16" viewBox="0 0 22 22" fill="none"><path d="M19.25 5.5H17.417M19.25 11H14.667M19.25 16.5H14.667M6.417 18.333V12.431c0-.19 0-.286-.018-.377a1.375 1.375 0 00-.332-.673L3.071 7.735c-.12-.149-.179-.224-.22-.307a1.375 1.375 0 00-.213-.639V5.134c0-.514 0-.77.1-.967a.917.917 0 01.4-.4C3.336 3.667 3.592 3.667 4.105 3.667h8.067c.513 0 .77 0 .966.1.177.088.317.228.405.4.1.198.1.454.1.967v1.685c0 .19 0 .286-.018.377a1.375 1.375 0 01-.332.673l-3.026 3.746c-.12.149-.179.224-.22.307a1.375 1.375 0 01-.213.639v3.152L6.417 18.333z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Filter
-            </button>
             <button class="btn-outline">
             <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15.603 14.095V5.284M13.132 7.549l1.375-1.742a2.32 2.32 0 013.563 0l1.375 1.742M21.639 19.836H9.567M11.768 10.893C5.511 12.51 6.009 17.071 6.009 17.071s-.498 4.577 5.759 6.174a13.124 13.124 0 007.663 0c6.255-1.616 5.759-6.174 5.759-6.174s.496-4.578-5.759-6.178z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Export
@@ -39,14 +41,8 @@
         </button>
     </div>
 
-    
     <!-- Action bar desktop (search + filter + export) -->
     <div class="action-bar">
-        <!--
-        TAB FILTER JABATAN
-        data-jabatan dipakai karyawan.js untuk filter card + tabel
-        Diletakkan di luar action-bar agar tampil di mobile dan desktop
-        -->
         <div class="category-tabs" style="margin-bottom:14px;">
         <button class="tab active" data-jabatan="all">All</button>
         <button class="tab" data-jabatan="admin">Admin</button>
@@ -58,183 +54,78 @@
             <input type="text" placeholder="Cari Karyawan...">
             <span class="search-icon"><svg width="16" height="16" viewBox="0 0 26 26" fill="none"><path d="M25.103 22.071L19.66 16.628A10.721 10.721 0 1010.721 21.443c2.182 0 4.212-.662 5.907-1.786l5.443 5.443a2.143 2.143 0 003.032-3.03zM3.216 10.721a7.505 7.505 0 1115.01 0 7.505 7.505 0 01-15.01 0z" fill="#F8B602"/></svg></span>
             </div>
-            <button class="btn-outline">
+            <button class="btn-outline" id="btnExport">
             <svg width="16" height="16" viewBox="0 0 30 30" fill="none"><path d="M15.603 14.095V5.284M13.132 7.549l1.375-1.742a2.32 2.32 0 013.563 0l1.375 1.742M21.639 19.836H9.567M11.768 10.893C5.511 12.51 6.009 17.071 6.009 17.071s-.498 4.577 5.759 6.174a13.124 13.124 0 007.663 0c6.255-1.616 5.759-6.174 5.759-6.174s.496-4.578-5.759-6.178z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Export
             </button>
         </div>
     </div>
 
-    <!--
-    CARD LIST — mobile only
-    data-jabatan di setiap card → karyawan.js filter saat tab diklik
-    class btn-hapus-karyawan + data-nama → karyawan.js isi popup hapus
-    class btn-edit-karyawan → karyawan.js buka popup edit (nanti)
-    -->
+    <!-- CARD LIST — mobile only -->
     <div class="karyawan-card-list">
-
-        <div class="karyawan-card" data-jabatan="kasir">
-            <img src="https://i.pravatar.cc/150?img=5" alt="Fahri" class="karyawan-thumb">
+        @foreach($karyawan as $k)
+        @php
+            $jabatanString = $k->role_id == 1 ? 'admin' : ($k->role_id == 2 ? 'kasir' : 'koki');
+            $jabatanLabel = $k->role_id == 1 ? 'Admin' : ($k->role_id == 2 ? 'Kasir' : 'Koki');
+        @endphp
+        <div class="karyawan-card" data-jabatan="{{ $jabatanString }}">
+            @if($k->photo)
+                <img src="{{ asset('storage/' . $k->photo) }}" alt="{{ $k->name }}" class="karyawan-thumb">
+            @else
+                <div class="karyawan-thumb" style="background:#e5e7eb; display:flex; align-items:center; justify-content:center; font-size:14px; color:#4b5563; font-weight:600; border-radius:50%;">
+                    {{ strtoupper(substr($k->name, 0, 2)) }}
+                </div>
+            @endif
             <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Fahri Eka Pratama</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP001 | Kasir</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0821-8422-9314</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Fahri Eka Pratama"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Fahri Eka Pratama"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                <div class="karyawan-card-top">
+                    <p class="karyawan-card-name">{{ $k->name }}</p>
+                    @if($k->is_active == 1)
+                        <span class="karyawan-card-status" style="background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:4px; font-size:11px;">Aktif</span>
+                    @else
+                        <span class="karyawan-card-status" style="background:#fee2e2; color:#065f46; padding:2px 8px; border-radius:4px; font-size:11px; color:#ef4444;">Nonaktif</span>
+                    @endif
+                </div>
+                <p class="karyawan-card-meta">{{ $k->employee_id }} | {{ $jabatanLabel }}</p>
+                <div class="karyawan-card-bottom">
+                    <span class="karyawan-card-phone">{{ $k->phone ?? '-' }}</span>
+                    <div class="tindakan-col">
+                        <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
+                        <a href="#" class="btn-tindakan btn-edit-karyawan" 
+                            data-id="{{ $k->id }}"
+                            data-employee-id="{{ $k->employee_id }}"
+                            data-nama="{{ $k->name }}"
+                            data-jabatan="{{ $jabatanString }}"
+                            data-telp="{{ $k->phone }}"
+                            data-email="{{ $k->email }}"
+                            data-alamat="{{ $k->alamat ?? '' }}"
+                            data-photo="{{ $k->photo ?? '' }}"
+                            data-status="{{ $k->is_active }}">
+                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                                    <rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/>
+                                    <path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                        </a>
+
+                        <a href="#" class="btn-tindakan btn-hapus-karyawan" 
+                            data-id="{{ $k->id }}" 
+                            data-nama="{{ $k->name }}">
+                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                                    <rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/>
+                                    <path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                        </a>                    
+                    </div>
                 </div>
             </div>
-            </div>
         </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=8" alt="Juniansyah" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Juniansyah Raka</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP002 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0898-8274-987</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Juniansyah Raka"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Juniansyah Raka"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="admin">
-            <img src="https://i.pravatar.cc/150?img=12" alt="Kurniawan" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Kurniawan Dwi Suyono</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP003 | Admin</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0878-9183-8765</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Kurniawan Dwi Suyono"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Kurniawan Dwi Suyono"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="kasir">
-            <img src="https://i.pravatar.cc/150?img=15" alt="Rafliansyah" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Rafliansyah Firman</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP004 | Kasir</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0812-7452-8174</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Rafliansyah Firman"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Rafliansyah Firman"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="kasir">
-            <img src="https://i.pravatar.cc/150?img=18" alt="Herman" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Herman Nasution</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP005 | Kasir</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0878-8241-1112</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Herman Nasution"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Herman Nasution"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=20" alt="Asep" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Asep Irfanudin</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP006 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0872-8274-888</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Asep Irfanudin"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Asep Irfanudin"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=22" alt="Kamala" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Kamala Juan Siregar</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP007 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0821-9824-3456</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Kamala Juan Siregar"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Kamala Juan Siregar"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <div class="karyawan-card" data-jabatan="koki">
-            <img src="https://i.pravatar.cc/150?img=25" alt="Paris" class="karyawan-thumb">
-            <div class="karyawan-card-info">
-            <div class="karyawan-card-top">
-                <p class="karyawan-card-name">Paris Agustinus</p>
-                <span class="karyawan-card-status">Aktif</span>
-            </div>
-            <p class="karyawan-card-meta">EMP008 | Koki</p>
-            <div class="karyawan-card-bottom">
-                <span class="karyawan-card-phone">0812-9999-2222</span>
-                <div class="tindakan-col">
-                <span style="font-size:11px;color:#94a3b8;">Tindakan:</span>
-                <a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Paris Agustinus"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                <a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Paris Agustinus"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                </div>
-            </div>
-            </div>
-        </div>
-
+        @endforeach
     </div>
 
     <footer class="content-footer-mobile">
-        <p class="data-info">Menampilkan 8 dari 9 karyawan</p>
+        <p class="data-info">Memuat data...</p>
         <div class="pagination">
-            <button class="page-link disabled">Sebelumnya</button>
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-link">Selanjutnya</button>
-        </div>
+            </div>
     </footer>
 
     <!-- Tabel desktop -->
@@ -254,18 +145,66 @@
             </tr>
             </thead>
             <tbody>
-            <!--
-                Setiap tombol hapus di tabel punya:
-                class="btn-hapus-karyawan" + data-nama="..."
-                → karyawan.js isi popup hapus sebelum membukanya
-                Setiap tombol edit punya:
-                class="btn-edit-karyawan" + data-nama="..."
-                → karyawan.js nanti pre-fill form edit
-            -->
-            <tr>
+                @foreach($karyawan as $k)
+                <tr data-jabatan="{{ $k->role_id == 1 ? 'admin' : ($k->role_id == 2 ? 'kasir' : 'koki') }}">
+                    <td>
+                        @if($k->photo)
+                            <img src="{{ asset('storage/' . $k->photo) }}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;display:block;margin:0 auto;">
+                        @else
+                            <div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:14px;color:#4b5563;font-weight:600;">
+                                {{ strtoupper(substr($k->name, 0, 2)) }}
+                            </div>
+                        @endif
+                    </td>
+                    <td class="col-left text-bold">{{ $k->name }}</td>
+                    <td>{{ $k->employee_id }}</td>
+                    <td>{{ $k->role_id == 1 ? 'Admin' : ($k->role_id == 2 ? 'Kasir' : 'Koki') }}</td>
+                    <td><span class="notelp-badge">{{ $k->phone ?? '-' }}</span></td>
+                    <td>{{ $k->email }}</td>
+                    <td>{{ $k->alamat ?? '-' }}</td>
+                    <td>
+                        @if($k->is_active == 1)
+                            <span class="status-badge success">Aktif</span>
+                        @else
+                            <span class="status-badge danger" style="background:#fee2e2; color:#ef4444;">Nonaktif</span>
+                        @endif
+                    </td>
+                    <td>
+                        <div class="tindakan-col">
+                            <a href="#" class="btn-tindakan btn-edit-karyawan" 
+                            data-id="{{ $k->id }}"
+                            data-employee-id="{{ $k->employee_id }}"
+                            data-nama="{{ $k->name }}"
+                            data-jabatan="{{ $k->role_id == 1 ? 'admin' : ($k->role_id == 2 ? 'kasir' : 'koki') }}"
+                            data-telp="{{ $k->phone }}"
+                            data-email="{{ $k->email }}"
+                            data-alamat="{{ $k->alamat ?? '' }}"
+                            data-photo="{{ $k->photo ?? '' }}"
+                            data-status="{{ $k->is_active }}">
+                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                                    <rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/>
+                                    <path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+
+                            <a href="#" class="btn-tindakan btn-hapus-karyawan" 
+                            data-id="{{ $k->id }}" 
+                            data-nama="{{ $k->name }}">
+                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                                    <rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/>
+                                    <path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            <!-- <tr>
                 <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
                 <td class="col-left text-bold">Fahri Eka Pratama</td>
-                <td>EMP001</td><td>Kasir</td>
+                <td>EMP001</td>
+                <td>Kasir</td>
                 <td><span class="notelp-badge">0821-8422-9314</span></td>
                 <td>fahri@gmail.com</td>
                 <td>Jl. Ahmad Yani No. 10</td>
@@ -277,88 +216,14 @@
                     data-email="fahri@gmail.com"
                     data-alamat="Jl. Ahmad Yani No. 10"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Fahri Eka Pratama"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
                 </td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Juniansyah Raka</td>
-                <td>EMP002</td><td>Koki</td>
-                <td><span class="notelp-badge">0898-8274-987</span></td>
-                <td>junnn@gmail.com</td>
-                <td>Jl. Sudirman No. 5</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Juniansyah Raka"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Juniansyah Raka"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Kurniawan Dwi Suyono</td>
-                <td>EMP003</td><td>Admin</td>
-                <td><span class="notelp-badge">0878-9183-8765</span></td>
-                <td>dwi@gmail.com</td>
-                <td>Jl. Gatot Subroto No. 3</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Kurniawan Dwi Suyono"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Kurniawan Dwi Suyono"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Rafliansyah Firman</td>
-                <td>EMP004</td><td>Kasir</td>
-                <td><span class="notelp-badge">0812-7452-8174</span></td>
-                <td>firmanr@gmail.com</td>
-                <td>Jl. Diponegoro No. 8</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Rafliansyah Firman"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Rafliansyah Firman"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Herman Nasution</td>
-                <td>EMP005</td><td>Kasir</td>
-                <td><span class="notelp-badge">0878-8241-1112</span></td>
-                <td>herman@gmail.com</td>
-                <td>Jl. Ahmad Yani No. 10</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Herman Nasution"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Herman Nasution"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Asep Irfanudin</td>
-                <td>EMP006</td><td>Koki</td>
-                <td><span class="notelp-badge">0872-8274-888</span></td>
-                <td>asep@gmail.com</td>
-                <td>Jl. Merdeka No. 22</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Asep Irfanudin"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Asep Irfanudin"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Kamala Juan Siregar</td>
-                <td>EMP007</td><td>Koki</td>
-                <td><span class="notelp-badge">0821-9824-3456</span></td>
-                <td>juan@gmail.com</td>
-                <td>Jl. Imam Bonjol No. 14</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Kamala Juan Siregar"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Kamala Juan Siregar"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
-            <tr>
-                <td><div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div></td>
-                <td class="col-left text-bold">Paris Agustinus</td>
-                <td>EMP008</td><td>Koki</td>
-                <td><span class="notelp-badge">0812-9999-2222</span></td>
-                <td>paris@gmail.com</td>
-                <td>Jl. Pahlawan No. 7</td>
-                <td><span class="status-badge success">Aktif</span></td>
-                <td><div class="tindakan-col"><a href="#" class="btn-tindakan btn-edit-karyawan" data-nama="Paris Agustinus"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2"/><path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a href="#" class="btn-tindakan btn-hapus-karyawan" data-nama="Paris Agustinus"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15"/><path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div></td>
-            </tr>
+            </tr> -->
             </tbody>
         </table>
     </div>
 
     <footer class="content-footer">
-        <p class="data-info">Menampilkan 8 dari 9 karyawan</p>
+        <p class="data-info">Memuat data...</p>
         <div class="pagination">
-            <button class="page-link disabled">Sebelumnya</button>
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-link">Selanjutnya</button>
         </div>
     </footer>
     </main>
@@ -410,9 +275,7 @@
                     type="text"
                     class="popup-form-input"
                     id="popup-tambah-id"
-                    value="EMP009"
-                    readonly
-                    >
+                    placeholder="Otomatis setelah disimpan..." readonly>
                 </div>
 
                 <!-- Nama Lengkap -->
@@ -422,6 +285,7 @@
                     type="text"
                     class="popup-form-input"
                     id="popup-tambah-nama"
+                    name="name"
                     placeholder="Masukkan Nama Lengkap..."
                     >
                 </div>
@@ -430,11 +294,11 @@
                 <div class="popup-form-group">
                     <label class="popup-form-label" for="popup-tambah-jabatan">Jabatan</label>
                     <div class="popup-select-wrapper">
-                    <select class="popup-form-select" id="popup-tambah-jabatan">
-                        <option value="" disabled selected>Jabatan</option>
-                        <option value="admin">Admin</option>
-                        <option value="kasir">Kasir</option>
-                        <option value="koki">Koki</option>
+                    <select class="popup-form-select" id="popup-tambah-jabatan" name="jabatan">
+                        <option value="" disabled selected>Pilih Jabatan</option>
+                        <option value="1">Admin</option>
+                        <option value="2">Kasir</option>
+                        <option value="4">Koki</option>
                     </select>
                     <div class="popup-select-chevron">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -451,6 +315,7 @@
                     type="tel"
                     class="popup-form-input"
                     id="popup-tambah-telp"
+                    name="telp"
                     placeholder="Masukkan Nomor Telepon..."
                     >
                 </div>
@@ -462,18 +327,29 @@
                     type="email"
                     class="popup-form-input"
                     id="popup-tambah-email"
+                    name="email"
                     placeholder="Masukkan Email Baru..."
                     >
                 </div>
 
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-tambah-alamat">Alamat</label>
+                    <textarea 
+                        class="popup-form-input" 
+                        id="popup-tambah-alamat" 
+                        name="alamat" 
+                        placeholder="Masukkan Alamat Lengkap..."
+                        rows="3"></textarea>
+                </div>
+
                 <!-- Toggle Akses Login — di bawah dua kolom, full width -->
                 <div class="popup-form-toggle">
-                    <span class="popup-toggle-label">Akses Login</span>
+                    <span class="popup-toggle-label">Akses Login (Aktif)</span>
                     <label class="popup-toggle-switch">
-                    <input type="checkbox" id="popup-tambah-akses">
-                    <div class="popup-toggle-track">
-                        <div class="popup-toggle-thumb"></div>
-                    </div>
+                        <input type="checkbox" id="popup-tambah-akses">
+                        <div class="popup-toggle-track">
+                            <div class="popup-toggle-thumb"></div>
+                        </div>
                     </label>
                 </div>
 
@@ -488,139 +364,145 @@
     </div>
 
     <div class="popup popup-form-karyawan" id="popup-edit-karyawan">
-
+        <input type="hidden" id="popup-edit-db-id">
         <div class="popup-form-header">
             <div>
             <h2 class="popup-form-title">Edit Data Karyawan</h2>
             <p class="popup-form-subtitle">Silahkan sesuaikan perubahan yang Anda inginkan.</p>
             </div>
             <button class="popup-close-merah" data-close aria-label="Tutup">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" fill="#fee2e2"/>
-                <path d="M15 9L9 15M9 9L15 15" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" fill="#fee2e2"/>
+                    <path d="M15 9L9 15M9 9L15 15" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                </svg>
             </button>
         </div>
 
         <div class="popup-form-body">
-
             <!-- Kolom kiri: foto existing + tombol edit/hapus overlay -->
             <div class="popup-form-foto-col">
-            <div class="popup-foto-edit-wrap">
-                <!--
-                src foto diisi JS saat prefillEditPopup dipanggil.
-                Default placeholder sampai ada foto nyata.
-                -->
-                <img
-                src="https://i.pravatar.cc/300?img=5"
-                alt="Foto Karyawan"
-                class="popup-foto-edit-img"
-                id="popup-edit-foto-img"
-                >
-                <!-- Tombol edit & hapus foto, overlay di pojok kanan atas foto -->
-                <div class="popup-foto-edit-actions">
-                <button class="popup-btn-foto-edit" id="popup-edit-btn-ganti-foto" title="Ganti Foto">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                <button class="popup-btn-foto-hapus" id="popup-edit-btn-hapus-foto" title="Hapus Foto">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
+                <div class="popup-foto-edit-wrap">
+                    <img
+                    src="https://i.pravatar.cc/300?img=5"
+                    alt="Foto Karyawan"
+                    class="popup-foto-edit-img"
+                    id="popup-edit-foto-img"
+                    >
+                    <!-- Tombol edit & hapus foto, overlay di pojok kanan atas foto -->
+                    <div class="popup-foto-edit-actions">
+                        <button class="popup-btn-foto-edit" id="popup-edit-btn-ganti-foto" title="Ganti Foto">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <button class="popup-btn-foto-hapus" id="popup-edit-btn-hapus-foto" title="Hapus Foto">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Input file tersembunyi untuk ganti foto -->
+                    <input
+                    type="file"
+                    id="popup-edit-input-foto"
+                    accept="image/jpg,image/jpeg,image/png"
+                    style="display:none;"
+                    >
                 </div>
-                <!-- Input file tersembunyi untuk ganti foto -->
-                <input
-                type="file"
-                id="popup-edit-input-foto"
-                accept="image/jpg,image/jpeg,image/png"
-                style="display:none;"
-                >
-            </div>
             </div>
 
             <!-- Kolom kanan: form fields pre-filled -->
             <div class="popup-form-fields-col">
-
-            <!-- ID — readonly, diisi JS -->
-            <div class="popup-form-group">
-                <label class="popup-form-label" for="popup-edit-id">ID Karyawan</label>
-                <input
-                type="text"
-                class="popup-form-input"
-                id="popup-edit-id"
-                readonly
-                >
-            </div>
-
-            <!-- Nama Lengkap — diisi JS -->
-            <div class="popup-form-group">
-                <label class="popup-form-label" for="popup-edit-nama">Nama Lengkap</label>
-                <input
-                type="text"
-                class="popup-form-input"
-                id="popup-edit-nama"
-                placeholder="Nama Lengkap"
-                >
-            </div>
-
-            <!-- Jabatan — diisi JS (option selected) -->
-            <div class="popup-form-group">
-                <label class="popup-form-label" for="popup-edit-jabatan">Jabatan</label>
-                <div class="popup-select-wrapper">
-                <select class="popup-form-select" id="popup-edit-jabatan">
-                    <option value="" disabled>Pilih Jabatan</option>
-                    <option value="admin">Admin</option>
-                    <option value="kasir">Kasir</option>
-                    <option value="koki">Koki</option>
-                </select>
-                <div class="popup-select-chevron">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                <!-- ID — readonly, diisi JS -->
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-edit-id">ID Karyawan</label>
+                    <input
+                    type="text"
+                    class="popup-form-input"
+                    id="popup-edit-id"
+                    readonly
+                    >
                 </div>
+                <!-- Nama Lengkap — diisi JS -->
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-edit-nama">Nama Lengkap</label>
+                    <input
+                    type="text"
+                    class="popup-form-input"
+                    id="popup-edit-nama"
+                    name="nama"
+                    placeholder="Nama Lengkap"
+                    >
                 </div>
-            </div>
 
-            <!-- Nomor Telepon — diisi JS -->
-            <div class="popup-form-group">
-                <label class="popup-form-label" for="popup-edit-telp">Nomor Telepon</label>
-                <input
-                type="tel"
-                class="popup-form-input"
-                id="popup-edit-telp"
-                placeholder="Nomor Telepon"
-                >
-            </div>
-
-            <!-- Email — diisi JS -->
-            <div class="popup-form-group">
-                <label class="popup-form-label" for="popup-edit-email">Email</label>
-                <input
-                type="email"
-                class="popup-form-input"
-                id="popup-edit-email"
-                placeholder="Email"
-                >
-            </div>
-
-            <div class="popup-form-toggle">
-                <span class="popup-toggle-label">Akses Login</span>
-                <label class="popup-toggle-switch">
-                <input type="checkbox" id="popup-edit-akses">
-                <div class="popup-toggle-track">
-                    <div class="popup-toggle-thumb"></div>
+                <!-- Jabatan — diisi JS (option selected) -->
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-edit-jabatan">Jabatan</label>
+                    <div class="popup-select-wrapper">
+                        <select class="popup-form-select" id="popup-edit-jabatan" name="jabatan">
+                            <option value="" disabled>Pilih Jabatan</option>
+                            <option value="1">Admin</option>
+                            <option value="2">Kasir</option>
+                            <option value="4">Koki</option>
+                        </select>
+                        <div class="popup-select-chevron">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                </label>
-            </div>
 
-            <!-- Tombol Batal + Simpan -->
-            <div class="popup-form-actions">
-                <button class="popup-btn-batal" data-close>Batal</button>
-                <button class="popup-btn-simpan" id="popup-btn-edit-simpan">Simpan</button>
-            </div>
+                <!-- Nomor Telepon — diisi JS -->
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-edit-telp">Nomor Telepon</label>
+                    <input
+                    type="tel"
+                    class="popup-form-input"
+                    id="popup-edit-telp"
+                    name="telp"
+                    placeholder="Nomor Telepon"
+                    >
+                </div>
+
+                <!-- Email — diisi JS -->
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-edit-email">Email</label>
+                    <input
+                    type="email"
+                    class="popup-form-input"
+                    id="popup-edit-email"
+                    name="email"
+                    placeholder="Email"
+                    >
+                </div>
+
+                <div class="popup-form-group">
+                    <label class="popup-form-label" for="popup-edit-alamat">Alamat</label>
+                    <textarea 
+                        class="popup-form-input" 
+                        id="popup-edit-alamat" 
+                        name="alamat" 
+                        placeholder="Alamat Karyawan..."
+                        rows="3"></textarea>
+                </div>
+
+                <div class="popup-form-toggle">
+                    <span class="popup-toggle-label">Akses Login</span>
+                    <label class="popup-toggle-switch">
+                        <input type="checkbox" id="popup-edit-akses">
+                        <div class="popup-toggle-track">
+                            <div class="popup-toggle-thumb"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Tombol Batal + Simpan -->
+                <div class="popup-form-actions">
+                    <button class="popup-btn-batal" data-close>Batal</button>
+                    <button class="popup-btn-simpan" id="popup-btn-edit-simpan">Simpan</button>
+                </div>
 
             </div><!-- end popup-form-fields-col -->
 
@@ -629,40 +511,102 @@
 
     <!-- Popup Konfirmasi Hapus Karyawan -->
     <div class="popup popup-warning" id="popup-hapus-karyawan">
+        <input type="hidden" id="popup-hapus-db-id">
         <button class="popup-close popup-close-float" data-close>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="#555" stroke-width="1.8" />
-            <path
-            d="M15 9L9 15M9 9L15 15"
-            stroke="#555"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            />
-        </svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#555" stroke-width="1.8" />
+                <path
+                d="M15 9L9 15M9 9L15 15"
+                stroke="#555"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                />
+            </svg>
         </button>
         <div class="popup-body popup-body-warning">
-        <div class="warning-icon-wrap">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-            <path
-                d="M12 9V13M12 17H12.01"
-                stroke="#fff"
-                stroke-width="2.5"
-                stroke-linecap="round"
-            />
+            <div class="warning-icon-wrap">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M12 9V13M12 17H12.01"
+                        stroke="#fff"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                    />
+                </svg>
+            </div>
+            <h3 class="warning-title">
+                Hapus karyawan <span id="hapus-nama-karyawan">ini</span>?
+            </h3>
+            <p class="warning-desc">
+                Data karyawan akan dihapus permanen dan tidak bisa dikembalikan.
+            </p>
+            <div class="warning-actions">
+                <button class="btn-batal-warning" data-close>Batal</button>
+                <button class="btn-confirm-warning" id="btn-confirm-hapus" data-close>
+                Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup popup-export" id="popupExport">
+        <div class="popup-export-header">
+        <h3>Unduh Data Karyawan</h3>
+        <button class="popup-close-white" id="closeExportBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
+        </button>
         </div>
-        <h3 class="warning-title">
-            Hapus karyawan <span id="hapus-nama-karyawan">ini</span>?
-        </h3>
-        <p class="warning-desc">
-            Data karyawan akan dihapus permanen dan tidak bisa dikembalikan.
-        </p>
-        <div class="warning-actions">
-            <button class="btn-batal-warning" data-close>Batal</button>
-            <button class="btn-confirm-warning" id="btn-confirm-hapus" data-close>
-            Ya, Hapus
-            </button>
+        <div class="popup-export-body">
+        <div class="export-format-title">Pilih Format Data</div>
+        <div class="export-format-options">
+            <div class="export-option selected" data-fmt="xlsx">
+            <div class="export-icon xlsx">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+                </svg>
+            </div>
+            <span class="export-option-name">Excel</span>
+            </div>
+            <div class="export-option" data-fmt="pdf">
+            <div class="export-icon pdf">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+                </svg>
+            </div>
+            <span class="export-option-name">PDF</span>
+            </div>
         </div>
+
+        <div>
+            <div class="export-range-title">Rentang Data</div>
+            <div class="export-range-list" id="exportRangeList">
+            <label class="export-range-item">
+                <input type="radio" name="exportRange" value="all">
+                <span>Semua Data Karyawan <span>(123 Item)</span></span>
+            </label>
+            <label class="export-range-item">
+                <input type="radio" name="exportRange" value="current" checked>
+                <span>Hanya karyawan Yang Sedang ditampilkan <span id="exportRangeCount">(8 Karyawan)</span></span>
+            </label>
+            <label class="export-range-item">
+                <input type="radio" name="exportRange" value="none">
+                <span>Tidak Tersedia</span>
+            </label>
+            </div>
+        </div>
+
+        <button class="btn-unduh" id="btnUnduhData">Unduh Data</button>
         </div>
     </div>
 @endsection
