@@ -30,28 +30,50 @@
 
 <div class="popup popup-profil" id="popup-profil">
     <div class="popup-header popup-header-yellow">
-    <span>Profil Saya</span>
-    <button class="popup-close popup-close-white" data-close>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.8"/><path d="M15 9L9 15M9 9L15 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </button>
+        <span>Profil Saya</span>
+        <button class="popup-close popup-close-white" data-close>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.8"/><path d="M15 9L9 15M9 9L15 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
     </div>
     <div class="popup-body popup-body-profil">
-    <div class="profil-top">
-        <div class="profil-avatar">
-        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=eab308&color=fff" alt="{{ Auth::user()->name }}">
+        <div class="profil-top">
+            <div class="profil-avatar">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=eab308&color=fff" alt="Avatar">
+            </div>
+            <div class="profil-top-info">
+                <p class="profil-name">{{ Auth::user()->name ?? 'Pelanggan Warkop' }}</p>
+                <p class="profil-role">
+                    @if(Auth::check())
+                        {{ Auth::user()->role_id == 1 ? 'Admin' : (Auth::user()->role_id == 2 ? 'Cashier' : (Auth::user()->role_id == 4 ? 'Koki' : 'Pelanggan')) }}
+                    @else
+                        Guest
+                    @endif
+                </p>
+            </div>
         </div>
-        <div class="profil-top-info">
-        <p class="profil-name">{{ Auth::user()->name }}</p>
-        <p class="profil-role">Cashier</p>
+        
+        <div class="profil-field-wrap">
+            <label class="profil-label">Nama lengkap</label>
+            <div class="profil-field">{{ Auth::user()->name ?? 'Pelanggan Belum Login' }}</div>
         </div>
-    </div>
-    <div class="profil-field-wrap"><label class="profil-label">Nama lengkap</label><div class="profil-field">{{ Auth::user()->name }}</div></div>
-    <div class="profil-field-wrap"><label class="profil-label">ID Karyawan</label><div class="profil-field">{{ Auth::user()->employee_id }}</div></div>
-    <div class="profil-field-wrap"><label class="profil-label">Jabatan</label><div class="profil-field">Kasir</div></div>
-    <div class="profil-field-wrap"><label class="profil-label">No Telepon</label><div class="profil-field">{{ Auth::user()->phone ?? 'Belum diatur' }}</div></div>
-    <div class="profil-field-wrap"><label class="profil-label">Alamat</label><div class="profil-field">Jl. Raya Cileunyi No. 123, RT 03/RW 05, Bandung, Jawa Barat</div></div>
-    <div class="profil-actions">
-        <button class="popup-btn profil-btn-close" data-close>Tutup</button>
-    </div>
+        
+        <div class="profil-field-wrap">
+            <label class="profil-label">ID Pengguna / Karyawan</label>
+            <div class="profil-field">{{ Auth::user()->employee_id ?? 'GUEST-TSKUY' }}</div>
+        </div>
+        
+        <div class="profil-field-wrap">
+            <label class="profil-label">No Telepon</label>
+            <div class="profil-field">{{ Auth::user()->phone ?? 'Belum diatur' }}</div>
+        </div>
+        
+        <div class="profil-field-wrap">
+            <label class="profil-label">Alamat Sektor</label>
+            <div class="profil-field">Jl. Raya Cileunyi No. 123, RT 03/RW 05, Bandung, Jawa Barat</div>
+        </div>
+        
+        <div class="profil-actions">
+            <button class="popup-btn profil-btn-close" data-close>Tutup</button>
+        </div>
     </div>
 </div>

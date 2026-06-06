@@ -88,37 +88,36 @@
   border: 2px solid #fff;
 }
 
-/* ============================================================
-   DRAWER — slide dari kiri, overlay gelap
-   ============================================================ */
-.drawer-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 200;
-  opacity: 0;
-  transition: opacity 0.25s ease;
+/* Pastikan Drawer ada di atas segalanya */
+#drawer {
+    position: fixed;
+    top: 0;
+    right: -300px; /* Sembunyi di kanan layar */
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    z-index: 99999 !important; /* Biar gak tenggelam */
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
 }
 
-.drawer-overlay.is-open { display: block; opacity: 1; }
-
-.drawer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 265px;
-  height: 100vh;
-  background: #fff;
-  z-index: 300;
-  transform: translateX(-100%);
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+/* Saat class .is-open ditambahin sama JS */
+#drawer.is-open {
+    right: 0 !important; /* Geser masuk */
 }
 
-.drawer.is-open { transform: translateX(0); }
+/* Overlay biar background gelap */
+#drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99998 !important;
+}
+
+#drawer-overlay.is-open {
+    display: block !important;
+}
 
 /* Drawer profile */
 .drawer-profile {
@@ -2332,3 +2331,4 @@
   }
 
 }
+

@@ -285,3 +285,36 @@ body { font-family: "Poppins", sans-serif; }
   .logo { width: 48px; height: 48px; }
   .search-container { max-width: 500px; }
 }
+
+/* ============================================================
+   TRAFFIC CONTROLLER (PENGATUR TAMPILAN HEADER PC VS HP)
+============================================================ */
+
+/* 📱 TAMPILAN MOBILE / HP */
+@media (max-width: 767px) {
+    .main-header { display: none !important; } /* Matikan Header PC */
+    .mobile-header { display: flex !important; } /* Nyalakan Header HP */
+    .page-title-section { display: block !important; padding: 16px 20px 0; } 
+    
+    /* 🔥 TAMBAHAN: Nyalakan Search Bar Mobile */
+    .mobile-search-wrapper { display: block !important; }
+}
+
+/* 💻 TAMPILAN PC / DESKTOP */
+@media (min-width: 768px) {
+    .mobile-header { display: none !important; } /* Matikan Header HP */
+    
+    /* 🔥 TAMBAHAN: Matikan Search Bar Mobile biar gak double di PC */
+    .mobile-search-wrapper { display: none !important; } 
+
+    .main-header { 
+        display: flex !important; /* Nyalakan Header PC */
+        height: 72px;
+        background: #fff;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 28px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .page-title-section { display: none !important; } 
+}

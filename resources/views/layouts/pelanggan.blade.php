@@ -12,30 +12,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Panggil CSS Global Kasir biar layout sama persis -->
     <link rel="stylesheet" href="{{ asset('css/kasir-global.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/admincopy.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/pelanggan.css') }}" />
     @yield('styles')
 </head>
 <body>
     <div class="app-container">
         
-        <!-- Panggil Header Global -->
+        @include('partials.mobile-header')
+        
         @include('partials.header')
+        
+        @include('partials.drawer')
 
         <div class="main-layout">
-            <!-- Panggil Sidebar Global -->
             @include('partials.sidebar')
 
-            <!-- Area Konten Utama -->
             @yield('content')
         </div>
     </div>
 
-    <!-- Panggil Popups Global & Khusus -->
     @include('partials.popups')
     @yield('page_popups')
 
-    <!-- Panggil JS Khusus Pelanggan -->
     <script src="{{ asset('js/pelanggan.js') }}"></script>
     @yield('scripts')
 </body>

@@ -24,3 +24,16 @@
     </svg>
 </button>
 </header>
+
+{{-- 🔥 SEARCH BAR KHUSUS MOBILE (Muncul hanya di halaman yang butuh search) 🔥 --}}
+@if(Request::is('kasir/pos', 'pelanggan/orders'))
+<div class="mobile-search-wrapper" style="padding: 10px 16px; background: #fff;">
+    <div class="search-container" style="width: 100%; position: relative;">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%);">
+            <circle cx="11" cy="11" r="7" stroke="#fbbf24" stroke-width="2" />
+            <path d="M16.5 16.5L21 21" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input type="text" class="search-bar" placeholder="What do you want eat today..." style="width: 100%; height: 40px; padding-left: 40px; border-radius: 12px; border: 1px solid #ddd; outline: none; background: #f8f8f8;" />
+    </div>
+</div>
+@endif

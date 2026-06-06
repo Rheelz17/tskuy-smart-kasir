@@ -10,7 +10,7 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Akun Admin (Tetap)
+        // 1. Akun Admin (Dzaky Julian Putranto)
         User::updateOrCreate(
             ['email' => 'admin@tskuy.com'],
             [
@@ -20,11 +20,11 @@ class UserSeeder extends Seeder
                 'phone' => '082125697616',
                 'password' => Hash::make('password123'),
                 'role_id' => 1,
-                'is_active' => true,
+                'is_active' => 1,
             ]
         );
 
-        // 2. Akun Kasir (Tetap)
+        // 2. Akun Kasir (Rafli Ahmad Fauzi)
         User::updateOrCreate(
             ['email' => 'rafli@tskuy.com'],
             [
@@ -34,35 +34,35 @@ class UserSeeder extends Seeder
                 'phone' => '08298765333',
                 'password' => Hash::make('password123'),
                 'role_id' => 2,
-                'is_active' => true,
+                'is_active' => 1,
             ]
         );
 
-        // 3. Akun Koki (Baru)
+        // 3. Akun Koki (chef tskuy)
         User::updateOrCreate(
             ['email' => 'koki@tskuy.com'],
             [
-                'employee_id' => 'KKI-001',
-                'name' => 'Chef Tskuy',
+                'employee_id' => 'CUST-XNVNWN',
+                'name' => 'chef tskuy',
                 'username' => 'chef_tskuy',
                 'phone' => '08123456789',
                 'password' => Hash::make('password123'),
-                'role_id' => 4, // Role Koki
-                'is_active' => true,
+                'role_id' => 4,
+                'is_active' => 1,
             ]
         );
 
-        // 4. Sampel Akun Pelanggan untuk Testing History & Split Bill
+        // 4. Sampel Akun Pelanggan (Budi Santoso)
         User::updateOrCreate(
             ['email' => 'pembeli@gmail.com'],
             [
-                'employee_id' => null,  // Kosong karena pelanggan bukan karyawan
-                'username' => null,     // Kosong karena login via Email/No HP
+                'employee_id' => 'PLG-BUDI01',  
+                'username' => 'budi_santoso',    
                 'name' => 'Budi Santoso',
                 'phone' => '085712345678',
                 'password' => Hash::make('password123'),
-                'role_id' => 3, // Role Pelanggan
-                'is_active' => true,
+                'role_id' => 3, 
+                'is_active' => 1,
             ]
         );
     }

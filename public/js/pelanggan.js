@@ -1,6 +1,3 @@
-// ============================================================
-// 1. VARIABEL GLOBAL & STATUS LOGIN
-// ============================================================
 const metaLogin = document.querySelector('meta[name="is-logged-in"]');
 const isLoggedIn = metaLogin ? metaLogin.content === 'true' : false;
 
@@ -10,9 +7,6 @@ let nextCartId = 1;
 const overlay = document.getElementById("popup-overlay");
 let activePopup = null;
 
-// ============================================================
-// 2. SISTEM POPUP INTI 
-// ============================================================
 function openPopup(id) {
     if (activePopup) activePopup.classList.remove("is-open");
     const el = document.getElementById(id);
@@ -20,6 +14,10 @@ function openPopup(id) {
     el.classList.add("is-open");
     if (overlay) overlay.classList.add("is-open");
     activePopup = el;
+
+    // 🔥 Tutup otomatis laci sidebar kalau ada popup kebuka
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.classList.remove('show-drawer');
 }
 
 function closePopup() {
@@ -34,9 +32,6 @@ window._closePopup = closePopup;
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") closePopup(); });
 if (overlay) overlay.addEventListener("click", closePopup);
 
-// ============================================================
-// 3. FORMATTER & TOAST NOTIFICATION
-// ============================================================
 function formatRp(amount) { return "Rp " + parseInt(amount).toLocaleString("id-ID"); }
 
 function showAddedToast(name) {
@@ -53,9 +48,6 @@ function showAddedToast(name) {
     toast._timeout = setTimeout(() => toast.style.opacity = "0", 2500);
 }
 
-// ============================================================
-// 4. FUNGSI MANAJEMEN KERANJANG
-// ============================================================
 function renderCart() {
     const container = document.getElementById('cart-items-container');
     const emptyMsg = document.getElementById('cart-empty-msg');
@@ -63,7 +55,7 @@ function renderCart() {
     container.innerHTML = '';
 
     if (cartItems.length === 0) {
-        if(emptyMsg) emptyMsg.style.display = 'block';
+        if(emptyMsg) emptyMsg.style.display = 'flex';
         updateSummary();
         return;
     }
@@ -76,13 +68,13 @@ function renderCart() {
             <img src="${item.image}" class="mini-img" alt="${item.name}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
             <div class="mini-info" style="flex:1;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <p class="mini-name" style="font-size:13px; font-weight:600; color:#222;">${item.name}</p>
+                    <p class="mini-name" style="font-size:13px; font-weight:600; color:#222; margin:0;">${item.name}</p>
                     <button class="delete-item" data-cart-id="${item.cartId}" style="background:none; border:none; cursor:pointer; color:#ef4444; padding:0;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                    <p class="mini-price" style="font-size:13px; font-weight:700; color:#efb100;">${formatRp(item.price * item.qty)}</p>
+                    <p class="mini-price" style="font-size:13px; font-weight:700; color:#efb100; margin:0;">${formatRp(item.price * item.qty)}</p>
                     <div class="mini-qty" style="display:flex; align-items:center; gap:10px; background:#f4f4f4; padding:4px 8px; border-radius:20px;">
                         <button class="qty-btn minus" data-cart-id="${item.cartId}" style="background:none; border:none; font-weight:bold; cursor:pointer; font-size:14px; color:#555;">-</button>
                         <span class="qty-val" style="font-size:12px; font-weight:600; width:16px; text-align:center;">${item.qty}</span>
@@ -96,18 +88,21 @@ function renderCart() {
 }
 
 function updateSummary() {
-    let total = 0; let totalQty = 0;
-    cartItems.forEach(item => { total += item.price * item.qty; totalQty += item.qty; });
+    let subtotal = 0; let totalQty = 0;
+    cartItems.forEach(item => { subtotal += item.price * item.qty; totalQty += item.qty; });
+
+    let tax = subtotal * 0.10;
+    let grandTotal = subtotal + tax;
 
     const elTotalPrice = document.getElementById('cart-total-price');
-    if(elTotalPrice) elTotalPrice.innerText = formatRp(total);
+    if(elTotalPrice) elTotalPrice.innerText = formatRp(grandTotal);
 
     const floatingBar = document.getElementById('floating-cart-bar');
     if (floatingBar) {
         if (totalQty > 0) {
             floatingBar.style.display = 'flex';
             document.getElementById('mobile-item-count').innerText = totalQty;
-            document.getElementById('mobile-total-price').innerText = formatRp(total);
+            document.getElementById('mobile-total-price').innerText = formatRp(grandTotal);
         } else {
             floatingBar.style.display = 'none';
         }
@@ -122,26 +117,76 @@ function addToCart(menuData) {
     renderCart(); showAddedToast(menuData.name);
 }
 
-// ============================================================
-// 5. PENYARINGAN KATALOG MENU 
-// ============================================================
+function submitOrderToDatabase(orderType) {
+    if (cartItems.length === 0) { alert("Keranjang belanja kosong!"); return; }
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const payload = { type: orderType, items: cartItems.map(item => ({ id: parseInt(item.id), qty: item.qty })) };
+
+    fetch('/pelanggan/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            cartItems = []; renderCart(); closePopup(); window.location.href = data.redirect_url;
+        } else { alert("Gagal memproses database: " + data.message); }
+    })
+    .catch(err => { console.error(err); alert("Terjadi gangguan sinkronisasi sistem."); });
+}
+
 let activeKategori = "all";
 let activeMood = "all";
+let searchQuery = ""; 
 
 function applyMenuFilter() {
     document.querySelectorAll(".menu-card").forEach((card) => {
         const kategori = card.dataset.category || "";
         const mood = card.dataset.mood || "";
+        const namaMenu = card.querySelector('.card-judul').innerText.toLowerCase(); 
         const isKategoriMatch = activeKategori === "all" || kategori === activeKategori;
         const isMoodMatch = activeMood === "all" || mood.includes(activeMood);
-        card.style.display = (isKategoriMatch && isMoodMatch) ? "block" : "none";
+        const isSearchMatch = searchQuery === "" || namaMenu.includes(searchQuery); 
+        card.style.display = (isKategoriMatch && isMoodMatch && isSearchMatch) ? "block" : "none";
     });
 }
 
-// ============================================================
-// 6. EVENT DELEGATION GLOBAL 
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // 🔥 LOGIKA REAL-TIME SEARCH BAR KUSTOM (MULTIDEVICE SINKRON) 🔥
+    const searchInputs = document.querySelectorAll('.search-bar');
+    searchInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            searchQuery = e.target.value.toLowerCase().trim(); 
+            
+            // Auto-sinkronisasi teks isi ketikan antar input (Mobile <-> PC)
+            searchInputs.forEach(si => {
+                if (si !== e.target) si.value = e.target.value;
+            });
+
+            applyMenuFilter(); 
+        });
+    });
+
+    // LOGIKA HAMBURGER MENU 
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sidebar = document.querySelector('.sidebar');
+    if(hamburgerBtn && sidebar) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); 
+            sidebar.classList.toggle('show-drawer');
+        });
+    }
+    document.addEventListener('click', function(e) {
+        if (sidebar && sidebar.classList.contains('show-drawer')) {
+            if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                sidebar.classList.remove('show-drawer');
+            }
+        }
+    });
+
+    // LOGIKA FILTER TAB KATEGORI
     document.querySelectorAll(".menu-tab").forEach(tab => {
         tab.addEventListener("click", function() {
             document.querySelectorAll(".menu-tab").forEach(t => t.classList.remove("active-tab"));
@@ -151,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // LOGIKA FILTER MOOD
     document.querySelectorAll(".mood").forEach(btn => {
         btn.addEventListener("click", function() {
             document.querySelectorAll(".mood").forEach(m => m.classList.remove("active-mood"));
@@ -160,12 +206,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // LOGIKA GLOBAL KLIK EVENT
     document.addEventListener("click", function (e) {
         const opener = e.target.closest("[data-open]");
         if (opener) {
             e.stopPropagation();
             const targetId = opener.dataset.open;
             if (targetId.startsWith("popup-detail-") && !isLoggedIn) { openPopup("popup-login-warning"); return; }
+            if (targetId === 'popup-payment') {
+                if (cartItems.length === 0) { alert('Keranjang belanja kosong!'); return; }
+            }
             openPopup(targetId); return;
         }
 
@@ -181,13 +231,85 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const btnAddDetail = e.target.closest('.btn-add-from-detail');
-        if (btnAddDetail) {
+        const pdBtnPlus = e.target.closest('.pd-btn-plus');
+        if (pdBtnPlus) {
+            const valEl = pdBtnPlus.previousElementSibling;
+            if(valEl) valEl.innerText = parseInt(valEl.innerText) + 1;
+            const popup = pdBtnPlus.closest('.pd-content');
+            if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => el.innerText = valEl.innerText);
+            return;
+        }
+
+        const pdBtnMin = e.target.closest('.pd-btn-min');
+        if (pdBtnMin) {
+            const valEl = pdBtnMin.nextElementSibling;
+            let v = parseInt(valEl.innerText);
+            if(v > 1) {
+                valEl.innerText = v - 1;
+                const popup = pdBtnMin.closest('.pd-content');
+                if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => el.innerText = valEl.innerText);
+            }
+            return;
+        }
+
+        const btnAddDetailV2 = e.target.closest('.btn-add-from-detail-v2');
+        if (btnAddDetailV2) {
             if (!isLoggedIn) { openPopup('popup-login-warning'); return; }
-            const menuId = btnAddDetail.dataset.id;
+            const menuId = btnAddDetailV2.dataset.id;
             const card = document.querySelector(`.menu-card[data-id="${menuId}"]`);
-            if(card) { addToCart({ id: menuId, name: card.querySelector('.card-judul').innerText, price: parseInt(card.querySelector('.card-price').innerText.replace(/[^0-9]/g, '')), image: card.querySelector('.card-img img').src }); }
+            const popup = btnAddDetailV2.closest('.pd-content');
+            
+            let qty = 1;
+            if(popup) {
+                const mobileQty = popup.querySelector('.mobile-qty .pd-qty-val');
+                const desktopQty = popup.querySelector('.desktop-qty .pd-qty-val');
+                if(mobileQty && mobileQty.offsetParent !== null) qty = parseInt(mobileQty.innerText);
+                else if(desktopQty) qty = parseInt(desktopQty.innerText);
+            }
+
+            if(card) { 
+                const menuData = { 
+                    id: menuId, 
+                    name: card.querySelector('.card-judul').innerText, 
+                    price: parseInt(card.querySelector('.card-price').innerText.replace(/[^0-9]/g, '')), 
+                    image: card.querySelector('.card-img img').src 
+                };
+                
+                const existing = cartItems.find(item => item.id == menuData.id);
+                if (existing) { 
+                    existing.qty += qty; 
+                } else {
+                    cartItems.push({ cartId: nextCartId++, id: menuData.id, name: menuData.name, price: menuData.price, image: menuData.image, qty: qty });
+                }
+                renderCart(); 
+                showAddedToast(menuData.name);
+            }
             closePopup(); return;
+        }
+
+        const btnOpenBillAction = e.target.closest('#choice-open-bill');
+        if (btnOpenBillAction) {
+            e.stopPropagation();
+            submitOrderToDatabase('open_bill');
+            return;
+        }
+
+        const btnPayNowAction = e.target.closest('#choice-pay-now');
+        if (btnPayNowAction) {
+            e.stopPropagation();
+            let total = 0;
+            cartItems.forEach(item => { total += (item.price * item.qty); });
+            let grand = total + (total * 0.10);
+            document.getElementById('popup-qris-total').innerText = formatRp(grand);
+            openPopup('popup-qris-payment');
+            return;
+        }
+
+        const btnInstantPaidSandbox = e.target.closest('#btn-instant-paid');
+        if (btnInstantPaidSandbox) {
+            e.stopPropagation();
+            submitOrderToDatabase('pay_now');
+            return;
         }
 
         const btnPlus = e.target.closest('.qty-btn.plus');
@@ -208,13 +330,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btnClear = e.target.closest('#btn-clear-cart');
         if (btnClear) { cartItems = []; renderCart(); return; }
-
-        const floatingBar = e.target.closest('#floating-cart-bar');
-        if (floatingBar) {
-            document.querySelector('.cart-sidebar')?.classList.add('is-open');
-            document.getElementById('popup-overlay')?.classList.add('is-open');
-            return;
-        }
     });
 
     renderCart();

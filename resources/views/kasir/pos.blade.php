@@ -209,7 +209,7 @@
                 Semua
             </button>
             <button class="mood" data-tag="bestseller">
-                <img src="{{ asset('image/bestseller.png') }}" alt="best seller" class="icon">
+                <img src="{{ asset('image/bestseller.png') }}" alt="Best Seller" class="icon">
                 Best Seller
             </button>
             <button class="mood" data-tag="promo">

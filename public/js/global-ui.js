@@ -1,16 +1,13 @@
+/* public/js/global-ui.js */
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Admin.js loaded - Drawer ready"); // Cek ini di Console F12
-
+    // Drawer Logic (Hamburger)
     const hamburgerBtn = document.getElementById("hamburger-btn");
     const drawer = document.getElementById("drawer");
     const drawerOverlay = document.getElementById("drawer-overlay");
 
     if (hamburgerBtn && drawer) {
         hamburgerBtn.addEventListener("click", function(e) {
-            console.log("Hamburger diklik!"); // Debugging: Muncul nggak di console?
-            e.preventDefault();
-            e.stopPropagation();
-            
+            e.preventDefault(); e.stopPropagation();
             this.classList.toggle("is-open");
             drawer.classList.toggle("is-open");
             if (drawerOverlay) drawerOverlay.classList.toggle("is-open");
@@ -24,14 +21,4 @@ document.addEventListener("DOMContentLoaded", function () {
             drawerOverlay.classList.remove("is-open");
         });
     }
-
-    // Pagination shared behavior
-    document.querySelectorAll(".pagination").forEach((pag) => {
-        pag.querySelectorAll(".page-number").forEach((btn) => {
-            btn.addEventListener("click", function () {
-                pag.querySelectorAll(".page-number").forEach((b) => b.classList.remove("active"));
-                this.classList.add("active");
-            });
-        });
-    });
-});
+}); 
