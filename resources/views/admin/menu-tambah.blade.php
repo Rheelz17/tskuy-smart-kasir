@@ -36,10 +36,8 @@
       padding: 16px 20px;
       border-bottom: 1px solid #f0f0f0;
       background: #fff;
-      position: sticky;
-      top: 0;
-      z-index: 20;
     }
+
 
     .btn-back {
       position: absolute;
@@ -189,7 +187,7 @@
       color: #1a1a1a;
       background: #fff;
       outline: none;
-      transition: border-color .2s, box-shadow .2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
       appearance: none;
     }
 

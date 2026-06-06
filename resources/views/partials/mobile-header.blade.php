@@ -4,7 +4,7 @@
 </button>
 <div class="mobile-header-logo">
     <img
-    src="/assets/img/logo_warkop.png"
+    src="./assets/img/logo.tskuy.png"
     alt="Logo"
     class="mobile-logo-img"
     />
