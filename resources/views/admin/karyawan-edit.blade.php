@@ -263,135 +263,99 @@
 
   <p class="form-page-subtitle">Silakan Sesuaikan Perubahan yang Anda Inginkan</p>
 
-  <main class="form-page-body">
+  <form id="form-edit-karyawan">
+    @csrf
 
-    <!-- ============================================================
-         FOTO EDIT — tampilkan foto existing dengan tombol ganti/hapus
-         src foto diisi JS dari query param atau fallback placeholder
-    ============================================================ -->
-    <div class="foto-edit-card">
-      <p class="foto-edit-label">Detail Gambar</p>
-      <img
-        src="https://i.pravatar.cc/400?img=5"
-        alt="Foto Karyawan"
-        class="foto-edit-img"
-        id="foto-edit-img"
-      >
-      <div class="foto-edit-actions">
-        <!-- Tombol edit foto → trigger input file -->
-        <button class="btn-foto-edit" id="btn-ganti-foto" title="Ganti Foto">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <!-- Tombol hapus foto → kembali ke placeholder -->
-        <button class="btn-foto-hapus" id="btn-hapus-foto" title="Hapus Foto">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+    <main class="form-page-body">
+
+      <div class="foto-edit-card">
+        <p class="foto-edit-label">Detail Gambar</p>
+        <img
+          src="{{ $karyawan->photo ? asset('storage/' . $karyawan->photo) : 'https://via.placeholder.com/400x300?text=No+Photo' }}"
+          alt="Foto Karyawan"
+          class="foto-edit-img"
+          id="foto-edit-img"
+        >
+        <div class="foto-edit-actions">
+          <button type="button" class="btn-foto-edit" id="btn-ganti-foto" title="Ganti Foto">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button type="button" class="btn-foto-hapus" id="btn-hapus-foto" title="Hapus Foto">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <input type="file" class="input-foto-hidden" id="input-foto-edit" name="photo" accept="image/jpg,image/jpeg,image/png">
       </div>
-      <!-- Input file tersembunyi untuk ganti foto -->
-      <input type="file" class="input-foto-hidden" id="input-foto-edit" accept="image/jpg,image/jpeg,image/png">
-    </div>
 
-    <hr class="foto-form-divider">
+      <hr class="foto-form-divider">
 
-    <!-- ID — readonly -->
-    <div class="form-group">
-      <label class="form-label" for="edit-id">ID</label>
-      <input type="text" class="form-input-kuning" id="edit-id" readonly>
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-id">ID Karyawan</label>
+        <input type="text" class="form-input-kuning" id="edit-id" value="{{ $karyawan->employee_id }}" readonly>
+      </div>
 
-    <!-- Nama Lengkap -->
-    <div class="form-group">
-      <label class="form-label" for="edit-nama">Nama Lengkap</label>
-      <input type="text" class="form-input-kuning" id="edit-nama" placeholder="Masukkan Nama Lengkap">
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-nama">Nama Lengkap</label>
+        <input type="text" class="form-input-kuning" id="edit-nama" name="nama" value="{{ $karyawan->name }}" placeholder="Masukkan Nama Lengkap" required>
+      </div>
 
-    <!-- Jabatan -->
-    <div class="form-group">
-      <label class="form-label" for="edit-jabatan">Jabatan</label>
-      <div class="select-wrapper">
-        <select class="form-select-kuning" id="edit-jabatan">
-          <option value="" disabled>Pilih Jabatan</option>
-          <option value="admin">Admin</option>
-          <option value="kasir">Kasir</option>
-          <option value="koki">Koki</option>
-        </select>
-        <div class="select-chevron">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+      <div class="form-group">
+        <label class="form-label" for="edit-jabatan">Jabatan</label>
+        <div class="select-wrapper">
+          <select class="form-select-kuning" id="edit-jabatan" name="jabatan" required>
+            <option value="" disabled>Pilih Jabatan</option>
+            <option value="1" {{ $karyawan->role_id == 1 ? 'selected' : '' }}>Admin</option>
+            <option value="2" {{ $karyawan->role_id == 2 ? 'selected' : '' }}>Kasir</option>
+            <option value="4" {{ $karyawan->role_id == 4 ? 'selected' : '' }}>Koki</option>
+          </select>
+          <div class="select-chevron">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Nomor Telepon -->
-    <div class="form-group">
-      <label class="form-label" for="edit-telp">Nomor Telepon</label>
-      <input type="tel" class="form-input-kuning" id="edit-telp" placeholder="Masukkan Nomor Telepon">
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-telp">Nomor Telepon</label>
+        <input type="tel" class="form-input-kuning" id="edit-telp" name="telp" value="{{ $karyawan->phone }}" placeholder="Masukkan Nomor Telepon">
+      </div>
 
-    <!-- Email -->
-    <div class="form-group">
-      <label class="form-label" for="edit-email">Email</label>
-      <input type="email" class="form-input-kuning" id="edit-email" placeholder="Masukkan Email">
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-email">Email</label>
+        <input type="email" class="form-input-kuning" id="edit-email" name="email" value="{{ $karyawan->email }}" placeholder="Masukkan Email" required>
+      </div>
 
-    <!-- Alamat -->
-    <div class="form-group">
-      <label class="form-label" for="edit-alamat">Alamat</label>
-      <input type="text" class="form-input-kuning" id="edit-alamat" placeholder="Masukkan Alamat">
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-alamat">Alamat</label>
+        <input type="text" class="form-input-kuning" id="edit-alamat" name="alamat" value="{{ $karyawan->alamat }}" placeholder="Masukkan Alamat">
+      </div>
 
-    <!-- Toggle Akses Login -->
-    <div class="toggle-row">
-      <span class="toggle-label-text">Akses Login</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggle-akses">
-        <div class="toggle-track">
-          <div class="toggle-thumb"></div>
-        </div>
-      </label>
-    </div>
+      <div class="toggle-row">
+        <span class="toggle-label-text">Akses Login</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-akses" name="is_active" value="1" {{ $karyawan->is_active ? 'checked' : '' }}>
+          <div class="toggle-track">
+            <div class="toggle-thumb"></div>
+          </div>
+        </label>
+      </div>
 
-  </main>
+    </main>
+    <footer class="form-page-footer">
+      <button type="button" class="btn-form-batal" id="btn-batal">Batal</button>
+      <button type="submit" class="btn-form-simpan" id="btn-simpan">Simpan Perubahan</button>
+    </footer>
 
-  <footer class="form-page-footer">
-    <button class="btn-form-batal" id="btn-batal">Batal</button>
-    <button class="btn-form-simpan" id="btn-simpan">Simpan</button>
-  </footer>
+  </form>
 
   <script>
-        /* ============================================================
-       AMBIL DATA DARI QUERY PARAM → ISI KE FORM
-       Saat ini data datang dari karyawan.js via URLSearchParams.
-       Di Laravel nanti: data diisi langsung dari Blade.
-    ============================================================ */
-    const params = new URLSearchParams(window.location.search);
-
-    document.getElementById('edit-id').value    = params.get('id')      || '';
-    document.getElementById('edit-nama').value  = params.get('nama')    || '';
-    document.getElementById('edit-telp').value  = params.get('telp')    || '';
-    document.getElementById('edit-email').value = params.get('email')   || '';
-    document.getElementById('edit-alamat').value = params.get('alamat') || '';
-
-    // Set nilai select jabatan
-    const jabatanParam = params.get('jabatan') || '';
-    const selectJabatan = document.getElementById('edit-jabatan');
-    if (jabatanParam) {
-      // Cari option yang value-nya cocok (case-insensitive)
-      const option = [...selectJabatan.options].find(
-        o => o.value.toLowerCase() === jabatanParam.toLowerCase()
-      );
-      if (option) option.selected = true;
-    }
-
-    /* ============================================================
-       GANTI FOTO — klik tombol edit → buka input file
-    ============================================================ */
+    /* 1. SISTEM GANTI FOTO PREVIEW */
     const inputFotoEdit = document.getElementById('input-foto-edit');
     const fotoEditImg   = document.getElementById('foto-edit-img');
 
@@ -407,39 +371,58 @@
       reader.readAsDataURL(file);
     });
 
-    /* ============================================================
-       HAPUS FOTO — kembalikan ke placeholder
-    ============================================================ */
+    /*  2. HAPUS FOTO PREVIEW (Kembali ke placeholder bawaan) */
     document.getElementById('btn-hapus-foto')?.addEventListener('click', () => {
       fotoEditImg.src = 'https://via.placeholder.com/400x300?text=No+Photo';
       inputFotoEdit.value = '';
     });
 
-    /* ============================================================
-       PENTING: SESUAIKAN NAVIGASI KEMBALI MENGGUNAKAN ROUTE LARAVEL
-    ============================================================ */
-    document.getElementById('btn-back')?.addEventListener('click', () => {
+    /*  3. NAVIGASI TOMBOL KEMBALI & BATAL */
+    const kembalikanKeDashboard = () => {
       window.location.href = "{{ route('admin.karyawan') }}";
-    });
+    };
 
-    document.getElementById('btn-batal')?.addEventListener('click', () => {
-      window.location.href = "{{ route('admin.karyawan') }}";
-    });
+    document.getElementById('btn-back')?.addEventListener('click', kembalikanKeDashboard);
+    document.getElementById('btn-batal')?.addEventListener('click', kembalikanKeDashboard);
 
-    /* Tombol Simpan (Simulasi) */
-    document.getElementById('btn-simpan')?.addEventListener('click', () => {
-      const nama    = document.getElementById('input-nama').value.trim();
-      const jabatan = document.getElementById('input-jabatan').value;
-      const telp    = document.getElementById('input-telp').value.trim();
-      const email   = document.getElementById('input-email').value.trim();
+    document.getElementById('form-edit-karyawan').addEventListener('submit', function (e) {
+      e.preventDefault();
 
-      if (!nama || !jabatan || !telp || !email) {
-        alert('Mohon lengkapi semua field yang wajib diisi.');
-        return;
-      }
+      let formData = new FormData(this);
+      formData.append('_method', 'PUT');
 
-      alert('Data karyawan berhasil ditambahkan (simulasi).');
-      window.location.href = "{{ route('admin.karyawan') }}";
+      // Jalankan kirim perubahan ke route update Laravel membawa ID Karyawan aktif
+      fetch("{{ route('admin.karyawan.update', $karyawan->id) }}", {
+        method: "POST", // Tetap POST karena membawa file, spoofing dilakukan oleh _method di atas
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(async response => {
+        const data = await response.json();
+        
+        // JIKA INPUT VALIDASI GAGAL (Error 422 dari Laravel)
+        if (!response.ok) {
+          if (data.errors) {
+            let pesanEror = Object.values(data.errors).flat().join("\n");
+            alert("Gagal Memperbarui:\n" + pesanEror);
+          } else {
+            alert("Terjadi kesalahan pada server.");
+          }
+          return;
+        }
+
+        // JIKA BERHASIL DIUPDATE
+        if (data.success) {
+          alert(data.message);
+          window.location.href = "{{ route('admin.karyawan') }}";
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("Koneksi bermasalah atau terjadi eror sistem.");
+      });
     });
   </script>
 </body>

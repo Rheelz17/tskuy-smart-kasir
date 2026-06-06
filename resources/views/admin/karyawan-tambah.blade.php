@@ -11,12 +11,6 @@
   <link rel="stylesheet" href="{{ asset('css/admincopy.css') }}" />
 
   <style>
-    /* ============================================================
-       PAGE TAMBAH KARYAWAN — mobile full page
-       Style khusus halaman ini, tidak perlu masuk admin.css
-       karena hanya dipakai di satu halaman ini
-    ============================================================ */
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -79,11 +73,6 @@
     }
 
     /* ---- UPLOAD FOTO ---- */
-    /*
-      Area upload foto dengan dashed border.
-      Saat foto sudah dipilih, .upload-foto-area.has-foto
-      menampilkan preview gambar dan sembunyikan teks.
-    */
     .upload-foto-area {
       border: 2px dashed #d1d5db;
       border-radius: 16px;
@@ -169,7 +158,7 @@
       Readonly field (ID) punya background abu-abu.
     */
     .form-input-kuning,
-    .form-select-kuning {
+    .form-select-kuning, .form-textarea-kuning{
       width: 100%;
       height: 48px;
       padding: 0 14px;
@@ -342,128 +331,84 @@
 
   <p class="form-page-subtitle">Isi Kolom di Bawah untuk Menambahkan<br>Karyawan Baru</p>
 
-  <!-- ============================================================
-       FORM BODY
-  ============================================================ -->
-  <main class="form-page-body">
+  <form id="form-tambah-karyawan">
+    @csrf
 
-    <!--
-      UPLOAD FOTO
-      Klik area → input file terbuka.
-      Saat file dipilih, JS tambah class .has-foto dan isi src preview.
-    -->
-    <div class="upload-foto-area" id="upload-area">
-      <input
-        type="file"
-        class="upload-foto-input"
-        id="input-foto"
-        accept="image/jpg,image/jpeg,image/png"
-      >
-      <svg class="upload-foto-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M32 32L24 24L16 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M24 24V40" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M40.82 36.82A10 10 0 0034 18h-2.52A16 16 0 108 36.92" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <p class="upload-foto-label">Unggah Foto Wajah</p>
-      <p class="upload-foto-hint">Klik atau seret gambar produk (JPG or PNG).</p>
-      <img src="" alt="Preview" class="upload-foto-preview" id="foto-preview">
-    </div>
+    <main class="form-page-body">
+      
+      <div class="upload-foto-area" id="upload-area">
+        <input
+          type="file"
+          class="upload-foto-input"
+          id="input-foto"
+          name="photo"
+          accept="image/jpg,image/jpeg,image/png"
+        >
+        <svg class="upload-foto-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 32L24 24L16 32" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M24 24V40" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M40.82 36.82A10 10 0 0034 18h-2.52A16 16 0 108 36.92" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="upload-foto-label">Unggah Foto Wajah</p>
+        <p class="upload-foto-hint">Klik untuk memilih gambar wajah (JPG atau PNG).</p>
+        <img src="" alt="Preview" class="upload-foto-preview" id="foto-preview">
+      </div>
 
-    <!-- ID Karyawan — auto-generated, readonly -->
-    <div class="form-group">
-      <label class="form-label" for="input-id">ID</label>
-      <input
-        type="text"
-        class="form-input-kuning"
-        id="input-id"
-        value="EMP009"
-        readonly
-      >
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="input-nama">Nama Lengkap</label>
+        <input type="text" class="form-input-kuning" id="input-nama" name="nama" placeholder="Nama Lengkap" required>
+      </div>
 
-    <!-- Nama Lengkap -->
-    <div class="form-group">
-      <label class="form-label" for="input-nama">Nama Lengkap</label>
-      <input
-        type="text"
-        class="form-input-kuning"
-        id="input-nama"
-        placeholder="Masukkan Nama Lengkap"
-      >
-    </div>
-
-    <!-- Jabatan -->
-    <div class="form-group">
-      <label class="form-label" for="input-jabatan">Jabatan</label>
-      <div class="select-wrapper">
-        <select class="form-select-kuning" id="input-jabatan">
-          <option value="" disabled selected>Pilih Jabatan</option>
-          <option value="admin">Admin</option>
-          <option value="kasir">Kasir</option>
-          <option value="koki">Koki</option>
-        </select>
-        <div class="select-chevron">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+      <div class="form-group">
+        <label class="form-label" for="input-jabatan">Jabatan</label>
+        <div class="select-wrapper">
+          <select class="form-select-kuning" id="input-jabatan" name="jabatan" required>
+              <option value="">Pilih Jabatan</option>
+              <option value="1">Admin</option>
+              <option value="2">Kasir</option>
+              <option value="4">Koki</option>
+          </select>
+          <div class="select-chevron">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Nomor Telepon -->
-    <div class="form-group">
-      <label class="form-label" for="input-telp">Nomor Telepon</label>
-      <input
-        type="tel"
-        class="form-input-kuning"
-        id="input-telp"
-        placeholder="Masukkan Nomor Telepon"
-      >
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="input-telp">Nomor Telepon</label>
+        <input type="text" class="form-input-kuning" id="input-telp" name="telp" placeholder="No. Telepon" required>
+      </div>
 
-    <!-- Email -->
-    <div class="form-group">
-      <label class="form-label" for="input-email">Email</label>
-      <input
-        type="email"
-        class="form-input-kuning"
-        id="input-email"
-        placeholder="Masukkan Email"
-      >
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="input-email">Email</label>
+        <input type="email" class="form-input-kuning" id="input-email" name="email" placeholder="Email" required>
+      </div>
 
-    <!-- Alamat -->
-    <div class="form-group">
-      <label class="form-label" for="input-alamat">Alamat</label>
-      <input
-        type="text"
-        class="form-input-kuning"
-        id="input-alamat"
-        placeholder="Masukkan alamat"
-      >
-    </div>
+      <div class="form-group">
+        <label class="form-label" for="input-alamat">Alamat</label>
+        <textarea id="input-alamat" class="form-textarea-kuning" name="alamat" placeholder="Alamat lengkap..."></textarea>
+      </div>
+      
+      <div class="toggle-row">
+        <span class="toggle-label-text">Akses Login</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-akses" name="is_active" value="1" checked>
+          <div class="toggle-track">
+            <div class="toggle-thumb"></div>
+          </div>
+        </label>
+      </div>
 
-    <!-- Toggle Akses Login -->
-    <div class="toggle-row">
-      <span class="toggle-label-text">Akses Login</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggle-akses">
-        <div class="toggle-track">
-          <div class="toggle-thumb"></div>
-        </div>
-      </label>
-    </div>
+    </main>
 
-  </main>
+    <footer class="form-page-footer">
+      <button type="button" class="btn-form-batal" id="btn-batal">Batal</button>
+      <button type="submit" class="btn-form-simpan">Simpan Karyawan</button>
+    </footer>
 
-  <!-- ============================================================
-       FOOTER FIXED — Batal + Simpan
-  ============================================================ -->
-  <footer class="form-page-footer">
-    <button class="btn-form-batal" id="btn-batal">Batal</button>
-    <button class="btn-form-simpan" id="btn-simpan">Simpan</button>
-  </footer>
-  
+  </form>
   <script>
         /* ============================================================
        UPLOAD FOTO — preview saat file dipilih
@@ -478,7 +423,7 @@
 
       const reader = new FileReader();
       reader.onload = function (e) {
-        fotoPreview.src = e.target.result;
+        if(fotoPreview) fotoPreview.src = e.target.result;
         uploadArea.classList.add('has-foto');
       };
       reader.readAsDataURL(file);
@@ -486,28 +431,53 @@
     /* ============================================================
        PENTING: SESUAIKAN NAVIGASI KEMBALI MENGGUNAKAN ROUTE LARAVEL
     ============================================================ */
-    document.getElementById('btn-back')?.addEventListener('click', () => {
+    const kembalikanKeDashboard = () => {
       window.location.href = "{{ route('admin.karyawan') }}";
-    });
+    };
 
-    document.getElementById('btn-batal')?.addEventListener('click', () => {
-      window.location.href = "{{ route('admin.karyawan') }}";
-    });
+    document.getElementById('btn-back')?.addEventListener('click', kembalikanKeDashboard);
+    document.getElementById('btn-batal')?.addEventListener('click', kembalikanKeDashboard);
 
-    /* Tombol Simpan (Simulasi) */
-    document.getElementById('btn-simpan')?.addEventListener('click', () => {
-      const nama    = document.getElementById('input-nama').value.trim();
-      const jabatan = document.getElementById('input-jabatan').value;
-      const telp    = document.getElementById('input-telp').value.trim();
-      const email   = document.getElementById('input-email').value.trim();
+    /*  PROSES SIMPAN DATA VIA FETCH API (MENYESUAIKAN JSON CONTROLLER) */
+    document.getElementById('form-tambah-karyawan').addEventListener('submit', function (e) {
+      e.preventDefault(); // Mencegah reload halaman paksa
 
-      if (!nama || !jabatan || !telp || !email) {
-        alert('Mohon lengkapi semua field yang wajib diisi.');
-        return;
-      }
+      // Mengambil semua data form + file gambar secara otomatis
+      let formData = new FormData(this);
 
-      alert('Data karyawan berhasil ditambahkan (simulasi).');
-      window.location.href = "{{ route('admin.karyawan') }}";
+      // Jalankan kirim data ke route store Laravel
+      fetch("{{ route('admin.karyawan.store') }}", {
+        method: "POST",
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest' // Beritahu Laravel ini request AJAX
+        }
+      })
+      .then(async response => {
+        const data = await response.json();
+        
+        // JIKA INPUT VALIDASI GAGAL (Error 422 dari Laravel)
+        if (!response.ok) {
+          if (data.errors) {
+            // Gabungkan baris pesan eror validasi menjadi teks rapi
+            let pesanEror = Object.values(data.errors).flat().join("\n");
+            alert("Gagal Menyimpan:\n" + pesanEror);
+          } else {
+            alert("Terjadi kesalahan pada server.");
+          }
+          return;
+        }
+
+        // JIKA BERHASIL DISIMPAN (Success True)
+        if (data.success) {
+          alert(data.message); // Munculkan popup sukses bawaan laptop/HP
+          window.location.href = "{{ route('admin.karyawan') }}"; // Redirect kembali ke list dashboard
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("Koneksi bermasalah atau terjadi eror sistem.");
+      });
     });
   </script>
 </body>

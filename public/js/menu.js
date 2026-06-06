@@ -187,6 +187,24 @@ document.addEventListener("DOMContentLoaded", function () {
     window._openPopup?.("popup-edit-menu");
   }
 
+  // karyawan.js — ini yang bikin mobile bisa ke halaman tambah/edit
+document.getElementById('btn-tambah-menu')?.addEventListener('click', function (e) {
+  if (window.innerWidth <= 480) {
+    window.location.href = '/admin/menu/tambah'; // ← mobile: navigasi
+  } else {
+    e.preventDefault();
+    window._openPopup?.('popup-tambah-menu'); // ← desktop: popup
+  }
+});
+
+// Edit juga sama:
+if (window.innerWidth <= 480) {
+  window.location.href = `/admin/menu/${dataMenu.dbId}/edit`; // ← mobile: navigasi
+} else {
+  prefillEditPopup(dataMenu);
+  window._openPopup('popup-edit-menu'); // ← desktop: popup
+} 
+
   /* ============================================================
      5. TOGGLE INTERAKTIF STATUS KETERSEDIAAN MENU (TAMBAHAN KHUSUS)
      Mengubah status aktif/tidak langsung dari baris tabel menu
@@ -237,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // B. Menutup Popup Export via Tombol Silang
   if (closeExportBtn) {
     closeExportBtn.addEventListener('click', function (e) {
-      e.preventDefault();
+      e.preventDefault();t
       if (typeof window._closePopup === "function") {
         window._closePopup?.('popupExport');
       } else if (typeof window.triggerGlobalClose === "function") {
