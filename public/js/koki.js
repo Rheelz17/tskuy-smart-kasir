@@ -1,465 +1,519 @@
 /**
  * koki.js — Kitchen Display System · Tskuy Smart Kasir
- * ============================================================
- * Mengelola semua interaksi di halaman dapur:
- *   1. Jam digital live
- *   2. Timer waktu tunggu per kartu (Hijau/Kuning/Merah)
- *   3. Filter tab (Semua / Menunggu / Memasak / Siap Saji)
- *   4. Modal detail pesanan + centang item
- *   5. Tombol "Mulai Masak" → AJAX POST ke /koki/{id}/mulai-masak
- *   6. Tombol "Selesaikan"  → AJAX POST ke /koki/{id}/selesaikan
- *   7. Auto-refresh antrian via polling (setiap 30 detik)
- *   8. Toast notification
+ * ════════════════════════════════════════════════════════════
  *
- * Cara kerja komunikasi dengan Laravel:
- *   - Route URL diambil dari window.KOKI_ROUTES (didefinisikan di blade)
- *   - CSRF token diambil dari window.KOKI_ROUTES.csrfToken
- *   - Semua POST request menggunakan Fetch API + JSON
- * ============================================================
+ * FITUR UTAMA:
+ *   1.  Jam digital live
+ *   2.  Timer waktu tunggu per kartu (Hijau / Kuning / Merah)
+ *   3.  Filter tab  (Semua / Menunggu / Memasak / Siap Saji)
+ *   4.  Modal detail pesanan dengan checklist item
+ *   5.  STATE PERSISTENCE centang item (tidak reset saat modal ditutup)
+ *       → Disimpan di orderItemCache (object global dalam-memory)
+ *   6.  Tombol "Mulai Masak"   → POST /koki/{id}/mulai-masak
+ *   7.  Tombol "Selesaikan"    → POST /koki/{id}/selesaikan
+ *       → Hanya aktif jika SEMUA item sudah dicentang
+ *   8.  Tombol "Batalkan"      → POST /koki/{id}/batalkan
+ *   9.  Auto-refresh polling   → GET  /koki/api/orders (30 detik)
+ *   10. Toast notification     → mengikuti struktur kasir
+ *   11. Notif panel            → mengikuti struktur kasir
+ *
+ * ARSITEKTUR URL:
+ *   URL di-hardcode langsung di fungsi helper (sesuai instruksi),
+ *   TIDAK menggunakan KOKI_ROUTES dinamis agar tidak ada race-condition.
+ *   window.ROUTES.csrfToken tetap dibaca untuk keamanan CSRF.
+ * ════════════════════════════════════════════════════════════
  */
 
 'use strict';
 
-const KokiApp = (() => {
+(function () {
 
-  // ── State internal ───────────────────────────────────────
-  let activeOrderId      = null;  // ID order yang sedang dibuka di modal
-  let activeOrderData    = null;  // Data order aktif (item list, status, dll)
-  let timerInterval      = null;  // setInterval untuk update timer kartu
-  let pollingInterval    = null;  // setInterval untuk auto-refresh antrian
-  let currentFilter      = 'semua';
-const ROUTES           = window.KOKI_ROUTES || window.ROUTES || {};
+  /* ══════════════════════════════════════════════════════════
+     GLOBAL STATE
+  ══════════════════════════════════════════════════════════ */
 
-  // ── Threshold waktu (dalam detik) ───────────────────────
-  const THRESHOLD_FRESH   =  5 * 60;   // 0–5 mnt   → Hijau
-  const THRESHOLD_WARNING = 15 * 60;   // 5–15 mnt  → Kuning
-  // > 15 mnt → Merah
+  let activeOrderId   = null;   // ID order yang sedang dibuka di popup
+  let activeOrderData = null;   // Data order aktif (items, status, dll)
+  let currentFilter   = 'semua';
 
-  // ── Interval polling (ms) ────────────────────────────────
-  const POLLING_MS = 30_000; // 30 detik
+  /**
+   * orderItemCache — State persistence centang per item.
+   * Format: { [orderId]: { [itemId_or_idx]: boolean } }
+   *
+   * Saat modal ditutup dan dibuka kembali, status centang
+   * TIDAK hilang — dibaca dari cache ini.
+   */
+  const orderItemCache = {};
 
-  // ============================================================
-  // 1. JAM DIGITAL
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     THRESHOLD WAKTU (detik)
+  ══════════════════════════════════════════════════════════ */
+  const T_FRESH   = 5  * 60;    // 0–5 mnt   → hijau
+  const T_WARN    = 15 * 60;    // 5–15 mnt  → kuning
+  // > 15 mnt → merah
+
+  /* ══════════════════════════════════════════════════════════
+     HELPER URL — hardcoded, no ROUTES object needed
+  ══════════════════════════════════════════════════════════ */
+  const url = {
+    mulaiMasak  : (id) => `/koki/${id}/mulai-masak`,
+    selesaikan  : (id) => `/koki/${id}/selesaikan`,
+    batalkan    : (id) => `/koki/${id}/batalkan`,
+    apiOrders   : `/koki/api/orders`,
+  };
+
+  function getCsrf() {
+    return (window.ROUTES && window.ROUTES.csrfToken)
+      || document.querySelector('meta[name="csrf-token"]')?.content
+      || '';
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     1. JAM DIGITAL
+  ══════════════════════════════════════════════════════════ */
   function startClock() {
     const el = document.getElementById('liveClock');
     if (!el) return;
-
-    function tick() {
-      const now = new Date();
-      el.textContent = now.toLocaleTimeString('id-ID', {
-        hour12: false,
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
+    const tick = () => {
+      el.textContent = new Date().toLocaleTimeString('id-ID', {
+        hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit',
       });
-    }
+    };
     tick();
     setInterval(tick, 1000);
   }
 
-  // ============================================================
-  // 2. TIMER WAKTU TUNGGU PER KARTU
-  //    Setiap detik, semua kartu aktif dihitung ulang durasinya
-  //    dan diberi class css sesuai threshold.
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     2. TIMER KARTU (update tiap detik)
+  ══════════════════════════════════════════════════════════ */
   function startCardTimers() {
-    function tick() {
+    const tick = () => {
       document.querySelectorAll('.order-card:not(.card-done)').forEach(card => {
-        const createdAtStr = card.dataset.createdAt;
-        if (!createdAtStr) return;
+        const raw = card.dataset.createdAt;
+        if (!raw) return;
 
-        const createdAt  = new Date(createdAtStr).getTime();
-        const elapsed    = Math.max(0, Math.floor((Date.now() - createdAt) / 1000));
-        const elapsedMin = Math.floor(elapsed / 60);
-        const elapsedSec = elapsed % 60;
+        const elapsed = Math.max(0, Math.floor((Date.now() - new Date(raw).getTime()) / 1000));
+        const m = Math.floor(elapsed / 60);
+        const s = elapsed % 60;
 
-        // Perbarui teks timer
-        const timerEl = card.querySelector('.timer-val');
-        if (timerEl) {
-          timerEl.textContent = elapsed < 60
+        const valEl = card.querySelector('.timer-val');
+        if (valEl) {
+          valEl.textContent = elapsed < 60
             ? `${elapsed} dtk`
-            : `${elapsedMin} mnt ${String(elapsedSec).padStart(2,'0')} dtk`;
+            : `${m} mnt ${String(s).padStart(2, '0')} dtk`;
         }
 
-        // Tentukan kelas warna dan perbarui card
-        const newClass = elapsed >= THRESHOLD_WARNING
-          ? 'card-urgent'
-          : elapsed >= THRESHOLD_FRESH
-          ? 'card-warning'
-          : 'card-fresh';
+        const newClass = elapsed >= T_WARN ? 'card-urgent'
+                       : elapsed >= T_FRESH ? 'card-warning'
+                       : 'card-fresh';
 
         card.classList.remove('card-fresh', 'card-warning', 'card-urgent');
         card.classList.add(newClass);
-      });
-    }
 
+        // Sinkronkan class timer badge dalam kartu
+        const timerEl = card.querySelector('.card-timer');
+        if (timerEl) {
+          timerEl.classList.remove('card-fresh', 'card-warning', 'card-urgent', 'card-done');
+          timerEl.classList.add(newClass);
+        }
+      });
+    };
     tick();
-    timerInterval = setInterval(tick, 1000);
+    setInterval(tick, 1000);
   }
 
-  // ============================================================
-  // 3. TOAST NOTIFICATION
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     3. TOAST NOTIFICATION (mengikuti struktur kasir)
+  ══════════════════════════════════════════════════════════ */
   function showToast(message, type = 'default') {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
+    const wrap = document.getElementById('toastWrap');
+    if (!wrap) return;
 
-    const icons = { default: '🔔', success: '✅', error: '❌', info: 'ℹ️' };
+    // SVG icons per type
+    const icons = {
+      default : '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+      success : '<path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+      error   : '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M15 9l-6 6M9 9l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+      info    : '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+    };
 
     const toast = document.createElement('div');
-    toast.className = `toast${type !== 'default' ? ` toast-${type}` : ''}`;
-    toast.innerHTML = `<span class="toast-icon">${icons[type] || '🔔'}</span>${message}`;
-    container.prepend(toast);
+    toast.className = `koki-toast${type !== 'default' ? ` toast-${type}` : ''}`;
+    toast.innerHTML = `
+      <svg class="koki-toast-icon" viewBox="0 0 24 24" fill="none">${icons[type] || icons.default}</svg>
+      <span>${escHtml(message)}</span>
+    `;
+    wrap.prepend(toast);
 
-    // Hapus otomatis setelah 5 detik
     setTimeout(() => {
       toast.classList.add('hiding');
       toast.addEventListener('animationend', () => toast.remove(), { once: true });
-    }, 5000);
+    }, 4500);
   }
 
-  // ============================================================
-  // 4. FILTER TAB
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     4. FILTER TAB
+  ══════════════════════════════════════════════════════════ */
   function applyFilter(filter) {
     currentFilter = filter;
-
     document.querySelectorAll('.order-card').forEach(card => {
-      const status = card.dataset.status;
-
-      const visible = {
-        'semua'   : true,
-        'pending' : status === 'pending',
-        'cooking' : status === 'cooking',
-        'ready'   : status === 'ready',
+      const s = card.dataset.status;
+      const show = {
+        semua   : true,
+        pending : s === 'pending',
+        cooking : s === 'cooking',
+        ready   : s === 'ready',
       }[filter] ?? true;
-
-      card.style.display = visible ? '' : 'none';
+      card.style.display = show ? '' : 'none';
     });
-
-    // Cek apakah semua kartu tersembunyi → tampilkan empty hint
-    const visibleCards = document.querySelectorAll('.order-card[style=""]').length
-                       + document.querySelectorAll('.order-card:not([style])').length;
   }
 
   function initFilterTabs() {
-    const tabs = document.querySelectorAll('.filter-tab');
-
+    const tabs = document.querySelectorAll('.koki-filter-tab');
     tabs.forEach(tab => {
       tab.addEventListener('click', function () {
-        tabs.forEach(t => {
-          t.classList.remove('active');
-          t.setAttribute('aria-selected', 'false');
-        });
+        tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
         this.classList.add('active');
         this.setAttribute('aria-selected', 'true');
         applyFilter(this.dataset.filter);
       });
     });
-
-    // Apply default filter
-    const activeTab = document.querySelector('.filter-tab.active');
-    if (activeTab) applyFilter(activeTab.dataset.filter);
+    const active = document.querySelector('.koki-filter-tab.active');
+    if (active) applyFilter(active.dataset.filter);
   }
 
-  function updateCounterBadges() {
-    const cards = document.querySelectorAll('.order-card');
+  function updateCounters() {
     let semua = 0, pending = 0, cooking = 0, ready = 0;
-
-    cards.forEach(card => {
+    document.querySelectorAll('.order-card').forEach(card => {
       const s = card.dataset.status;
       semua++;
       if (s === 'pending') pending++;
       if (s === 'cooking') cooking++;
       if (s === 'ready')   ready++;
     });
-
-    const set = (id, n) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = n;
-    };
+    const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
     set('badge-semua',   semua);
     set('badge-pending', pending);
     set('badge-cooking', cooking);
     set('badge-ready',   ready);
   }
 
-  // ============================================================
-  // 5. HELPER FETCH API (semua request ke Laravel)
-  // ============================================================
-  async function postToLaravel(url, data = {}) {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type'  : 'application/json',
-        'X-CSRF-TOKEN'  : ROUTES.csrfToken || document
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute('content') || '',
-        'Accept'        : 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
+  /* ══════════════════════════════════════════════════════════
+     5. FETCH API HELPER
+  ══════════════════════════════════════════════════════════ */
+  async function post(endpoint, data = {}) {
+    const res = await fetch(endpoint, {
+      method  : 'POST',
+      headers : {
+        'Content-Type'     : 'application/json',
+        'Accept'           : 'application/json',
+        'X-CSRF-TOKEN'     : getCsrf(),
+        'X-Requested-With' : 'XMLHttpRequest',
       },
       body: JSON.stringify(data),
     });
 
-    if (!response.ok) {
-      const errJson = await response.json().catch(() => ({}));
-      throw new Error(errJson.message || `HTTP ${response.status}`);
-    }
-
-    return response.json();
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.message || `HTTP ${res.status}`);
+    return json;
   }
 
-  // ============================================================
-  // 6. MODAL DETAIL PESANAN
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     6. POPUP DETAIL — OPEN / CLOSE
+  ══════════════════════════════════════════════════════════ */
+  function openPopup(card) {
+    const id     = card.dataset.orderId;
+    const status = card.dataset.status;
 
-  /** Render semua item dalam list modal */
-  function renderModalItems(items, orderStatus) {
-    const list = document.getElementById('modalItemsList');
-    if (!list) return;
+    if (['completed', 'cancelled', 'ready'].includes(status)) return;
 
-    list.innerHTML = '';
-
-    items.forEach((item, idx) => {
-      const isDone = item.item_status === 'READY' || item.item_status === 'ready';
-
-      const row = document.createElement('div');
-      row.className = `modal-item-row${isDone ? ' done' : ''}`;
-      row.id = `modal-item-${idx}`;
-      row.dataset.itemId = item.item_id;
-      row.dataset.idx    = idx;
-
-      row.innerHTML = `
-        <div class="item-check-icon">✓</div>
-        <div class="modal-item-info">
-          <div class="modal-item-name">${escHtml(item.nama)}</div>
-          ${item.catatan ? `<div class="modal-item-note">📝 ${escHtml(item.catatan)}</div>` : ''}
-        </div>
-        <div class="modal-item-qty">×${item.qty}</div>
-      `;
-
-      // Klik item → toggle centang (visual saja, tidak wajib semua done untuk selesaikan)
-      row.addEventListener('click', () => toggleItemVisual(row, idx));
-
-      list.appendChild(row);
-    });
-
-    updateProgress(items);
-  }
-
-  /** Toggle centang visual item di modal */
-  function toggleItemVisual(row, idx) {
-    row.classList.toggle('done');
-    // Perbarui progress bar
-    const allRows  = document.querySelectorAll('.modal-item-row');
-    const doneRows = document.querySelectorAll('.modal-item-row.done');
-
-    const total = allRows.length;
-    const done  = doneRows.length;
-
-    document.getElementById('progDone').textContent  = done;
-    document.getElementById('progTotal').textContent = total;
-    const pct = total ? Math.round((done / total) * 100) : 0;
-    document.getElementById('progFill').style.width  = pct + '%';
-
-    const label   = document.getElementById('btnCompleteLabel');
-    const btnSelesaikan = document.getElementById('btnComplete');
-    if (label) label.textContent = `Selesaikan Pesanan (${done}/${total})`;
-
-    // Aktifkan tombol selesaikan (tidak perlu semua done — koki bisa selesaikan kapan saja)
-    // Tapi setidaknya ≥1 item done agar tidak di-klik sembarangan
-    if (btnSelesaikan) {
-      const canComplete = activeOrderData &&
-        ['pending', 'cooking'].includes(activeOrderData.status);
-
-      if (canComplete) {
-        btnSelesaikan.disabled = false;
-        btnSelesaikan.classList.remove('cant-complete');
-      }
-    }
-  }
-
-  /** Update progress bar saat modal dibuka */
-  function updateProgress(items) {
-    const total = items.length;
-    const done  = items.filter(i =>
-      i.item_status === 'READY' || i.item_status === 'ready'
-    ).length;
-
-    document.getElementById('progDone').textContent  = done;
-    document.getElementById('progTotal').textContent = total;
-    const pct = total ? Math.round((done / total) * 100) : 0;
-    document.getElementById('progFill').style.width  = pct + '%';
-
-    const label = document.getElementById('btnCompleteLabel');
-    if (label) label.textContent = `Selesaikan Pesanan (${done}/${total})`;
-  }
-
-  /** Buka detail modal dari data kartu */
-  function openModal(card) {
-    const orderId = card.dataset.orderId;
-    const status  = card.dataset.status;
-
-    if (['completed', 'cancelled'].includes(status)) return;
-
-    // Parse data item dari data-attribute
+    // Parse items
     let items = [];
-    try { items = JSON.parse(card.dataset.items || '[]'); } catch (_) {}
+    try { items = JSON.parse(card.dataset.items || '[]'); } catch (_) { /* noop */ }
 
-    activeOrderId   = orderId;
+    activeOrderId   = id;
     activeOrderData = {
-      id         : orderId,
-      order_code : card.dataset.orderCode,
-      identifier : card.dataset.identifier,
+      id         : id,
+      orderCode  : card.dataset.orderCode,
+      primaryId  : card.dataset.primaryId,
+      secondaryId: card.dataset.secondaryId,
       pelanggan  : card.dataset.pelanggan,
       tipe       : card.dataset.tipe,
-      status     : status,
       meja       : card.dataset.meja,
+      status     : status,
       createdAt  : card.dataset.createdAt,
       items      : items,
     };
 
-    // Isi header modal
-    const modalTitle  = document.getElementById('modalTitle');
-    const modalInfo   = document.getElementById('modalInfoRow');
-    if (modalTitle) modalTitle.textContent = activeOrderData.identifier;
-    if (modalInfo) {
-      modalInfo.innerHTML = `
-        <span class="type-badge ${activeOrderData.tipe === 'Dine In' ? 'badge-dine-in' : 'badge-take-away'}"
-              style="margin-right:6px">${escHtml(activeOrderData.tipe)}</span>
-        👤 ${escHtml(activeOrderData.pelanggan)}
-        ${activeOrderData.meja ? `&nbsp;·&nbsp; Meja ${escHtml(activeOrderData.meja)}` : ''}
-      `;
+    // Inisialisasi cache untuk order ini jika belum ada
+    if (!orderItemCache[id]) {
+      orderItemCache[id] = {};
+      // Pre-populate dari status DB
+      items.forEach((item, idx) => {
+        const key = item.item_id != null ? String(item.item_id) : String(idx);
+        const dbDone = item.item_status === 'READY' || item.item_status === 'ready';
+        orderItemCache[id][key] = dbDone;
+      });
     }
 
-    // Tampilkan/sembunyikan tombol aksi sesuai status
-    const btnMulai    = document.getElementById('btnMulaiMasak');
-    const btnSelesai  = document.getElementById('btnComplete');
+    // Isi header popup
+    const titleEl = document.getElementById('popupDetailTitle');
+    const idEl    = document.getElementById('popupOrderId');
+    const metaEl  = document.getElementById('popupMeta');
 
-    if (btnMulai) {
-      btnMulai.style.display = status === 'pending' ? '' : 'none';
+    if (titleEl) titleEl.textContent = 'Detail Pesanan';
+    if (idEl)    idEl.textContent    = `Detail Pesanan: ${activeOrderData.secondaryId}`;
+    if (metaEl) {
+      const tipeKelas = activeOrderData.tipe === 'Dine In' ? 'badge-dine' : 'badge-takeaway';
+      metaEl.innerHTML =
+        `<span style="font-size:11px;color:#888">Id: ${escHtml(activeOrderData.primaryId)}</span>
+         &nbsp;|&nbsp;
+         <span class="badge ${tipeKelas}">${escHtml(activeOrderData.tipe)}</span>
+         &nbsp;|&nbsp;
+         <span style="font-size:11px;color:#888">Masuk: ${formatTime(activeOrderData.createdAt)}</span>`;
     }
-    if (btnSelesai) {
-      const canComplete = ['pending', 'cooking'].includes(status);
-      btnSelesai.disabled = !canComplete;
-      btnSelesai.classList.toggle('cant-complete', !canComplete);
-    }
 
-    renderModalItems(items, status);
+    renderItems();
+    syncActionButtons();
 
-    // Tampilkan overlay + modal
-    document.getElementById('modalOverlay').classList.add('active');
-    document.getElementById('detailModal').classList.add('active');
+    document.getElementById('globalOverlay')?.classList.add('is-open');
+    document.getElementById('popupDetail')?.classList.add('is-open');
     document.body.style.overflow = 'hidden';
   }
 
-  function closeModal() {
-    document.getElementById('modalOverlay')?.classList.remove('active');
-    document.getElementById('detailModal')?.classList.remove('active');
-    document.getElementById('successModal')?.classList.remove('active');
+  function closePopup() {
+    document.getElementById('globalOverlay')?.classList.remove('is-open');
+    document.getElementById('popupDetail')?.classList.remove('is-open');
+    document.getElementById('popupSuccess')?.classList.remove('is-open');
     document.body.style.overflow = '';
-    activeOrderId   = null;
-    activeOrderData = null;
   }
 
-  // ============================================================
-  // 7. AKSI: MULAI MASAK  (PENDING → COOKING)
-  // ============================================================
-    async function handleMulaiMasak() {
-        if (!activeOrderId) return;
+  /* ══════════════════════════════════════════════════════════
+     7. RENDER ITEMS — membaca dari orderItemCache
+        Centang TIDAK hilang saat modal dibuka ulang!
+  ══════════════════════════════════════════════════════════ */
+  function renderItems() {
+    const list = document.getElementById('popupItemsList');
+    if (!list || !activeOrderData) return;
 
-        const btn = document.getElementById('btnMulaiMasak');
-        if (btn) {
-        btn.disabled = true;
-        btn.classList.add('btn-loading');
-        btn.textContent = 'Memproses…';
-        }
+    list.innerHTML = '';
+    const items  = activeOrderData.items;
+    const cache  = orderItemCache[activeOrderId] || {};
 
-        try {
-        // ⬇️ GANTI BARIS INI: Pakai window.KOKI_ROUTES, jangan ROUTES biasa!
-        const url  = window.KOKI_ROUTES.mulaiMasak(activeOrderId);
-        const data = await postToLaravel(url);
+    items.forEach((item, idx) => {
+      const key    = item.item_id != null ? String(item.item_id) : String(idx);
+      const isDone = !!cache[key];
 
-        if (data.success) {
-            // Update tampilan kartu di grid
-            updateCardStatusUI(activeOrderId, 'cooking');   
+      const nama    = item.nama    || item.name || '';
+      const qty     = item.qty     || item.quantity || 1;
+      const catatan = item.catatan || item.note || '';
 
-        // Update state aktif
+      const row = document.createElement('div');
+      row.className = `koki-item-row${isDone ? ' done' : ''}`;
+      row.dataset.key = key;
+
+      row.innerHTML = `
+        <div class="koki-item-check">&#10003;</div>
+        <div class="koki-item-info">
+          <div class="koki-item-name">${escHtml(nama)}</div>
+          ${catatan
+            ? `<div class="badge-note">${escHtml(catatan)}</div>`
+            : ''}
+        </div>
+        <div class="koki-item-qty">[${qty}x]</div>
+      `;
+
+      row.addEventListener('click', () => toggleItem(key, row));
+      list.appendChild(row);
+    });
+
+    updateProgressBar();
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     8. TOGGLE CENTANG ITEM — menyimpan ke cache
+  ══════════════════════════════════════════════════════════ */
+  function toggleItem(key, row) {
+    if (!activeOrderId) return;
+
+    // Inisialisasi cache jika perlu
+    if (!orderItemCache[activeOrderId]) orderItemCache[activeOrderId] = {};
+
+    // Toggle
+    orderItemCache[activeOrderId][key] = !orderItemCache[activeOrderId][key];
+
+    // Update DOM
+    row.classList.toggle('done', orderItemCache[activeOrderId][key]);
+
+    updateProgressBar();
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     9. UPDATE PROGRESS BAR + validasi tombol Selesaikan
+  ══════════════════════════════════════════════════════════ */
+  function updateProgressBar() {
+    if (!activeOrderId || !activeOrderData) return;
+
+    const items   = activeOrderData.items;
+    const cache   = orderItemCache[activeOrderId] || {};
+    const total   = items.length;
+    const done    = items.filter((item, idx) => {
+      const key = item.item_id != null ? String(item.item_id) : String(idx);
+      return !!cache[key];
+    }).length;
+    const pct     = total ? Math.round((done / total) * 100) : 0;
+    const allDone = done === total && total > 0;
+
+    // Update progress
+    const doneEl = document.getElementById('progDone');
+    const totEl  = document.getElementById('progTotal');
+    const fillEl = document.getElementById('progFill');
+    if (doneEl)  doneEl.textContent  = done;
+    if (totEl)   totEl.textContent   = total;
+    if (fillEl)  fillEl.style.width  = pct + '%';
+
+    // Update label tombol Selesaikan
+    const lblEl = document.getElementById('btnSelesaikanLabel');
+    if (lblEl)   lblEl.textContent   = `Tandai Sebagai Selesai (${done}/${total})`;
+
+    // Aktifkan/nonaktifkan tombol Selesaikan
+    const btnSelesai = document.getElementById('btnSelesaikan');
+    if (btnSelesai) {
+      const canComplete = allDone && ['pending', 'cooking'].includes(activeOrderData.status);
+      btnSelesai.disabled = !canComplete;
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     10. SINKRON TOMBOL AKSI SESUAI STATUS ORDER
+  ══════════════════════════════════════════════════════════ */
+  function syncActionButtons() {
+    if (!activeOrderData) return;
+    const status    = activeOrderData.status;
+    const btnMulai  = document.getElementById('btnMulaiMasak');
+    const btnBatal  = document.getElementById('btnBatalkan');
+
+    // Tombol "Mulai Masak" → hanya muncul saat PENDING
+    if (btnMulai) btnMulai.style.display = status === 'pending' ? '' : 'none';
+
+    // Tombol "Batalkan" → hanya muncul saat PENDING
+    if (btnBatal) btnBatal.style.display = status === 'pending' ? '' : 'none';
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     11. AKSI: MULAI MASAK  (PENDING → COOKING)
+  ══════════════════════════════════════════════════════════ */
+  async function handleMulaiMasak() {
+    if (!activeOrderId) return;
+
+    const btn = document.getElementById('btnMulaiMasak');
+    const origText = btn?.textContent || 'Mulai Masak';
+    if (btn) { btn.disabled = true; btn.classList.add('btn-loading'); btn.textContent = 'Memproses'; }
+
+    try {
+      const data = await post(url.mulaiMasak(activeOrderId));
+
+      if (data.success) {
         if (activeOrderData) activeOrderData.status = 'cooking';
+        updateCardStatusUI(activeOrderId, 'cooking');
 
-        // Sembunyikan tombol mulai, tampilkan selesaikan
+        // Sembunyikan tombol mulai + batalkan
         if (btn) btn.style.display = 'none';
-        const btnSelesai = document.getElementById('btnComplete');
-        if (btnSelesai) {
-          btnSelesai.disabled = false;
-          btnSelesai.classList.remove('cant-complete');
-        }
+        const btnBatal = document.getElementById('btnBatalkan');
+        if (btnBatal) btnBatal.style.display = 'none';
 
-        showToast(`Pesanan ${activeOrderData?.identifier} mulai dimasak!`, 'info');
-        updateCounterBadges();
+        // Re-evaluasi tombol selesaikan
+        updateProgressBar();
+        showToast(`Pesanan ${activeOrderData?.secondaryId} mulai dimasak`, 'info');
+        updateCounters();
       } else {
-        showToast(data.message || 'Gagal memulai masak.', 'error');
+        showToast(data.message || 'Gagal memulai masak', 'error');
       }
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
     } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.classList.remove('btn-loading');
-        btn.textContent = 'Mulai Masak';
-      }
+      if (btn) { btn.disabled = false; btn.classList.remove('btn-loading'); btn.textContent = origText; }
     }
   }
 
-  // ============================================================
-  // 8. AKSI: SELESAIKAN  (→ READY)
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     12. AKSI: SELESAIKAN  (PENDING/COOKING → READY)
+         Hanya bisa dieksekusi jika semua item sudah dicentang
+  ══════════════════════════════════════════════════════════ */
   async function handleSelesaikan() {
     if (!activeOrderId) return;
 
-    const btn = document.getElementById('btnComplete');
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add('btn-loading');
-    }
+    const btn = document.getElementById('btnSelesaikan');
+    if (btn?.disabled) return;   // guard extra
+
+    if (btn) { btn.disabled = true; btn.classList.add('btn-loading'); }
 
     try {
-      const url  = window.KOKI_ROUTES.selesaikan(activeOrderId);
-      const data = await postToLaravel(url);
+      const data = await post(url.selesaikan(activeOrderId));
 
       if (data.success) {
-        const identifier = activeOrderData?.identifier || `#${activeOrderId}`;
-        const orderCode  = data.order_code || activeOrderData?.order_code || activeOrderId;
-
-        // Update kartu di grid → status READY (done visually)
         updateCardStatusUI(activeOrderId, 'ready');
 
-        // Tutup detail modal, buka success modal
-        document.getElementById('detailModal')?.classList.remove('active');
+        // Tampilkan success popup
+        document.getElementById('popupDetail')?.classList.remove('is-open');
+        const detailEl = document.getElementById('successDetail');
+        if (detailEl) {
+          detailEl.textContent = `${activeOrderData?.primaryId} — ${activeOrderData?.secondaryId}`;
+        }
+        document.getElementById('popupSuccess')?.classList.add('is-open');
 
-        const detail = document.getElementById('successDetail');
-        if (detail) detail.textContent = `${identifier} · ${orderCode}`;
-
-        document.getElementById('successModal')?.classList.add('active');
-
-        showToast(`✅ ${identifier} siap saji!`, 'success');
-        updateCounterBadges();
+        showToast(`Pesanan ${activeOrderData?.secondaryId} siap saji`, 'success');
+        updateCounters();
         applyFilter(currentFilter);
+
+        // Bersihkan cache untuk order ini
+        delete orderItemCache[activeOrderId];
       } else {
-        showToast(data.message || 'Gagal menyelesaikan pesanan.', 'error');
+        showToast(data.message || 'Gagal menyelesaikan', 'error');
       }
     } catch (err) {
       showToast(`Error: ${err.message}`, 'error');
     } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.classList.remove('btn-loading');
-      }
+      if (btn) { btn.disabled = false; btn.classList.remove('btn-loading'); }
     }
   }
 
-  // ============================================================
-  // 9. UPDATE VISUAL KARTU DI GRID SETELAH AKSI
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     13. AKSI: BATALKAN  (PENDING → CANCELLED)
+  ══════════════════════════════════════════════════════════ */
+  async function handleBatalkan() {
+    if (!activeOrderId) return;
+
+    const konfirm = window.confirm(
+      `Batalkan pesanan ${activeOrderData?.primaryId}?\nTindakan ini tidak dapat dibatalkan.`
+    );
+    if (!konfirm) return;
+
+    const btn = document.getElementById('btnBatalkan');
+    if (btn) { btn.disabled = true; btn.classList.add('btn-loading'); }
+
+    try {
+      const data = await post(url.batalkan(activeOrderId));
+      if (data.success) {
+        closePopup();
+        // Hapus kartu dari DOM
+        document.getElementById(`card-${activeOrderId}`)?.remove();
+        showToast(`Pesanan ${activeOrderData?.primaryId} dibatalkan`, 'error');
+        updateCounters();
+        delete orderItemCache[activeOrderId];
+      } else {
+        showToast(data.message || 'Gagal membatalkan', 'error');
+      }
+    } catch (err) {
+      showToast(`Error: ${err.message}`, 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.classList.remove('btn-loading'); }
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     14. UPDATE VISUAL KARTU DI GRID
+  ══════════════════════════════════════════════════════════ */
   function updateCardStatusUI(orderId, newStatus) {
     const card = document.getElementById(`card-${orderId}`);
     if (!card) return;
@@ -469,23 +523,13 @@ const ROUTES           = window.KOKI_ROUTES || window.ROUTES || {};
     // Update status pill
     const pill = card.querySelector('[data-status-pill]');
     if (pill) {
-      const labels = {
-        pending   : '🕐 Menunggu',
-        cooking   : '🔥 Memasak',
-        ready     : '✅ Siap Saji',
-        completed : '☑ Selesai',
-      };
-      const classes = {
-        pending   : 'status-pending',
-        cooking   : 'status-cooking',
-        ready     : 'status-ready',
-        completed : 'status-done',
-      };
-      pill.textContent = labels[newStatus] || newStatus;
-      pill.className   = `card-status-pill ${classes[newStatus] || ''}`;
+      const labelMap = { pending: 'Menunggu', cooking: 'Memasak', ready: 'Siap Saji', completed: 'Selesai' };
+      const classMap = { pending: 'pill-pending', cooking: 'pill-cooking', ready: 'pill-ready', completed: 'pill-done' };
+      pill.textContent = labelMap[newStatus] || newStatus;
+      pill.className   = `status-pill ${classMap[newStatus] || ''}`;
     }
 
-    // Jika READY atau lebih → jadikan "done" (tidak bisa diklik)
+    // Card selesai / ready → class done
     if (['ready', 'completed', 'cancelled'].includes(newStatus)) {
       card.classList.remove('card-fresh', 'card-warning', 'card-urgent');
       card.classList.add('card-done');
@@ -493,105 +537,128 @@ const ROUTES           = window.KOKI_ROUTES || window.ROUTES || {};
       card.removeAttribute('tabindex');
     }
 
-    // Jika COOKING → update class timer ke fresh (warna reset ke hijau)
+    // Cooking → reset ke fresh (timer mulai dari awal)
     if (newStatus === 'cooking') {
+      card.classList.remove('card-warning', 'card-urgent');
       card.classList.add('card-fresh');
     }
   }
 
-  // ============================================================
-  // 10. AUTO-REFRESH ANTRIAN (Polling)
-  //     Setiap 30 detik, fetch JSON dari /koki/api/orders
-  //     dan perbarui counter badge.
-  //     (Untuk full render ulang → reload halaman)
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     15. POLLING AUTO-REFRESH
+  ══════════════════════════════════════════════════════════ */
   function startPolling() {
-    if (!ROUTES.apiOrders) return;
-
-    pollingInterval = setInterval(async () => {
+    setInterval(async () => {
       try {
-        const res  = await fetch(ROUTES.apiOrders, {
-          headers: { 'Accept': 'application/json' }
-        });
+        const res  = await fetch(url.apiOrders, { headers: { Accept: 'application/json' } });
         const data = await res.json();
 
         if (data.success && data.counts) {
           const c = data.counts;
-          ['semua','pending','cooking','ready'].forEach(key => {
+          Object.entries(c).forEach(([key, n]) => {
             const el = document.getElementById(`badge-${key}`);
-            if (el && c[key] !== undefined) el.textContent = c[key];
+            if (el) el.textContent = n;
           });
 
-          // Jika ada order baru (count bertambah), tampilkan notif
+          // Deteksi pesanan baru
           const badgeSemua = document.getElementById('badge-semua');
-          const prevCount  = parseInt(badgeSemua?.dataset.prevCount || '0');
-          if (c.semua > prevCount && prevCount > 0) {
-            showToast(`🔔 ${c.semua - prevCount} pesanan baru masuk!`);
-            document.getElementById('notifBadge')?.classList.add('active');
+          const prev = parseInt(badgeSemua?.dataset.prevCount || '0');
+          if (c.semua > prev && prev > 0) {
+            showToast(`${c.semua - prev} pesanan baru masuk`, 'info');
+            const notifBadge = document.getElementById('notifBadge');
+            if (notifBadge) { notifBadge.style.display = 'flex'; }
           }
           if (badgeSemua) badgeSemua.dataset.prevCount = c.semua;
         }
-      } catch (_) {
-        // Polling gagal — diam saja, tidak perlu alert
-      }
-    }, POLLING_MS);
+      } catch (_) { /* silent fail */ }
+    }, 30_000);
   }
 
-  // ============================================================
-  // 11. INIT SEMUA EVENT LISTENER
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     16. NOTIF PANEL
+  ══════════════════════════════════════════════════════════ */
+  function initNotifPanel() {
+    const btn    = document.getElementById('notifButton');
+    const panel  = document.getElementById('notifPanel');
+    const readBtn = document.getElementById('btnReadAll');
+    const footer = document.getElementById('btnNotifFooter');
+
+    if (btn && panel) {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('is-open');
+        // Hapus badge
+        const badge = document.getElementById('notifBadge');
+        if (badge) badge.style.display = 'none';
+      });
+    }
+
+    if (readBtn) {
+      readBtn.addEventListener('click', () => {
+        const badge = document.getElementById('notifBadge');
+        if (badge) badge.style.display = 'none';
+        showToast('Semua notifikasi ditandai dibaca', 'info');
+      });
+    }
+
+    if (footer) {
+      footer.addEventListener('click', () => {
+        panel?.classList.remove('is-open');
+        showToast('Fitur riwayat notifikasi akan segera tersedia', 'info');
+      });
+    }
+
+    // Klik di luar → tutup panel
+    document.addEventListener('click', (e) => {
+      if (panel && !panel.contains(e.target) && e.target !== btn) {
+        panel.classList.remove('is-open');
+      }
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     17. INIT EVENT LISTENERS
+  ══════════════════════════════════════════════════════════ */
   function init() {
-    // ── Klik kartu → buka modal ──────────────────────────
+    // Klik kartu → buka popup
     document.querySelectorAll('.order-card[role="button"]').forEach(card => {
-      card.addEventListener('click', () => openModal(card));
-      // Keyboard accessibility
+      card.addEventListener('click', () => openPopup(card));
       card.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openModal(card);
-        }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPopup(card); }
       });
     });
 
-    // ── Tombol X tutup detail modal ──────────────────────
-    document.getElementById('closeDetailBtn')?.addEventListener('click', closeModal);
+    // Tutup popup detail
+    document.getElementById('btnCloseDetail')?.addEventListener('click', closePopup);
 
-    // ── Tombol "Mulai Masak" ─────────────────────────────
+    // Tutup popup success
+    document.getElementById('btnCloseSuccess')?.addEventListener('click', closePopup);
+
+    // Tombol Mulai Masak
     document.getElementById('btnMulaiMasak')?.addEventListener('click', handleMulaiMasak);
 
-    // ── Tombol "Selesaikan Pesanan" ──────────────────────
-    document.getElementById('btnComplete')?.addEventListener('click', () => {
-      if (!document.getElementById('btnComplete').disabled) {
-        handleSelesaikan();
-      }
-    });
+    // Tombol Selesaikan
+    document.getElementById('btnSelesaikan')?.addEventListener('click', handleSelesaikan);
 
-    // ── Tombol "Kembali ke Antrian" (success modal) ──────
+    // Tombol Batalkan
+    document.getElementById('btnBatalkan')?.addEventListener('click', handleBatalkan);
+
+    // Kembali ke Antrian (dari success)
     document.getElementById('btnBackToQueue')?.addEventListener('click', () => {
-      closeModal();
+      closePopup();
       applyFilter(currentFilter);
     });
 
-    // ── Klik overlay → tutup modal ───────────────────────
-    document.getElementById('modalOverlay')?.addEventListener('click', function (e) {
-      if (e.target === this) closeModal();
-    });
+    // Overlay → tutup popup
+    document.getElementById('globalOverlay')?.addEventListener('click', closePopup);
 
-    // ── Escape key → tutup modal ─────────────────────────
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeModal();
-    });
-
-    // ── Tombol notif → hapus badge ───────────────────────
-    document.getElementById('notifButton')?.addEventListener('click', () => {
-      document.getElementById('notifBadge')?.classList.remove('active');
-      showToast('Semua notifikasi telah dibaca.', 'info');
-    });
+    // Escape → tutup popup
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePopup(); });
   }
 
-  // ============================================================
-  // UTILITY
-  // ============================================================
+  /* ══════════════════════════════════════════════════════════
+     UTILITY
+  ══════════════════════════════════════════════════════════ */
   function escHtml(str) {
     if (!str) return '';
     return String(str)
@@ -601,18 +668,25 @@ const ROUTES           = window.KOKI_ROUTES || window.ROUTES || {};
       .replace(/"/g, '&quot;');
   }
 
-  // ============================================================
-  // PUBLIC API — dipanggil setelah DOMContentLoaded
-  // ============================================================
-  return { startClock, startCardTimers, initFilterTabs, init, startPolling };
+  function formatTime(raw) {
+    if (!raw) return '--:--';
+    try {
+      return new Date(raw).toLocaleTimeString('id-ID', {
+        hour: '2-digit', minute: '2-digit', hour12: false,
+      });
+    } catch (_) { return '--:--'; }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     BOOTSTRAP
+  ══════════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', () => {
+    startClock();
+    startCardTimers();
+    initFilterTabs();
+    initNotifPanel();
+    init();
+    startPolling();
+  });
 
 })();
-
-// ── Bootstrap ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  KokiApp.startClock();
-  KokiApp.startCardTimers();
-  KokiApp.initFilterTabs();
-  KokiApp.init();
-  KokiApp.startPolling();
-});
