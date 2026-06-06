@@ -1,54 +1,69 @@
 /* ============================================================
-   KOKI.CSS — Kitchen Console Tskuy POS
-   Dapur: Dine In (Ungu) | Takeaway (Biru) | Urgent (Merah >20mnt)
-   ============================================================ */
+   KOKI.CSS — Kitchen Display System · Tskuy Smart Kasir
+   ============================================================
+   Palet warna utama: Kuning (brand) + status warna waktu
+   (Hijau / Kuning / Merah) sebagai border & dot indicator.
 
-/* ── RESET & BASE ──────────────────────────────────────────── */
+   CATATAN PENTING DESAIN:
+   ─────────────────────────────────────────────────────────────
+   ✅ Badge "Dine In"   → BIRU   (hanya badge tipe, bukan background card)
+   ✅ Badge "Take Away" → UNGU   (hanya badge tipe, bukan background card)
+   ✅ Background card   → putih bersih (tidak berubah karena tipe)
+   ✅ Border card       → berubah warna sesuai durasi tunggu:
+        Hijau  = < 5 menit   (aman)
+        Kuning = 5–15 menit  (waspada)
+        Merah  = > 15 menit  (kritis!)
+   ─────────────────────────────────────────────────────────────
+============================================================ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Brand */
+  /* ── Brand ──────────────────────────────── */
   --kuning:        #efb100;
+  --kuning-soft:   #fff7d6;
   --kuning-light:  #fef3c7;
   --kuning-hover:  #d97706;
 
-  /* Neutral */
+  /* ── Neutral ────────────────────────────── */
   --teks:          #18181b;
   --muted:         #6b7280;
   --border:        #e5e7eb;
   --bg-page:       #f3f4f6;
   --bg-card:       #ffffff;
-  --shadow-sm:     0 1px 4px rgba(0,0,0,.06);
-  --shadow-md:     0 4px 20px rgba(0,0,0,.10);
-  --shadow-popup:  0 20px 60px rgba(0,0,0,.22);
   --radius-sm:     10px;
   --radius-md:     14px;
   --radius-lg:     20px;
+  --shadow-sm:     0 1px 4px rgba(0,0,0,.06);
+  --shadow-md:     0 4px 20px rgba(0,0,0,.12);
 
-  /* Tipe Pesanan */
-  --ungu-bg:       #ede9fe;
-  --ungu-text:     #5b21b6;
-  --ungu-border:   #c4b5fd;
-  --ungu-accent:   #7c3aed;
+  /* ── Status Warna Waktu ─────────────────── */
+  /* 🟢 HIJAU — < 5 menit (aman) */
+  --fresh-border:  #22c55e;
+  --fresh-bg:      #f0fdf4;      /* bg sedikit tinted utk fresh state */
+  --fresh-text:    #15803d;
+  --fresh-dot:     #22c55e;
 
-  --biru-bg:       #dbeafe;
-  --biru-text:     #1e40af;
-  --biru-border:   #93c5fd;
-  --biru-accent:   #2563eb;
+  /* 🟡 KUNING — 5–15 menit (warning) */
+  --warn-border:   #f59e0b;
+  --warn-bg:       #fffbeb;
+  --warn-text:     #92400e;
+  --warn-dot:      #f59e0b;
 
-  /* Urgent (> 20 menit menunggu) */
-  --red-bg:        #fff1f2;
-  --red-border:    #fca5a5;
-  --red-text:      #991b1b;
-  --red-accent:    #ef4444;
+  /* 🔴 MERAH — > 15 menit (kritis) */
+  --urgent-border: #ef4444;
+  --urgent-bg:     #fff1f2;
+  --urgent-text:   #991b1b;
+  --urgent-dot:    #ef4444;
 
-  /* Done / Selesai */
-  --done-bg:       #f0fdf4;
-  --done-border:   #86efac;
-  --done-text:     #166534;
-  --done-accent:   #22c55e;
+  /* ── Modal / Action ─────────────────────── */
+  --done-check:    #22c55e;
+  --done-bg:       #dcfce7;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   BASE
+───────────────────────────────────────────────────────────── */
 html, body {
   height: 100%;
   font-family: "Poppins", sans-serif;
@@ -57,14 +72,18 @@ html, body {
   overflow-x: hidden;
 }
 
-/* ── LAYOUT ────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   LAYOUT KOKI
+───────────────────────────────────────────────────────────── */
 .koki-app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: calc(100vh - 64px);
 }
 
-/* ── HEADER ────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   HEADER
+───────────────────────────────────────────────────────────── */
 .koki-header {
   height: 64px;
   background: #fff;
@@ -72,18 +91,15 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 20px;
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-shrink: 0;
 }
 
-.header-left,
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.header-left  { display: flex; align-items: center; gap: 12px; }
+.header-right { display: flex; align-items: center; gap: 10px; }
 
 .logo-circle {
   width: 40px;
@@ -95,59 +111,102 @@ html, body {
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
+  font-size: 20px;
 }
 .logo-circle img {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   object-fit: cover;
   border-radius: 50%;
 }
 
-.header-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--teks);
-  line-height: 1.1;
-}
-.header-subtitle {
-  font-size: 11px;
-  color: var(--muted);
-}
+.header-title    { font-size: 15px; font-weight: 700; color: var(--teks); line-height: 1.1; }
+.header-subtitle { font-size: 11px; color: var(--muted); font-weight: 400; }
 
 .live-clock {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   letter-spacing: .03em;
 }
 
+/* Notif button */
+.notif-button {
+  position: relative;
+  padding: 6px 9px;
+  background: var(--bg-page);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 15px;
+  transition: background .15s;
+}
+.notif-button:hover { background: #e5e7eb; }
+
+.notif-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 10px; height: 10px;
+  background: #ef4444;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: none;
+}
+.notif-badge.active { display: block; }
+
+/* User pill */
 .user-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   padding: 4px 12px 4px 4px;
   border: 1.5px solid var(--border);
   border-radius: 50px;
   background: var(--bg-page);
-  cursor: pointer;
+  cursor: default;
   transition: border-color .2s;
 }
-.user-pill:hover { border-color: var(--kuning); }
-.user-pill img {
-  width: 28px;
-  height: 28px;
+.user-avatar {
+  width: 28px; height: 28px;
   border-radius: 50%;
-  object-fit: cover;
+  background: var(--kuning);
+  color: var(--teks);
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 .user-pill span {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--teks);
   white-space: nowrap;
 }
 
-/* ── FILTER BAR ────────────────────────────────────────────── */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  text-decoration: none;
+  font-family: inherit;
+}
+.back-btn:hover { background: var(--bg-page); color: var(--teks); }
+
+/* ─────────────────────────────────────────────────────────────
+   FILTER TABS
+───────────────────────────────────────────────────────────── */
 .filter-bar {
   background: #fff;
   border-bottom: 1px solid var(--border);
@@ -155,28 +214,29 @@ html, body {
   display: flex;
   align-items: stretch;
   gap: 0;
+  flex-shrink: 0;
 }
 
 .filter-tab {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 13px 16px;
-  font-family: "Poppins", sans-serif;
+  padding: 12px 16px;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  background: none;
+  cursor: pointer;
   border: none;
   border-bottom: 2.5px solid transparent;
-  cursor: pointer;
-  white-space: nowrap;
+  background: none;
+  font-family: inherit;
   transition: color .15s, border-color .15s;
+  white-space: nowrap;
 }
 .filter-tab:hover { color: var(--teks); }
 .filter-tab.active {
-  color: var(--ungu-accent);
-  border-bottom-color: var(--ungu-accent);
+  color: var(--kuning-hover);
+  border-bottom-color: var(--kuning);
 }
 
 .tab-badge {
@@ -191,98 +251,79 @@ html, body {
   font-weight: 700;
   background: var(--bg-page);
   color: var(--muted);
-  transition: background .2s, color .2s;
+  transition: background .15s, color .15s;
 }
 .filter-tab.active .tab-badge {
-  background: var(--ungu-bg);
-  color: var(--ungu-accent);
+  background: var(--kuning-light);
+  color: var(--kuning-hover);
 }
-/* Badge merah khusus tab >20 menit */
-#tab-urgent.active .tab-badge,
-#badge-urgent {
-  background: #fee2e2;
-  color: var(--red-text);
-}
-#tab-urgent .tab-badge { background: #fee2e2; color: var(--red-text); }
 
-.urgent-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--red-accent);
-  flex-shrink: 0;
-  animation: blink-red 1.2s infinite;
-}
-@keyframes blink-red { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* ── MAIN CONTENT ──────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   MAIN CONTENT
+───────────────────────────────────────────────────────────── */
 .koki-content {
   flex: 1;
-  padding: 20px 24px;
+  padding: 20px;
   overflow-y: auto;
 }
 
-/* ── ORDER GRID ────────────────────────────────────────────── */
 .orders-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 14px;
 }
 
-/* ── ORDER CARD ────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   ORDER CARD — BASE
+   (warna background selalu putih bersih)
+───────────────────────────────────────────────────────────── */
 .order-card {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border);
+  background: var(--bg-card);          /* ← selalu putih */
   border-radius: var(--radius-md);
+  border: 2px solid var(--border);     /* ← border default abu */
+  overflow: hidden;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  transition: transform .15s, box-shadow .15s;
-  overflow: hidden;
+  transition: transform .15s, box-shadow .15s, border-color .2s;
   position: relative;
 }
-.order-card:hover {
+.order-card:hover:not(.card-done) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-/* Left accent bar */
-.order-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-  background: var(--border);
-  border-radius: 4px 0 0 4px;
+/*
+ * ── STATUS WARNA WAKTU (hanya mempengaruhi BORDER + background sedikit) ──
+ *
+ * 🟢 card-fresh   = < 5 menit   → border hijau
+ * 🟡 card-warning = 5–15 menit  → border kuning
+ * 🔴 card-urgent  = > 15 menit  → border merah
+ * ⬜ card-done    = selesai/ready → border abu, redup
+ */
+.order-card.card-fresh {
+  border-color: var(--fresh-border);
 }
-.order-card.dine-in::before  { background: var(--ungu-accent); }
-.order-card.takeaway::before { background: var(--biru-accent); }
-.order-card.urgent::before   { background: var(--red-accent); }
-.order-card.completed::before { background: var(--done-accent); }
-
-/* Urgent state */
-.order-card.urgent {
-  border-color: var(--red-border);
-  background: var(--red-bg);
+.order-card.card-warning {
+  border-color: var(--warn-border);
 }
-
-/* Completed state */
-.order-card.completed {
-  border-color: var(--done-border);
-  background: var(--done-bg);
-  opacity: .8;
+.order-card.card-urgent {
+  border-color: var(--urgent-border);
+  /* Sedikit tint merah agar terlihat kritis */
+  background: #fff8f8;
+}
+.order-card.card-done {
+  border-color: var(--border);
+  opacity: .72;
   cursor: default;
-}
-.order-card.completed:hover {
-  transform: none;
-  box-shadow: none;
+  pointer-events: none;
 }
 
-/* ── CARD HEADER ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   CARD HEADER
+───────────────────────────────────────────────────────────── */
 .card-header {
-  padding: 13px 14px 0 18px;
+  padding: 13px 14px 8px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -293,90 +334,115 @@ html, body {
   font-size: 16px;
   font-weight: 800;
   color: var(--teks);
-  line-height: 1.1;
-  letter-spacing: -.01em;
+  line-height: 1.2;
 }
+.card-done .card-order-id { color: var(--muted); }
 
-/* Timer badge */
+/* ── Timer Badge ── */
 .timer-badge {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: 20px;
+  gap: 5px;
   font-size: 11px;
   font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.order-card.dine-in:not(.urgent)  .timer-badge { background: var(--ungu-bg);  color: var(--ungu-text); }
-.order-card.takeaway:not(.urgent) .timer-badge { background: var(--biru-bg);  color: var(--biru-text); }
-.order-card.urgent                .timer-badge { background: #fee2e2;          color: var(--red-text);  }
-.order-card.completed             .timer-badge { background: var(--bg-page);   color: var(--muted); }
 
+/* Warna timer badge sesuai status kartu */
+.card-fresh   .timer-badge { background: rgba(34,197,94,.12);  color: var(--fresh-text); }
+.card-warning .timer-badge { background: rgba(245,158,11,.12); color: var(--warn-text);  }
+.card-urgent  .timer-badge { background: rgba(239,68,68,.12);  color: var(--urgent-text); }
+.card-done    .timer-badge { background: var(--bg-page);       color: var(--muted); }
+
+/* Lampu indikator bulat berkedip di timer badge */
 .timer-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.order-card.dine-in:not(.urgent)  .timer-dot { background: var(--ungu-accent); animation: pulse-dot 2s infinite; }
-.order-card.takeaway:not(.urgent) .timer-dot { background: var(--biru-accent); animation: pulse-dot 2s infinite; }
-.order-card.urgent                .timer-dot { background: var(--red-accent);  animation: pulse-dot .9s infinite; }
-.order-card.completed             .timer-dot { background: var(--done-accent); }
-@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-/* ── CARD META (type badge + meja + pelanggan) ─────────────── */
+.card-fresh   .timer-dot { background: var(--fresh-dot);  animation: pulse-green 2s infinite; }
+.card-warning .timer-dot { background: var(--warn-dot);   animation: pulse-yellow 1.3s infinite; }
+.card-urgent  .timer-dot { background: var(--urgent-dot); animation: pulse-red .9s infinite; }
+.card-done    .timer-dot { background: #d1d5db; animation: none; }
+
+@keyframes pulse-green  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes pulse-yellow { 0%,100%{opacity:1} 50%{opacity:.35} }
+@keyframes pulse-red    { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+/* ─────────────────────────────────────────────────────────────
+   CARD META — badge tipe + info meja + pelanggan
+───────────────────────────────────────────────────────────── */
 .card-meta {
-  padding: 6px 14px 0 18px;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
+  padding: 0 14px 8px;
 }
 
+/*
+ * ── BADGE TIPE PESANAN ──────────────────────────────────────
+ *
+ * ATURAN UTAMA (sesuai permintaan):
+ *   🔵 Dine In   → background biru, teks biru gelap
+ *   🟣 Take Away → background ungu, teks ungu gelap
+ *
+ * Badge ini TIDAK mempengaruhi warna background card sama sekali.
+ */
 .type-badge {
   font-size: 9.5px;
-  font-weight: 700;
-  padding: 2px 9px;
+  font-weight: 800;
+  padding: 3px 8px;
   border-radius: 20px;
-  text-transform: uppercase;
   letter-spacing: .04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
-.badge-dine-in  {
-  background: var(--ungu-bg);
-  color: var(--ungu-text);
-  border: 1px solid var(--ungu-border);
+
+/* 🔵 Dine In → Biru */
+.badge-dine-in {
+  background: #dbeafe;   /* blue-100 */
+  color: #1e40af;        /* blue-800 */
+  border: 1px solid #bfdbfe;
 }
-.badge-takeaway {
-  background: var(--biru-bg);
-  color: var(--biru-text);
-  border: 1px solid var(--biru-border);
+
+/* 🟣 Take Away → Ungu */
+.badge-take-away {
+  background: #ede9fe;   /* violet-100 */
+  color: #5b21b6;        /* violet-800 */
+  border: 1px solid #ddd6fe;
 }
 
 .card-meja-info {
   font-size: 11px;
-  font-weight: 600;
   color: var(--muted);
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
-.card-meja-info .meja-num {
-  color: var(--ungu-accent);
+.meja-num {
   font-weight: 700;
+  color: var(--teks);
 }
 
 .card-customer {
   font-size: 11px;
   color: var(--muted);
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  white-space: nowrap;
+  max-width: 130px;
 }
 
-/* ── CARD ITEMS ────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   CARD ITEMS
+───────────────────────────────────────────────────────────── */
 .card-items {
-  padding: 8px 14px 10px 18px;
+  padding: 0 14px 10px;
   flex: 1;
 }
 
@@ -386,259 +452,332 @@ html, body {
   gap: 6px;
   font-size: 12.5px;
   color: var(--teks);
-  padding: 2.5px 0;
+  padding: 2px 0;
 }
+
 .card-item-dot {
-  width: 4px;
-  height: 4px;
+  width: 5px; height: 5px;
   border-radius: 50%;
   background: var(--muted);
   flex-shrink: 0;
 }
+
 .card-item-qty {
   font-weight: 700;
   color: var(--kuning-hover);
   flex-shrink: 0;
-  min-width: 20px;
 }
+
 .card-item-name {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.card-item-note {
+  font-size: 11px;
+  flex-shrink: 0;
+  cursor: help;
+}
+
 .card-more {
   font-size: 11px;
   color: var(--muted);
-  margin-top: 2px;
+  padding: 3px 0 0;
+  font-style: italic;
 }
 
-/* ── CARD FOOTER ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   CARD FOOTER — status pill + chevron
+───────────────────────────────────────────────────────────── */
 .card-footer {
-  padding: 9px 14px 11px 18px;
+  padding: 10px 14px;
   border-top: 1px solid rgba(0,0,0,.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
-.status-pill {
-  font-size: 10px;
+.card-status-pill {
+  font-size: 10.5px;
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 20px;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
+  flex-shrink: 0;
 }
-.status-pending   { background: #f1f5f9; color: #64748b; }
-.status-urgent    { background: #fee2e2; color: var(--red-text); }
-.status-completed { background: var(--done-bg); color: var(--done-text); }
 
-.card-chevron { color: var(--muted); }
+/* Status pill colors */
+.status-pending { background: #e0f2fe; color: #0369a1; }  /* biru muda */
+.status-cooking { background: var(--kuning-light); color: var(--kuning-hover); }
+.status-ready   { background: var(--done-bg); color: #15803d; }
+.status-done    { background: #f3f4f6; color: var(--muted); }
 
-/* ── EMPTY STATE ───────────────────────────────────────────── */
+.card-chevron { color: var(--muted); flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   EMPTY STATE
+───────────────────────────────────────────────────────────── */
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
+  color: var(--muted);
 }
-.empty-icon   { font-size: 50px; margin-bottom: 12px; }
-.empty-title  { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-.empty-desc   { font-size: 13px; color: var(--muted); }
+.empty-icon   { font-size: 56px; margin-bottom: 16px; }
+.empty-title  { font-size: 18px; font-weight: 700; color: var(--teks); margin-bottom: 6px; }
+.empty-desc   { font-size: 13px; max-width: 320px; margin: 0 auto; line-height: 1.6; }
 
-/* ── MODAL OVERLAY ─────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   TOAST NOTIFICATION
+───────────────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  top: 76px; right: 16px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #1c1c1e;
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  animation: toast-in .3s ease;
+  max-width: 300px;
+  pointer-events: auto;
+}
+
+.toast.toast-success { background: #15803d; }
+.toast.toast-error   { background: #991b1b; }
+
+.toast-icon { font-size: 18px; flex-shrink: 0; }
+
+@keyframes toast-in {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(120%); opacity: 0; }
+}
+.toast.hiding { animation: toast-out .3s ease forwards; }
+
+/* ─────────────────────────────────────────────────────────────
+   MODAL — OVERLAY + BASE
+───────────────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 150;
+  backdrop-filter: blur(3px);
+  z-index: 200;
   display: none;
   opacity: 0;
-  transition: opacity .25s;
+  transition: opacity .3s;
 }
-.modal-overlay.active {
-  display: block;
-  opacity: 1;
-}
+.modal-overlay.active { display: block; opacity: 1; }
 
-/* ── DETAIL MODAL ──────────────────────────────────────────── */
-.modal {
+.custom-modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(.92);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(.92);
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  width: min(92%, 480px);
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  z-index: 200;
-  box-shadow: var(--shadow-popup);
+  max-width: 500px;
+  width: 92%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  z-index: 250;
+  box-shadow: var(--shadow-md);
+  display: none;
   opacity: 0;
-  pointer-events: none;
-  transition: transform .28s cubic-bezier(.175,.885,.32,1.275), opacity .22s;
+  transition: transform .3s ease-out, opacity .25s;
 }
-.modal.active {
+.custom-modal.active {
+  display: block;
   opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translate(-50%,-50%) scale(1);
 }
 
-/* Modal close */
-.modal-close {
+.modal-close-btn {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: var(--bg-page);
+  top: 14px; right: 14px;
+  width: 30px; height: 30px;
   border-radius: 50%;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--muted);
-  font-size: 16px;
   transition: background .15s, color .15s;
-  flex-shrink: 0;
 }
-.modal-close:hover { background: #e5e7eb; color: var(--teks); }
+.modal-close-btn:hover { background: #e5e7eb; color: var(--teks); }
 
-/* Modal header */
-.modal-head {
-  padding: 22px 22px 14px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
+/* ── Modal Header ── */
+.modal-header { margin-bottom: 16px; }
+
 .modal-order-id {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
-  margin-bottom: 6px;
-  padding-right: 36px;
+  color: var(--teks);
+  margin-bottom: 4px;
 }
+
 .modal-info-row {
+  font-size: 13px;
+  color: var(--muted);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.modal-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 20px;
   font-size: 12px;
+  font-weight: 700;
+  background: var(--bg-page);
   color: var(--muted);
 }
-.modal-info-row strong { color: var(--teks); }
 
-/* Modal items */
+/* ── Modal Items ── */
 .modal-items-wrap {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 0;
+  margin: 0 0 16px;
 }
 
-.modal-item {
+.modal-items-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+
+.modal-items-list {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.modal-item-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 22px;
+  padding: 10px 14px;
+  border-bottom: 1px dashed var(--border);
   cursor: pointer;
+  gap: 12px;
   transition: background .15s;
-  border-bottom: 1px solid var(--border);
-  -webkit-tap-highlight-color: transparent;
 }
-.modal-item:last-child { border-bottom: none; }
-.modal-item:hover  { background: #fafafa; }
-.modal-item:active { background: var(--done-bg); }
-.modal-item.done   { background: var(--done-bg); }
-.modal-item.done:hover { background: #dcfce7; }
+.modal-item-row:last-child { border-bottom: none; }
+.modal-item-row:hover { background: #fafafa; }
 
-/* Check circle */
-.item-check {
-  width: 32px;
-  height: 32px;
+.item-check-icon {
+  width: 26px; height: 26px;
   border-radius: 50%;
-  border: 2px solid var(--border);
+  border: 2px solid var(--muted);
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background .2s, border-color .2s;
+  font-size: 12px;
+  color: transparent;
+  transition: all .2s;
 }
-.modal-item.done .item-check {
-  background: var(--done-accent);
-  border-color: var(--done-accent);
+.modal-item-row.done .item-check-icon {
+  background: var(--done-check);
+  border-color: var(--done-check);
+  color: #fff;
 }
-.item-check svg { display: none; }
-.modal-item.done .item-check svg { display: block; }
 
-/* Item info */
-.item-text { flex: 1; min-width: 0; }
-.item-name {
-  font-size: 14px;
+.modal-item-info { flex: 1; min-width: 0; }
+
+.modal-item-name {
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--teks);
+  transition: color .2s;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color .2s;
 }
-.modal-item.done .item-name {
-  text-decoration: line-through;
+.modal-item-row.done .modal-item-name {
   color: var(--muted);
+  text-decoration: line-through;
 }
-.item-note {
-  font-size: 11.5px;
+
+.modal-item-note {
+  font-size: 11px;
   color: var(--muted);
   font-style: italic;
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-top: 1px;
 }
-.item-qty {
+
+.modal-item-qty {
   font-size: 13px;
   font-weight: 700;
   color: var(--kuning-hover);
   flex-shrink: 0;
-  margin-left: 4px;
 }
 
-/* Progress bar */
-.modal-progress {
-  padding: 10px 22px 14px;
-  flex-shrink: 0;
-  border-top: 1px solid var(--border);
-}
+/* ── Progress Bar ── */
+.modal-progress { margin-bottom: 16px; }
+
 .progress-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 7px;
   display: flex;
   justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
-.progress-done { color: var(--done-accent); }
+
 .progress-track {
-  height: 7px;
+  height: 8px;
   background: var(--bg-page);
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
 }
+
 .progress-fill {
   height: 100%;
-  background: var(--done-accent);
-  border-radius: 4px;
-  transition: width .35s ease;
+  background: var(--done-check);
+  border-radius: 10px;
+  transition: width .4s ease;
 }
 
-/* Modal footer */
+/* ── Modal Footer Buttons ── */
 .modal-foot {
-  padding: 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   border-top: 1px solid var(--border);
-  flex-shrink: 0;
+  padding-top: 16px;
 }
 
-.btn-complete {
+/* Tombol primer — Selesaikan */
+.btn-action-primary {
   width: 100%;
   height: 50px;
   border: none;
@@ -653,78 +792,87 @@ html, body {
   gap: 8px;
   transition: background .2s, opacity .2s, transform .1s;
 }
-.btn-complete:active { transform: scale(.98); }
-.btn-complete.can-complete  { background: var(--done-accent); color: #fff; }
-.btn-complete.cant-complete { background: var(--border); color: var(--muted); cursor: not-allowed; }
 
-/* ── SUCCESS MODAL ─────────────────────────────────────────── */
-.success-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(.88);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  width: min(92%, 360px);
-  padding: 32px 24px;
-  z-index: 200;
-  box-shadow: var(--shadow-popup);
-  text-align: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: transform .3s cubic-bezier(.175,.885,.32,1.275), opacity .22s;
+.btn-selesaikan {
+  background: var(--done-check);
+  color: #fff;
 }
-.success-modal.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
+.btn-selesaikan:hover:not(:disabled) {
+  background: #16a34a;
+  transform: translateY(-1px);
 }
+.btn-selesaikan:disabled,
+.btn-selesaikan.cant-complete {
+  background: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Tombol sekunder — Mulai Masak */
+.btn-action-secondary {
+  width: 100%;
+  height: 44px;
+  border: 2px solid var(--kuning);
+  background: var(--kuning-soft);
+  border-radius: var(--radius-md);
+  font-family: "Poppins", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--kuning-hover);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .2s;
+}
+.btn-action-secondary:hover { background: var(--kuning-light); }
+
+/* ─────────────────────────────────────────────────────────────
+   SUCCESS MODAL
+───────────────────────────────────────────────────────────── */
+.success-modal { text-align: center; padding: 32px 24px; }
 
 .success-ring {
-  width: 88px;
-  height: 88px;
-  background: var(--done-accent);
+  width: 80px; height: 80px;
+  background: var(--done-check);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px;
-  animation: pop-ring .5s cubic-bezier(.175,.885,.32,1.275);
+  animation: pop-in .4s ease;
 }
-@keyframes pop-ring {
-  0%   { transform: scale(0); }
-  100% { transform: scale(1); }
+
+@keyframes pop-in {
+  0%   { transform: scale(.5); opacity: 0; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .success-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--teks);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
+
 .success-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.success-detail {
   font-size: 13px;
   color: var(--muted);
-  line-height: 1.6;
-  margin-bottom: 22px;
-}
-.success-detail {
   background: var(--bg-page);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
   margin-bottom: 20px;
-  text-align: left;
 }
-.success-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border);
-}
-.success-row:last-child { border-bottom: none; }
-.success-row span:first-child { color: var(--muted); }
-.success-row span:last-child  { font-weight: 700; }
 
 .btn-back {
   width: 100%;
@@ -739,46 +887,39 @@ html, body {
   cursor: pointer;
   transition: background .2s;
 }
-.btn-back:hover  { background: var(--kuning-hover); color: #fff; }
-.btn-back:active { transform: scale(.98); }
+.btn-back:hover { background: var(--kuning-hover); color: #fff; }
 
-/* ── TOAST ─────────────────────────────────────────────────── */
-.toast-wrap {
-  position: fixed;
-  top: 74px;
-  right: 16px;
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* ─────────────────────────────────────────────────────────────
+   SPINNER / LOADING STATE
+───────────────────────────────────────────────────────────── */
+.btn-loading {
+  pointer-events: none;
+  opacity: .75;
 }
-.toast {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 16px;
-  background: #18181b;
-  color: #fff;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: var(--shadow-md);
-  animation: toast-in .3s ease;
-  max-width: 290px;
+.btn-loading::after {
+  content: "";
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.5);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  margin-left: 8px;
 }
-@keyframes toast-in  { from{transform:translateX(110%);opacity:0} to{transform:none;opacity:1} }
-@keyframes toast-out { from{transform:none;opacity:1} to{transform:translateX(110%);opacity:0} }
-.toast.out { animation: toast-out .3s ease forwards; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── RESPONSIVE ────────────────────────────────────────────── */
-@media (max-width: 600px) {
-  .koki-header   { padding: 0 16px; }
-  .koki-content  { padding: 14px 16px; }
-  .filter-bar    { padding: 0 12px; overflow-x: auto; }
-  .orders-grid   { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .header-title  { font-size: 14px; }
-  .filter-tab    { padding: 10px 10px; font-size: 12px; }
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .koki-header  { padding: 0 14px; }
+  .koki-content { padding: 14px; }
+  .orders-grid  { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .header-title { font-size: 13px; }
+  .live-clock   { font-size: 11px; }
+  .filter-tab   { padding: 10px 12px; font-size: 11.5px; }
 }
-@media (max-width: 380px) {
+
+@media (max-width: 400px) {
   .orders-grid { grid-template-columns: 1fr; }
 }

@@ -26,8 +26,8 @@ class Menu extends Model
 
     //Relasi Many to many ke moods melalui tabel pivot menu_moods
     public function moods(): BelongsToMany
-    {
-        return $this->belongsToMany(Mood::class, 'menu_mood', 'menu_id', 'mood_id');
+    {                                              
+        return $this->belongsToMany(Mood::class, 'menu_moods', 'menu_id', 'mood_id');
     }
 
     //Relasi: Satu menu memiliki banak opsi varian (level gula, es, dll)

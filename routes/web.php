@@ -107,23 +107,31 @@ Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelangg
 // ==========================================
 // AREA KOKI (CHEF)
 // ==========================================
-Route::middleware(['auth', 'role:koki'])->prefix('koki')->name('koki.')->group(function () {
-
-    // GET  /koki           → daftar antrian
-    Route::get('/',                  [KokiController::class, 'index'])     ->name('index');
-
-    // GET  /koki/{id}      → detail satu pesanan
-    Route::get('/{id}',              [KokiController::class, 'detail'])    ->name('detail');
-
-    // GET  /koki/{id}/selesai → halaman sukses setelah pesanan selesai
-    Route::get('/{id}/selesai',      [KokiController::class, 'selesai'])   ->name('selesai');
-
-    // POST /koki/{orderId}/item/{itemId}/toggle → toggle centang satu item (AJAX)
-    Route::post('/{orderId}/item/{itemId}/toggle', [KokiController::class, 'toggleItem'])->name('item.toggle');
-
-    // POST /koki/{id}/selesaikan → tandai seluruh pesanan selesai (AJAX)
-    Route::post('/{id}/selesaikan',  [KokiController::class, 'selesaikan'])->name('selesaikan');
-
-    // POST /koki/{id}/batalkan  → batalkan pesanan (AJAX, hanya saat 'menunggu')
-    Route::post('/{id}/batalkan',    [KokiController::class, 'batalkan'])  ->name('batalkan');
-});
+Route::middleware(['auth', 'role:koki'])
+    ->prefix('koki')
+    ->name('koki.')
+    ->group(function () {
+ 
+        // ── Halaman Utama Antrian ──────────────────────────────
+        Route::get('/', [KokiController::class, 'index'])->name('index');
+ 
+        // ── API Polling (auto-refresh tanpa reload) ───────────
+        // GET /koki/api/orders → JSON daftar pesanan aktif
+        Route::get('/api/orders', [KokiController::class, 'apiOrders'])->name('api.orders');
+ 
+        // ── Aksi Tombol Status Order ───────────────────────────
+        // POST /koki/{id}/mulai-masak → PENDING → COOKING
+        Route::post('/{id}/mulai-masak', [KokiController::class, 'mulaiMasak'])->name('mulai-masak');
+ 
+        // POST /koki/{id}/selesaikan → PENDING/COOKING → READY
+        Route::post('/{id}/selesaikan', [KokiController::class, 'selesaikan'])->name('selesaikan');
+ 
+        // POST /koki/{id}/batalkan → PENDING → CANCELLED
+        Route::post('/{id}/batalkan', [KokiController::class, 'batalkan'])->name('batalkan');
+ 
+        // ── Aksi Update Status Per Item (opsional) ─────────────
+        // POST /koki/{orderId}/item/{itemId}/update
+        Route::post('/{orderId}/item/{itemId}/update', [KokiController::class, 'updateItem'])
+            ->name('item.update');
+    });
+ 
