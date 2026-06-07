@@ -1,168 +1,137 @@
 /* ============================================================
-   KOKI.CSS — Kitchen Console Tskuy POS
-   Dapur: Dine In (Ungu) | Takeaway (Biru) | Urgent (Merah >20mnt)
+   KOKI.CSS — Kitchen Display System · Tskuy Smart Kasir
+   ─────────────────────────────────────────────────────────────
+   Mengikuti kasir-global.css sebagai design system utama.
+   File ini HANYA mendefinisikan komponen spesifik dapur:
+   - Layout koki (wrap, board, grid)
+   - Kartu pesanan (order-card)
+   - Filter tab
+   - Popup detail + success
+   - Status warna waktu (fresh/warning/urgent)
+
+   ATURAN BADGE:
+     .badge-dine     → Ungu   (Dine In)
+     .badge-takeaway → Biru   (Take Away)
+   Background card TIDAK berubah karena tipe — hanya border/dot
+   yang berubah berdasarkan durasi waktu.
+   ─────────────────────────────────────────────────────────────
+   Semua variabel warna merujuk ke kasir-global.css (:root)
    ============================================================ */
 
-/* ── RESET & BASE ──────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* ─────────────────────────────────────────────────────────────
+   VARIABEL TAMBAHAN (yang tidak ada di kasir-global)
+───────────────────────────────────────────────────────────── */
 :root {
-  /* Brand */
-  --kuning:        #efb100;
-  --kuning-light:  #fef3c7;
-  --kuning-hover:  #d97706;
+  /* Waktu tunggu — hijau/kuning/merah */
+  --fresh-border : #22c55e;
+  --fresh-dot    : #22c55e;
+  --fresh-text   : #166534;
+  --fresh-bg-sub : rgba(34,197,94,.08);
 
-  /* Neutral */
-  --teks:          #18181b;
-  --muted:         #6b7280;
-  --border:        #e5e7eb;
-  --bg-page:       #f3f4f6;
-  --bg-card:       #ffffff;
-  --shadow-sm:     0 1px 4px rgba(0,0,0,.06);
-  --shadow-md:     0 4px 20px rgba(0,0,0,.10);
-  --shadow-popup:  0 20px 60px rgba(0,0,0,.22);
-  --radius-sm:     10px;
-  --radius-md:     14px;
-  --radius-lg:     20px;
+  --warn-border  : #f59e0b;
+  --warn-dot     : #f59e0b;
+  --warn-text    : #92400e;
+  --warn-bg-sub  : rgba(245,158,11,.08);
 
-  /* Tipe Pesanan */
-  --ungu-bg:       #ede9fe;
-  --ungu-text:     #5b21b6;
-  --ungu-border:   #c4b5fd;
-  --ungu-accent:   #7c3aed;
+  --urgent-border: #ef4444;
+  --urgent-dot   : #ef4444;
+  --urgent-text  : #991b1b;
+  --urgent-bg-sub: rgba(239,68,68,.06);
 
-  --biru-bg:       #dbeafe;
-  --biru-text:     #1e40af;
-  --biru-border:   #93c5fd;
-  --biru-accent:   #2563eb;
-
-  /* Urgent (> 20 menit menunggu) */
-  --red-bg:        #fff1f2;
-  --red-border:    #fca5a5;
-  --red-text:      #991b1b;
-  --red-accent:    #ef4444;
-
-  /* Done / Selesai */
-  --done-bg:       #f0fdf4;
-  --done-border:   #86efac;
-  --done-text:     #166534;
-  --done-accent:   #22c55e;
+  /* Done */
+  --done-border  : #d1d5db;
+  --done-dot     : #9ca3af;
 }
 
-html, body {
-  height: 100%;
-  font-family: "Poppins", sans-serif;
-  background: var(--bg-page);
-  color: var(--teks);
-  overflow-x: hidden;
-}
-
-/* ── LAYOUT ────────────────────────────────────────────────── */
-.koki-app {
+/* ─────────────────────────────────────────────────────────────
+   WRAP & HEADER KOKI
+───────────────────────────────────────────────────────────── */
+.koki-wrap {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: var(--bg-page);
 }
 
-/* ── HEADER ────────────────────────────────────────────────── */
-.koki-header {
-  height: 64px;
-  background: #fff;
-  border-bottom: 1px solid var(--border);
+/* Brand di header */
+.koki-brand {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-left,
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-circle {
-  width: 40px;
-  height: 40px;
-  background: var(--kuning);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.logo-circle img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.header-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--teks);
+  flex-direction: column;
   line-height: 1.1;
 }
-.header-subtitle {
+.koki-brand-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teks);
+}
+.koki-brand-sub {
   font-size: 11px;
   color: var(--muted);
+  font-weight: 400;
 }
 
-.live-clock {
-  font-size: 14px;
+/* Jam digital */
+.koki-clock {
+  font-size: 13px;
   font-weight: 600;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   letter-spacing: .03em;
+  flex-shrink: 0;
 }
 
-.user-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 12px 4px 4px;
-  border: 1.5px solid var(--border);
-  border-radius: 50px;
-  background: var(--bg-page);
-  cursor: pointer;
-  transition: border-color .2s;
-}
-.user-pill:hover { border-color: var(--kuning); }
-.user-pill img {
+/* Avatar koki (inisial) */
+.koki-avatar {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  object-fit: cover;
-}
-.user-pill span {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--teks);
-  white-space: nowrap;
+  background: var(--kuning);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-/* ── FILTER BAR ────────────────────────────────────────────── */
-.filter-bar {
+/* Tombol logout */
+.koki-logout-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg-page);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.koki-logout-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   FILTER BAR
+───────────────────────────────────────────────────────────── */
+.koki-filter-bar {
+  display: flex;
+  align-items: stretch;
   background: #fff;
   border-bottom: 1px solid var(--border);
   padding: 0 20px;
-  display: flex;
-  align-items: stretch;
   gap: 0;
+  flex-shrink: 0;
 }
 
-.filter-tab {
-  display: flex;
+.koki-filter-tab {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 13px 16px;
-  font-family: "Poppins", sans-serif;
+  gap: 7px;
+  padding: 11px 16px;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
@@ -170,16 +139,17 @@ html, body {
   border: none;
   border-bottom: 2.5px solid transparent;
   cursor: pointer;
+  font-family: inherit;
   white-space: nowrap;
   transition: color .15s, border-color .15s;
 }
-.filter-tab:hover { color: var(--teks); }
-.filter-tab.active {
-  color: var(--ungu-accent);
-  border-bottom-color: var(--ungu-accent);
+.koki-filter-tab:hover { color: var(--teks); }
+.koki-filter-tab.active {
+  color: var(--kuning-hover);
+  border-bottom-color: var(--kuning);
 }
 
-.tab-badge {
+.koki-tab-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -191,370 +161,332 @@ html, body {
   font-weight: 700;
   background: var(--bg-page);
   color: var(--muted);
-  transition: background .2s, color .2s;
+  transition: background .15s, color .15s;
 }
-.filter-tab.active .tab-badge {
-  background: var(--ungu-bg);
-  color: var(--ungu-accent);
+.koki-filter-tab.active .koki-tab-badge {
+  background: var(--kuning-light);
+  color: var(--kuning-hover);
 }
-/* Badge merah khusus tab >20 menit */
-#tab-urgent.active .tab-badge,
-#badge-urgent {
-  background: #fee2e2;
-  color: var(--red-text);
-}
-#tab-urgent .tab-badge { background: #fee2e2; color: var(--red-text); }
 
-.urgent-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--red-accent);
-  flex-shrink: 0;
-  animation: blink-red 1.2s infinite;
-}
-@keyframes blink-red { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-/* ── MAIN CONTENT ──────────────────────────────────────────── */
-.koki-content {
+/* ─────────────────────────────────────────────────────────────
+   BOARD & GRID
+───────────────────────────────────────────────────────────── */
+.koki-board {
   flex: 1;
-  padding: 20px 24px;
+  padding: 20px;
   overflow-y: auto;
 }
 
-/* ── ORDER GRID ────────────────────────────────────────────── */
-.orders-grid {
+.koki-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 14px;
 }
 
-/* ── ORDER CARD ────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   ORDER CARD — BASE
+   Background SELALU putih/netral.
+   Hanya border yang berubah sesuai urgency waktu.
+───────────────────────────────────────────────────────────── */
 .order-card {
-  background: var(--bg-card);
-  border: 1.5px solid var(--border);
+  background: var(--bg-card);          /* putih bersih */
+  border: 1.5px solid var(--border);   /* default abu */
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  transition: transform .15s, box-shadow .15s;
+  gap: 0;
   overflow: hidden;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .2s;
   position: relative;
 }
-.order-card:hover {
+.order-card:hover:not(.card-done) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-/* Left accent bar */
-.order-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-  background: var(--border);
-  border-radius: 4px 0 0 4px;
-}
-.order-card.dine-in::before  { background: var(--ungu-accent); }
-.order-card.takeaway::before { background: var(--biru-accent); }
-.order-card.urgent::before   { background: var(--red-accent); }
-.order-card.completed::before { background: var(--done-accent); }
+/* ── Status warna border berdasarkan durasi tunggu ── */
+.order-card.card-fresh   { border-color: var(--fresh-border); }
+.order-card.card-warning { border-color: var(--warn-border); }
+.order-card.card-urgent  { border-color: var(--urgent-border); }
 
-/* Urgent state */
-.order-card.urgent {
-  border-color: var(--red-border);
-  background: var(--red-bg);
-}
+/* Merah → sedikit tint background agar terlihat lebih kritis */
+.order-card.card-urgent { background: #fffafa; }
 
-/* Completed state */
-.order-card.completed {
-  border-color: var(--done-border);
-  background: var(--done-bg);
-  opacity: .8;
+/* Done/Ready → redup, tidak bisa diklik */
+.order-card.card-done {
+  border-color: var(--border);
+  background: var(--bg-page);
+  opacity: .68;
   cursor: default;
-}
-.order-card.completed:hover {
-  transform: none;
-  box-shadow: none;
+  pointer-events: none;
 }
 
-/* ── CARD HEADER ───────────────────────────────────────────── */
-.card-header {
-  padding: 13px 14px 0 18px;
+/* ─────────────────────────────────────────────────────────────
+   CARD HEAD
+───────────────────────────────────────────────────────────── */
+.card-head {
+  padding: 12px 14px 8px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
 
-.card-order-id {
+/* ID order sebagai identitas utama — teks tebal di paling atas */
+.card-primary-id {
   font-size: 16px;
   font-weight: 800;
   color: var(--teks);
-  line-height: 1.1;
+  line-height: 1.2;
   letter-spacing: -.01em;
 }
+.card-done .card-primary-id { color: var(--muted); }
 
 /* Timer badge */
-.timer-badge {
-  display: flex;
+.card-timer {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: 20px;
+  gap: 5px;
   font-size: 11px;
   font-weight: 700;
-  white-space: nowrap;
+  padding: 3px 9px;
+  border-radius: 20px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
-.order-card.dine-in:not(.urgent)  .timer-badge { background: var(--ungu-bg);  color: var(--ungu-text); }
-.order-card.takeaway:not(.urgent) .timer-badge { background: var(--biru-bg);  color: var(--biru-text); }
-.order-card.urgent                .timer-badge { background: #fee2e2;          color: var(--red-text);  }
-.order-card.completed             .timer-badge { background: var(--bg-page);   color: var(--muted); }
 
+.card-timer.card-fresh   { background: var(--fresh-bg-sub);  color: var(--fresh-text); }
+.card-timer.card-warning { background: var(--warn-bg-sub);   color: var(--warn-text); }
+.card-timer.card-urgent  { background: var(--urgent-bg-sub); color: var(--urgent-text); }
+.card-timer.card-done    { background: var(--bg-page);       color: var(--muted); }
+
+/* Titik berkedip di timer */
 .timer-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.order-card.dine-in:not(.urgent)  .timer-dot { background: var(--ungu-accent); animation: pulse-dot 2s infinite; }
-.order-card.takeaway:not(.urgent) .timer-dot { background: var(--biru-accent); animation: pulse-dot 2s infinite; }
-.order-card.urgent                .timer-dot { background: var(--red-accent);  animation: pulse-dot .9s infinite; }
-.order-card.completed             .timer-dot { background: var(--done-accent); }
-@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+.card-fresh   .timer-dot { background: var(--fresh-dot);  animation: dot-pulse 2s infinite; }
+.card-warning .timer-dot { background: var(--warn-dot);   animation: dot-pulse 1.3s infinite; }
+.card-urgent  .timer-dot { background: var(--urgent-dot); animation: dot-pulse .9s infinite; }
+.card-done    .timer-dot { background: var(--done-dot);   animation: none; }
 
-/* ── CARD META (type badge + meja + pelanggan) ─────────────── */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .2; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CARD META — badge tipe + secondary ID
+───────────────────────────────────────────────────────────── */
 .card-meta {
-  padding: 6px 14px 0 18px;
+  padding: 0 14px 6px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
-.type-badge {
-  font-size: 9.5px;
-  font-weight: 700;
-  padding: 2px 9px;
+/*
+ * BADGE TIPE PESANAN — sesuai instruksi:
+ *   .badge-dine     → UNGU  (Dine In)
+ *   .badge-takeaway → BIRU  (Take Away)
+ *
+ * Variabel mengikuti kasir.css referensi (badge-dine / badge-takeaway)
+ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
   border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
   text-transform: uppercase;
-  letter-spacing: .04em;
-}
-.badge-dine-in  {
-  background: var(--ungu-bg);
-  color: var(--ungu-text);
-  border: 1px solid var(--ungu-border);
-}
-.badge-takeaway {
-  background: var(--biru-bg);
-  color: var(--biru-text);
-  border: 1px solid var(--biru-border);
+  flex-shrink: 0;
 }
 
-.card-meja-info {
-  font-size: 11px;
+/* Ungu — Dine In */
+.badge-dine {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+/* Biru — Take Away */
+.badge-takeaway {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.card-secondary-id {
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--muted);
-  white-space: nowrap;
-}
-.card-meja-info .meja-num {
-  color: var(--ungu-accent);
-  font-weight: 700;
 }
 
+/* Nama pelanggan */
 .card-customer {
-  font-size: 11px;
+  padding: 0 14px 8px;
+  font-size: 12px;
   color: var(--muted);
+  font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
 }
 
-/* ── CARD ITEMS ────────────────────────────────────────────── */
-.card-items {
-  padding: 8px 14px 10px 18px;
+/* ─────────────────────────────────────────────────────────────
+   CARD ITEMS LIST
+───────────────────────────────────────────────────────────── */
+.card-items-list {
+  padding: 0 14px 10px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.card-item-row {
+.card-item {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12.5px;
   color: var(--teks);
-  padding: 2.5px 0;
 }
-.card-item-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--muted);
-  flex-shrink: 0;
-}
+
 .card-item-qty {
   font-weight: 700;
   color: var(--kuning-hover);
   flex-shrink: 0;
-  min-width: 20px;
+  font-size: 12px;
 }
+
 .card-item-name {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.card-more {
+
+/* Indikator catatan — tanda bintang kecil */
+.card-item-note-icon {
   font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
+  color: var(--kuning);
+  font-weight: 700;
+  flex-shrink: 0;
+  cursor: help;
 }
 
-/* ── CARD FOOTER ───────────────────────────────────────────── */
-.card-footer {
-  padding: 9px 14px 11px 18px;
+.card-item-more {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+  padding-top: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CARD FOOTER
+───────────────────────────────────────────────────────────── */
+.card-foot {
+  padding: 9px 14px;
   border-top: 1px solid rgba(0,0,0,.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 6px;
 }
 
+/* Status pill */
 .status-pill {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
 }
-.status-pending   { background: #f1f5f9; color: #64748b; }
-.status-urgent    { background: #fee2e2; color: var(--red-text); }
-.status-completed { background: var(--done-bg); color: var(--done-text); }
 
-.card-chevron { color: var(--muted); }
+.pill-pending { background: #e0f2fe; color: #0369a1; }
+.pill-cooking { background: var(--kuning-light); color: var(--kuning-hover); }
+.pill-ready   { background: #dcfce7; color: #15803d; }
+.pill-done    { background: var(--bg-page); color: var(--muted); }
 
-/* ── EMPTY STATE ───────────────────────────────────────────── */
-.empty-state {
+.card-chevron { color: var(--muted); flex-shrink: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   EMPTY STATE
+───────────────────────────────────────────────────────────── */
+.koki-empty {
   text-align: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
+  color: var(--muted);
 }
-.empty-icon   { font-size: 50px; margin-bottom: 12px; }
-.empty-title  { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-.empty-desc   { font-size: 13px; color: var(--muted); }
+.koki-empty-icon  { display: flex; justify-content: center; margin-bottom: 14px; }
+.koki-empty-title { font-size: 16px; font-weight: 700; color: var(--teks); margin-bottom: 6px; }
+.koki-empty-desc  { font-size: 13px; max-width: 300px; margin: 0 auto; line-height: 1.6; }
 
-/* ── MODAL OVERLAY ─────────────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 150;
-  display: none;
-  opacity: 0;
-  transition: opacity .25s;
-}
-.modal-overlay.active {
-  display: block;
-  opacity: 1;
+/* ─────────────────────────────────────────────────────────────
+   POPUP DETAIL (menggunakan sistem popup kasir-global)
+───────────────────────────────────────────────────────────── */
+.koki-popup {
+  width: min(460px, 96vw);
 }
 
-/* ── DETAIL MODAL ──────────────────────────────────────────── */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(.92);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  width: min(92%, 480px);
-  max-height: 88vh;
+/* Body popup koki */
+.koki-popup-body {
   display: flex;
   flex-direction: column;
-  z-index: 200;
-  box-shadow: var(--shadow-popup);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform .28s cubic-bezier(.175,.885,.32,1.275), opacity .22s;
-}
-.modal.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
+  gap: 16px;
+  padding: 20px;
 }
 
-/* Modal close */
-.modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: var(--bg-page);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  font-size: 16px;
-  transition: background .15s, color .15s;
-  flex-shrink: 0;
-}
-.modal-close:hover { background: #e5e7eb; color: var(--teks); }
-
-/* Modal header */
-.modal-head {
-  padding: 22px 22px 14px;
+/* Identitas pesanan di popup */
+.koki-popup-identity {
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
 }
-.modal-order-id {
+
+.koki-popup-order-id {
   font-size: 20px;
   font-weight: 800;
-  margin-bottom: 6px;
-  padding-right: 36px;
+  color: var(--teks);
+  margin-bottom: 4px;
 }
-.modal-info-row {
+
+.koki-popup-meta {
+  font-size: 13px;
+  color: var(--muted);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
+  gap: 6px;
 }
-.modal-info-row strong { color: var(--teks); }
 
-/* Modal items */
-.modal-items-wrap {
-  flex: 1;
+/* Daftar item checklist di popup */
+.koki-popup-items {
+  max-height: 280px;
   overflow-y: auto;
-  padding: 12px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 
-.modal-item {
+.koki-item-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  padding: 12px 22px;
+  padding: 12px 14px;
+  border-bottom: 1px dashed var(--border);
   cursor: pointer;
   transition: background .15s;
-  border-bottom: 1px solid var(--border);
-  -webkit-tap-highlight-color: transparent;
 }
-.modal-item:last-child { border-bottom: none; }
-.modal-item:hover  { background: #fafafa; }
-.modal-item:active { background: var(--done-bg); }
-.modal-item.done   { background: var(--done-bg); }
-.modal-item.done:hover { background: #dcfce7; }
+.koki-item-row:last-child { border-bottom: none; }
+.koki-item-row:hover { background: var(--bg-page); }
 
-/* Check circle */
-.item-check {
-  width: 32px;
-  height: 32px;
+/* Checkbox lingkaran */
+.koki-item-check {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 2px solid var(--border);
   background: #fff;
@@ -562,223 +494,244 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background .2s, border-color .2s;
+  margin-top: 1px;
+  transition: all .2s;
+  font-size: 12px;
+  color: transparent;
+  font-weight: 700;
 }
-.modal-item.done .item-check {
-  background: var(--done-accent);
-  border-color: var(--done-accent);
+.koki-item-row.done .koki-item-check {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #fff;
 }
-.item-check svg { display: none; }
-.modal-item.done .item-check svg { display: block; }
 
-/* Item info */
-.item-text { flex: 1; min-width: 0; }
-.item-name {
-  font-size: 14px;
+/* Info item */
+.koki-item-info { flex: 1; min-width: 0; }
+
+.koki-item-name {
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--teks);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   transition: color .2s;
-}
-.modal-item.done .item-name {
-  text-decoration: line-through;
-  color: var(--muted);
-}
-.item-note {
-  font-size: 11.5px;
-  color: var(--muted);
-  font-style: italic;
-  margin-top: 2px;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.item-qty {
-  font-size: 13px;
+.koki-item-row.done .koki-item-name {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* Catatan item */
+.koki-item-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Badge catatan — mengikuti style kasir */
+.badge-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef9c3;
+  color: #854d0e;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.koki-item-qty {
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--kuning-hover);
   flex-shrink: 0;
-  margin-left: 4px;
+  padding-top: 2px;
 }
 
-/* Progress bar */
-.modal-progress {
-  padding: 10px 22px 14px;
-  flex-shrink: 0;
-  border-top: 1px solid var(--border);
-}
-.progress-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 7px;
+/* ─────────────────────────────────────────────────────────────
+   PROGRESS BAR
+───────────────────────────────────────────────────────────── */
+.koki-progress-wrap { }
+
+.koki-progress-label {
   display: flex;
   justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 500;
 }
-.progress-done { color: var(--done-accent); }
-.progress-track {
+
+.koki-progress-track {
   height: 7px;
   background: var(--bg-page);
-  border-radius: 4px;
+  border-radius: 10px;
   overflow: hidden;
 }
-.progress-fill {
+
+.koki-progress-fill {
   height: 100%;
-  background: var(--done-accent);
-  border-radius: 4px;
-  transition: width .35s ease;
+  background: #22c55e;
+  border-radius: 10px;
+  transition: width .4s ease;
 }
 
-/* Modal footer */
-.modal-foot {
-  padding: 14px 22px;
-  border-top: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.btn-complete {
-  width: 100%;
-  height: 50px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: "Poppins", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background .2s, opacity .2s, transform .1s;
-}
-.btn-complete:active { transform: scale(.98); }
-.btn-complete.can-complete  { background: var(--done-accent); color: #fff; }
-.btn-complete.cant-complete { background: var(--border); color: var(--muted); cursor: not-allowed; }
-
-/* ── SUCCESS MODAL ─────────────────────────────────────────── */
-.success-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(.88);
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  width: min(92%, 360px);
-  padding: 32px 24px;
-  z-index: 200;
-  box-shadow: var(--shadow-popup);
-  text-align: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: transform .3s cubic-bezier(.175,.885,.32,1.275), opacity .22s;
-}
-.success-modal.active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.success-ring {
-  width: 88px;
-  height: 88px;
-  background: var(--done-accent);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  animation: pop-ring .5s cubic-bezier(.175,.885,.32,1.275);
-}
-@keyframes pop-ring {
-  0%   { transform: scale(0); }
-  100% { transform: scale(1); }
-}
-
-.success-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--teks);
-  margin-bottom: 8px;
-}
-.success-sub {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-  margin-bottom: 22px;
-}
-.success-detail {
-  background: var(--bg-page);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  text-align: left;
-}
-.success-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--border);
-}
-.success-row:last-child { border-bottom: none; }
-.success-row span:first-child { color: var(--muted); }
-.success-row span:last-child  { font-weight: 700; }
-
-.btn-back {
-  width: 100%;
-  height: 48px;
-  background: var(--kuning);
-  color: var(--teks);
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: "Poppins", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background .2s;
-}
-.btn-back:hover  { background: var(--kuning-hover); color: #fff; }
-.btn-back:active { transform: scale(.98); }
-
-/* ── TOAST ─────────────────────────────────────────────────── */
-.toast-wrap {
-  position: fixed;
-  top: 74px;
-  right: 16px;
-  z-index: 300;
+/* ─────────────────────────────────────────────────────────────
+   POPUP ACTIONS (tombol-tombol di popup detail)
+───────────────────────────────────────────────────────────── */
+.koki-popup-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
 }
-.toast {
+
+/* Override: tombol selesaikan pakai display:flex agar icon + text bisa sejajar */
+.koki-btn-selesai {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Disabled state */
+.koki-btn-selesai:disabled {
+  background: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.koki-btn-batal { margin-top: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   SUCCESS POPUP
+───────────────────────────────────────────────────────────── */
+.koki-popup-success { width: min(400px, 96vw); }
+
+.koki-success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  animation: pop-in .35s ease;
+}
+@keyframes pop-in {
+  from { transform: scale(.5); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.koki-success-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--teks);
+  margin-bottom: 6px;
+}
+.koki-success-sub {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.koki-success-detail {
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--bg-page);
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOAST (mengikuti sistem kasir)
+───────────────────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.koki-toast {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 11px 16px;
-  background: #18181b;
+  padding: 12px 16px;
+  background: #1c1c1e;
   color: #fff;
   border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 500;
   box-shadow: var(--shadow-md);
+  max-width: 300px;
+  pointer-events: auto;
   animation: toast-in .3s ease;
-  max-width: 290px;
 }
-@keyframes toast-in  { from{transform:translateX(110%);opacity:0} to{transform:none;opacity:1} }
-@keyframes toast-out { from{transform:none;opacity:1} to{transform:translateX(110%);opacity:0} }
-.toast.out { animation: toast-out .3s ease forwards; }
+.koki-toast.toast-success { background: #15803d; }
+.koki-toast.toast-error   { background: #991b1b; }
+.koki-toast.toast-info    { background: #1d4ed8; }
 
-/* ── RESPONSIVE ────────────────────────────────────────────── */
-@media (max-width: 600px) {
-  .koki-header   { padding: 0 16px; }
-  .koki-content  { padding: 14px 16px; }
-  .filter-bar    { padding: 0 12px; overflow-x: auto; }
-  .orders-grid   { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .header-title  { font-size: 14px; }
-  .filter-tab    { padding: 10px 10px; font-size: 12px; }
+.koki-toast-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
-@media (max-width: 380px) {
-  .orders-grid { grid-template-columns: 1fr; }
+
+@keyframes toast-in {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(110%); opacity: 0; }
+}
+.koki-toast.hiding { animation: toast-out .3s ease forwards; }
+
+/* ─────────────────────────────────────────────────────────────
+   LOADING SPINNER pada tombol
+───────────────────────────────────────────────────────────── */
+.btn-loading {
+  pointer-events: none;
+  opacity: .75;
+}
+.btn-loading::after {
+  content: "";
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .koki-board { padding: 14px; }
+  .koki-grid  { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .koki-filter-tab { padding: 9px 10px; font-size: 11.5px; }
+}
+
+@media (max-width: 400px) {
+  .koki-grid { grid-template-columns: 1fr; }
 }

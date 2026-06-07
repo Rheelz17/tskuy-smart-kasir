@@ -1,49 +1,46 @@
 {{--
-    Component: koki-filter.blade.php
-    ─────────────────────────────────────────────────────────────
-    Tab filter antrian dapur. Counter badge diisi server saat render,
-    lalu diperbarui secara live oleh koki.js (lewat updateCounters()).
-
-    Variabel yang dibutuhkan dari parent view: $orders (Collection)
-    ─────────────────────────────────────────────────────────────
+  Partial: koki-filter.blade.php
+  ─────────────────────────────────────────────────────────
+  Tab filter antrian dapur.
+  Counter diisi server saat render, lalu diperbarui JS live.
+  Variabel dibutuhkan: $orders (Collection)
+  ─────────────────────────────────────────────────────────
 --}}
-
 @php
-    $total    = $orders->count();
-    $menunggu = $orders->where('status', 'pending')->count();
-    $selesai  = $orders->where('status', 'completed')->count();
+  $cntSemua   = $orders->count();
+  $cntPending = $orders->where('status', 'pending')->count();
+  $cntCooking = $orders->where('status', 'cooking')->count();
+  $cntReady   = $orders->where('status', 'ready')->count();
 @endphp
 
-<nav class="filter-bar" role="tablist" aria-label="Filter antrian pesanan">
+<nav class="koki-filter-bar" role="tablist" aria-label="Filter antrian pesanan">
 
-  {{-- Tab: Semua --}}
-  <button class="filter-tab active"
+  <button class="koki-filter-tab active"
           data-filter="semua"
-          role="tab"
-          aria-selected="true"
-          aria-controls="ordersGrid">
+          role="tab" aria-selected="true">
     Semua
-    <span class="tab-badge" id="badge-semua">{{ $total }}</span>
+    <span class="koki-tab-badge" id="badge-semua">{{ $cntSemua }}</span>
   </button>
 
-  {{-- Tab: Menunggu (pending, termasuk yang urgent >20 mnt) --}}
-  <button class="filter-tab"
-          data-filter="menunggu"
-          role="tab"
-          aria-selected="false"
-          aria-controls="ordersGrid">
+  <button class="koki-filter-tab"
+          data-filter="pending"
+          role="tab" aria-selected="false">
     Menunggu
-    <span class="tab-badge" id="badge-menunggu">{{ $menunggu }}</span>
+    <span class="koki-tab-badge" id="badge-pending">{{ $cntPending }}</span>
   </button>
 
-  {{-- Tab: Selesai --}}
-  <button class="filter-tab"
-          data-filter="selesai"
-          role="tab"
-          aria-selected="false"
-          aria-controls="ordersGrid">
-    Selesai
-    <span class="tab-badge" id="badge-selesai">{{ $selesai }}</span>
+  <button class="koki-filter-tab"
+          data-filter="cooking"
+          role="tab" aria-selected="false">
+    Memasak
+    <span class="koki-tab-badge" id="badge-cooking">{{ $cntCooking }}</span>
+  </button>
+
+  <button class="koki-filter-tab"
+          data-filter="ready"
+          role="tab" aria-selected="false">
+    Siap Saji
+    <span class="koki-tab-badge" id="badge-ready">{{ $cntReady }}</span>
   </button>
 
 </nav>

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="STATIC_CSRF_TOKEN">
+  <title>Dapur — Tskuy POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- LINK CSS EKSTERNAL -->
+  <link rel="stylesheet" href="koki.css">
+  <!-- Font Awesome untuk ikon (Lonceng, Check, Trophy, X) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+</head>
+<body>
+
+<div class="koki-app">
+
+  <!-- HEADER -->
+  <header class="koki-header">
+    <div class="header-left">
+      <div class="logo-circle">
+        <img src="./assets/logo_tskuy.png" alt="Logo">
+      </div>
+      <div>
+        <div class="header-title">Dapur Tskuy</div>
+        <div class="header-subtitle">Koki Konsol</div>
+      </div>
+    </div>
+    <div class="header-right">
+        <!-- Notification Button -->
+        <button class="notif-button" id="notifButton">
+            <i class="fas fa-bell"></i>
+            <span class="notif-badge" id="notifBadge"></span>
+        </button>
+
+      <span class="live-clock" id="liveClock">--:--:--</span>
+      <div class="user-pill">
+        <img src="https://ui-avatars.com/api/?name=DZAKU%20FAUZI&background=efb100&color=fff" alt="User">
+        <span>Dzaku Fauzi</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- FILTER TABS -->
+  <nav class="filter-bar">
+    <a href="#" class="filter-tab active" data-filter="semua">
+      Semua
+      <span class="tab-badge">12</span>
+    </a>
+    <a href="#" class="filter-tab" data-filter="menunggu">
+      Menunggu
+      <span class="tab-badge">5</span>
+    </a>
+    <a href="#" class="filter-tab" data-filter="selesai">
+      Selesai
+      <span class="tab-badge">7</span>
+    </a>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="koki-content">
+
+    <div class="orders-grid" id="ordersGrid">
+
+      <!-- ORDER CARD 1: WAITING -->
+      <!-- data-status="waiting" digunakan oleh JS untuk filtering -->
+      <a href="#" id="card-101" class="order-card card-fresh" data-order-id="101" data-accepted-at="2026-06-03T08:47:53.000Z" data-status="waiting">
+        <div class="card-header">
+          <div>
+            <div class="card-identifier">Order #T012</div>
+            <div class="card-meta">
+              <span class="type-badge type-dine-in">Take Away</span>
+            </div>
+          </div>
+          <div class="timer-badge" data-timer>
+            <span class="timer-dot"></span>
+            <span class="timer-value">3 mnt</span>
+          </div>
+        </div>
+
+        <div class="card-items">
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×2</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Kopi Susu Gula Aren</span>
+          </div>
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×1</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Roti Bakar Keju</span>
+          </div>
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×1</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Nasi Goreng Ayam</span>
+          </div>
+          <div class="card-more">+2 item lainnya</div>
+        </div>
+
+        <div class="card-footer">
+          <span class="card-status-pill status-waiting">Menunggu</span>
+          <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ORDER CARD 2: COOKING -->
+      <a href="#" id="card-102" class="order-card card-warning" data-order-id="102" data-accepted-at="2026-06-03T08:40:53.000Z" data-status="cooking">
+        <div class="card-header">
+          <div>
+            <div class="card-identifier">Order #T0122</div>
+            <div class="card-meta">
+              <span class="type-badge type-take-away">Dine In</span>
+            </div>
+          </div>
+          <div class="timer-badge" data-timer>
+            <span class="timer-dot"></span>
+            <span class="timer-value">10 mnt</span>
+          </div>
+        </div>
+
+        <div class="card-items">
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×3</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Es Teh Manis Jumbo</span>
+          </div>
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×1</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Mie Instan Kari Ayam</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="card-status-pill status-cooking">Dimasak 0/2</span>
+          <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ORDER CARD 3: COOKING (URGENT) -->
+      <a href="#" id="card-103" class="order-card card-urgent" data-order-id="103" data-accepted-at="2026-06-03T08:32:53.000Z" data-status="cooking">
+        <div class="card-header">
+          <div>
+            <div class="card-identifier">ID #103</div>
+            <div class="card-meta">
+              <span class="type-badge type-take-away">DIne In</span>
+            </div>
+          </div>
+          <div class="timer-badge" data-timer>
+            <span class="timer-dot"></span>
+            <span class="timer-value">18 mnt</span>
+          </div>
+        </div>
+
+        <div class="card-items">
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×1</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Ayam Geprek Sambal Matah</span>
+          </div>
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×1</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Lemon Tea Dingin</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="card-status-pill status-cooking">Dimasak 2/2</span>
+          <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- ORDER CARD 4: DONE -->
+      <a href="#" id="card-104" class="order-card card-done" data-order-id="104" data-accepted-at="2026-06-03T08:25:53.000Z" data-status="done">
+        <div class="card-header">
+          <div>
+            <div class="card-identifier">MEJA 01</div>
+            <div class="card-meta">
+              <span class="type-badge type-dine-in">Dine In</span>
+            </div>
+          </div>
+          <div class="timer-badge" data-timer>
+            <span class="timer-dot"></span>
+            <span class="timer-value">25 mnt</span>
+          </div>
+        </div>
+
+        <div class="card-items">
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×2</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Kentang Goreng</span>
+          </div>
+          <div class="card-item-row">
+            <span class="card-item-dot"></span>
+            <span class="card-item-qty">×2</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Teh Hangat</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="card-status-pill status-done">✓ Selesai</span>
+          <svg class="card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </a>
+      
+    </div>
+
+  </main>
+
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"
+  <div class="toast">
+   
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div id="modalOverlay" class="modal-overlay"></div>
+
+<!-- 1. DETAIL MODAL (Pop-up Interaktif) -->
+<div id="detailModal" class="custom-modal">
+    <!-- TOMBOL CLOSE BARU -->
+    <button id="closeDetailBtn" class="modal-close-btn"><i class="fas fa-times"></i></button>
+
+    <div class="modal-header">
+        <h3 id="modalIdentifier">MEJA 05</h3>
+        <p>Tipe: <span id="modalType">Dine In</span> | ID: <span id="modalOrderId">#101</span></p>
+    </div>
+
+    <div class="modal-items-list" id="modalItemsList">
+        <!-- Item interaktif di-render oleh JS -->
+    </div>
+
+    <div class="action-area">
+        <button id="completeOrderBtn" class="btn-selesai btn-disabled">
+            <i class="fas fa-check"></i> Selesaikan Pesanan (0/5)
+        </button>
+    </div>
+</div>
+
+<!-- 2. SUCCESS MODAL -->
+<div id="successModal" class="custom-modal success-modal">
+    <div class="success-circle">
+        <i class="fas fa-trophy"></i>
+    </div>
+    <h3>Pesanan Selesai!</h3>
+    <p>Terima kasih telah bekerja keras. Pesanan telah berhasil diselesaikan dan siap disajikan.</p>
+    <button id="returnToQueueBtn" class="btn-back-queue">
+        Kembali ke Antrian
+    </button>
+</div>
+
+
+<!-- LINK JS EKSTERNAL -->
+<script src="koki.js"></script>
+</body>
+</html> 
