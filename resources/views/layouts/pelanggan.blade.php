@@ -7,6 +7,7 @@
     
     <meta name="is-logged-in" content="{{ Auth::check() ? 'true' : 'false' }}">
     <meta name="table-number" content="{{ $tableNumber ?? 'N/A' }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -7,6 +7,7 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\pelanggan\MenuController;
 use App\Http\Controllers\pelanggan\RiwayatController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Auth;
 
 // ==========================================
@@ -86,6 +87,9 @@ Route::middleware(['auth', 'role:pelanggan'])->group(function () {
     Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
     Route::post('/pelanggan/checkout', [MenuController::class, 'checkout'])->name('pelanggan.checkout');
     Route::get('/pelanggan/riwayat', [RiwayatController::class, 'riwayat'])->name('pelanggan.riwayat');
+    Route::post('/pelanggan/checkout/submit', [MenuController::class, 'submitCheckout'])->name('pelanggan.checkout.submit');
+    Route::post('/midtrans/notification', [MenuController::class, 'midtransNotification'])
+    ->withoutMiddleware([ValidateCsrfToken::class]);
 });
 
 Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');

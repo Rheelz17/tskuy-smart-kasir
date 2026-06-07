@@ -50,6 +50,11 @@
    PERBAIKAN DRAWER & HEADER MOBILE
 ========================================= */
 
+/* 🔥 TAMBAHAN KHUSUS: Turunkan kasta hitam (overlay) ke bawah drawer 🔥 */
+#drawer-overlay, .drawer-overlay {
+    z-index: 99990 !important; 
+}
+
 @media (max-width: 767px) {
 
     .mobile-profile-nav { display: flex !important; }
@@ -62,21 +67,26 @@
     }
     .user-card { display: none !important; }
 
+    /* 🔥 FIX DRAWER KIRI & Z-INDEX 🔥 */
     .sidebar {
         position: fixed;
-        right: -100%;
+        left: -100%; /* Pindah posisi sembunyi ke KIRI */
+        right: auto !important; 
         top: 0;
         bottom: 0;
-        z-index: 1050;
-        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 99999 !important; /* Kasta tertinggi biar di atas warna hitam */
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animasi geser kiri */
         background: #fff;
-        box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+        box-shadow: 5px 0 20px rgba(0,0,0,0.15); /* Arah bayangan dibalik */
         width: 280px;
         display: flex;
         flex-direction: column;
         padding: 0 !important; 
     }
-    .sidebar.show-drawer { right: 0; }
+    .sidebar.show-drawer { 
+        left: 0; /* Muncul dari KIRI */
+        right: auto !important;
+    }
 
     .side-nav {
         display: flex;
@@ -236,5 +246,16 @@
     .pd-info-wrap { padding: 20px; }
     .pd-bottom { padding: 0 20px 20px 20px; }
     .desktop-qty { display: none; }
-    
+
+}
+
+/* =========================================
+   🔥 FIX KASTA POPUP BIAR GAK TENGGELAM 🔥
+========================================= */
+#popup-overlay, .popup-overlay, .drawer-overlay {
+    z-index: 999990 !important; /* Latar hitam mengalah di bawah popup */
+}
+
+.popup, .popup-profil, .popup-detail-card {
+    z-index: 999999 !important; /* Kotak popup mutlak paling depan! */
 }

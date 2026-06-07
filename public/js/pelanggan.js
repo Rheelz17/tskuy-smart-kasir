@@ -15,7 +15,6 @@ function openPopup(id) {
     if (overlay) overlay.classList.add("is-open");
     activePopup = el;
 
-    // 🔥 Tutup otomatis laci sidebar kalau ada popup kebuka
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) sidebar.classList.remove('show-drawer');
 }
@@ -117,8 +116,10 @@ function addToCart(menuData) {
     renderCart(); showAddedToast(menuData.name);
 }
 
+// 🔥 FUNGSI CHECKOUT YANG UDAH DIBERSIHIN (PLAN B) 🔥
 function submitOrderToDatabase(orderType) {
     if (cartItems.length === 0) { alert("Keranjang belanja kosong!"); return; }
+    
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
     const payload = { type: orderType, items: cartItems.map(item => ({ id: parseInt(item.id), qty: item.qty })) };
 
@@ -130,10 +131,19 @@ function submitOrderToDatabase(orderType) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            cartItems = []; renderCart(); closePopup(); window.location.href = data.redirect_url;
-        } else { alert("Gagal memproses database: " + data.message); }
+            alert(data.message); 
+            cartItems = []; 
+            renderCart();
+            closePopup();
+            window.location.href = data.redirect_url; // Langsung mental ke halaman riwayat
+        } else { 
+            alert("Gagal memproses database: " + data.message); 
+        }
     })
-    .catch(err => { console.error(err); alert("Terjadi gangguan sinkronisasi sistem."); });
+    .catch(err => { 
+        console.error(err); 
+        alert("Terjadi gangguan sinkronisasi sistem."); 
+    });
 }
 
 let activeKategori = "all";
@@ -154,22 +164,14 @@ function applyMenuFilter() {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 🔥 LOGIKA REAL-TIME SEARCH BAR KUSTOM (MULTIDEVICE SINKRON) 🔥
-    const searchInputs = document.querySelectorAll('.search-bar');
-    searchInputs.forEach(input => {
-        input.addEventListener('input', function(e) {
-            searchQuery = e.target.value.toLowerCase().trim(); 
-            
-            // Auto-sinkronisasi teks isi ketikan antar input (Mobile <-> PC)
-            searchInputs.forEach(si => {
-                if (si !== e.target) si.value = e.target.value;
-            });
-
+    const searchInput = document.querySelector('.search-bar');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            searchQuery = e.target.value.toLowerCase(); 
             applyMenuFilter(); 
         });
-    });
+    }
 
-    // LOGIKA HAMBURGER MENU 
     const hamburgerBtn = document.getElementById('hamburger-btn');
     const sidebar = document.querySelector('.sidebar');
     if(hamburgerBtn && sidebar) {
@@ -186,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // LOGIKA FILTER TAB KATEGORI
     document.querySelectorAll(".menu-tab").forEach(tab => {
         tab.addEventListener("click", function() {
             document.querySelectorAll(".menu-tab").forEach(t => t.classList.remove("active-tab"));
@@ -196,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // LOGIKA FILTER MOOD
     document.querySelectorAll(".mood").forEach(btn => {
         btn.addEventListener("click", function() {
             document.querySelectorAll(".mood").forEach(m => m.classList.remove("active-mood"));
@@ -206,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // LOGIKA GLOBAL KLIK EVENT
     document.addEventListener("click", function (e) {
         const opener = e.target.closest("[data-open]");
         if (opener) {
@@ -296,17 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btnPayNowAction = e.target.closest('#choice-pay-now');
         if (btnPayNowAction) {
-            e.stopPropagation();
-            let total = 0;
-            cartItems.forEach(item => { total += (item.price * item.qty); });
-            let grand = total + (total * 0.10);
-            document.getElementById('popup-qris-total').innerText = formatRp(grand);
-            openPopup('popup-qris-payment');
-            return;
-        }
-
-        const btnInstantPaidSandbox = e.target.closest('#btn-instant-paid');
-        if (btnInstantPaidSandbox) {
             e.stopPropagation();
             submitOrderToDatabase('pay_now');
             return;
