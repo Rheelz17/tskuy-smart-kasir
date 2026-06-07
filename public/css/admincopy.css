@@ -88,36 +88,37 @@
   border: 2px solid #fff;
 }
 
-/* Pastikan Drawer ada di atas segalanya */
-#drawer {
-    position: fixed;
-    top: 0;
-    right: -300px; /* Sembunyi di kanan layar */
-    width: 280px;
-    height: 100vh;
-    background: #fff;
-    z-index: 99999 !important; /* Biar gak tenggelam */
-    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+/* ============================================================
+   DRAWER — slide dari kiri, overlay gelap
+   ============================================================ */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
-/* Saat class .is-open ditambahin sama JS */
-#drawer.is-open {
-    right: 0 !important; /* Geser masuk */
+.drawer-overlay.is-open { display: block; opacity: 1; }
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 265px;
+  height: 100vh;
+  background: #fff;
+  z-index: 300;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
-/* Overlay biar background gelap */
-#drawer-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 99998 !important;
-}
-
-#drawer-overlay.is-open {
-    display: block !important;
-}
+.drawer.is-open { transform: translateX(0); }
 
 /* Drawer profile */
 .drawer-profile {
@@ -624,9 +625,9 @@
 .tab.active { background: #efb100; color: #fff; font-weight: 700; }
 
 /* Card list karyawan */
-.karyawan-card-list { display: flex; flex-direction: column; gap: 10px; }
+.karyawan-card-list, .menu-card-list { display: flex; flex-direction: column; gap: 10px; }
 
-.karyawan-card {
+.karyawan-card, .menu-card {
   background: #fff;
   border-radius: 14px;
   padding: 14px;
@@ -636,7 +637,7 @@
   gap: 12px;
 }
 
-.karyawan-thumb {
+.karyawan-thumb, .menu-thumb {
   width: 56px;
   height: 56px;
   border-radius: 10px;
@@ -645,27 +646,27 @@
   flex-shrink: 0;
 }
 
-.karyawan-card-info { flex: 1; min-width: 0; }
+.karyawan-card-info, .menu-card-info { flex: 1; min-width: 0; }
 
-.karyawan-card-top {
+.karyawan-card-top, .menu-card-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
 }
 
-.karyawan-card-name   { font-size: 13px; font-weight: 700; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.karyawan-card-status { font-size: 11px; font-weight: 700; color: #16a34a; white-space: nowrap; flex-shrink: 0; }
-.karyawan-card-meta   { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.karyawan-card-name, .menu-card-name  { font-size: 13px; font-weight: 700; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.karyawan-card-status, .menu-card-status { font-size: 11px; font-weight: 700; color: #16a34a; white-space: nowrap; flex-shrink: 0; }
+.karyawan-card-meta, .menu-card-meta  { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 
-.karyawan-card-bottom {
+.karyawan-card-bottom, .menu-card-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
 }
 
-.karyawan-card-phone { font-size: 11px; color: #555; }
+.karyawan-card-phone, .menu-stock { font-size: 11px; color: #555; }
 
 .tindakan-col {
   display: flex;
@@ -1376,10 +1377,280 @@
  
 .btn-struk-cetak:hover { background: #d9a000; }
 
+  /* Container Utama Popup Export */
+  .popup-export {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 440px; /* Ukuran pas untuk dialog box kecil */
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  /* Header Popup */
+  .popup-export-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: #efb100; /* Warna gelap slate grey premium */
+    color: #ffffff;
+  }
+
+  .popup-export-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  /* Tombol Close Silang Putih */
+  .popup-close-white {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .popup-close-white:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  /* Body Konten */
+  .popup-export-body {
+    padding: 24px;
+  }
+
+  /* Judul Sub-Bagian */
+  .export-format-title,
+  .export-range-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b; /* Muted slate text */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+
+  /* Pembungkus Grid Opsi Format (Excel & PDF) */
+  .export-format-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  /* Box Opsi Format Tunggal */
+  .export-option {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #f8fafc;
+  }
+
+  .export-option:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  /* Lingkaran/Box Icon di Dalam Format */
+  .export-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  /* Warna Khusus Excel */
+  .export-icon.xlsx {
+    background: #e8f5e9;
+  }
+  /* Warna Khusus PDF */
+  .export-icon.pdf {
+    background: #ffebee;
+  }
+
+  .export-option-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  /* ------------------------------------------------------------
+    STATE KETIKA OPSI DIPILIH (SELECTED STATE)
+  ------------------------------------------------------------ */
+  /* Highlight untuk Excel */
+  .export-option[data-fmt="xlsx"].selected {
+    border-color: #16a34a;
+    background: #f0fdf4;
+  }
+  .export-option[data-fmt="xlsx"].selected .export-icon {
+    background: #16a34a;
+  }
+  .export-option[data-fmt="xlsx"].selected .export-icon svg {
+    stroke: #ffffff !important; /* SVG berganti warna putih */
+  }
+
+  /* Highlight untuk PDF */
+  .export-option[data-fmt="pdf"].selected {
+    border-color: #dc2626;
+    background: #fef2f2;
+  }
+  .export-option[data-fmt="pdf"].selected .export-icon {
+    background: #dc2626;
+  }
+  .export-option[data-fmt="pdf"].selected .export-icon svg {
+    stroke: #ffffff !important; /* SVG berganti warna putih */
+  }
+
+
+  /* ------------------------------------------------------------
+    RENTANG DATA (RADIO SELECTION)
+  ------------------------------------------------------------ */
+  .export-range-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  /* Baris Pilihan Radio */
+  .export-range-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #efb100;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: #ffffff;
+    font-size: 14px;
+    color: #334155;
+  }
+
+  .export-range-item:hover {
+    background: #fce4a0;
+    border-color: #efb100;
+  }
+
+  /* Mengubah style input radio lingkaran */
+  .export-range-item input[type="radio"] {
+    accent-color: #efb100; /* Warna Kuning Tskuy untuk Radio Bulat */
+    width: 17px;
+    height: 17px;
+  }
+
+  /* Jumlah item menu (angka di dalam tanda kurung) */
+  .export-range-item span span {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 2px;
+  }
+
+  /* ------------------------------------------------------------
+    TOMBOL UTAMA UNDUH
+  ------------------------------------------------------------ */
+  .btn-unduh {
+    width: 100%;
+    background: #efb100; /* Kuning Emas Tskuy */
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(239, 177, 0, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .btn-unduh:hover {
+    background: #d9a000;
+    box-shadow: 0 6px 16px rgba(217, 160, 0, 0.3);
+  }
+
+  .btn-unduh:active {
+    transform: scale(0.98);
+  }
+  /* AKHIR STYLING POPUP EXPORT */
+
+  /* Container Utama Switch */
+.switch-toggle-container {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* Sembunyikan Checkbox Asli */
+.switch-toggle-container input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Background Slider (Saat Mati / Habis) */
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #cbd5e1; /* abu-abu */
+    transition: .3s;
+    border-radius: 24px;
+}
+
+/* Bulatan Putih di Dalam Slider */
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Warna Saat Aktif / Tersedia (Hijau) */
+.switch-toggle-container input:checked + .switch-slider {
+    background-color: #22c55e; /* hijau tailwind/modern */
+}
+
+/* Efek Bulatan Bergeser ke Kanan saat Checked */
+.switch-toggle-container input:checked + .switch-slider:before {
+    transform: translateX(18px);
+}
+
 /* ============================================================
    ===== DESKTOP OVERRIDES — @media (min-width: 481px) =====
    ============================================================ */
 @media (min-width: 481px) {
+    /*  STYLING card mobile */
+  .menu-card-list {
+    display: none;
+  }
+
     /*  STYLING POP-UP EXPORT (MANAGEMENT MENU) */
   /* Container Utama Popup Export */
   .popup-export {
@@ -2022,7 +2293,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 4px;
     min-width: 0;
   }
 
@@ -2330,5 +2601,124 @@
     transform: translateX(22px);
   }
 
-}
+    /* ============================================================
+    penjualan-filter.css
+    Style TAMBAHAN untuk halaman detail penjualan.
+    
+    Semua style tab (.category-tabs, .tab, .tab.active) sudah
+    ada di admin.css global — TIDAK diulang di sini.
+    
+    Yang ditambahkan hanya elemen spesifik penjualan:
+      - Label "Status:" / "Tipe:" sebelum baris tab
+      - Dot warna di dalam tab status
+      - Layout action-bar penjualan (2 baris tab + action-right)
+      - Empty state tabel saat filter tidak ada hasil
+      - class filter-hidden (disembunyikan JS)
+    ============================================================ */
 
+  /* ── Layout action-bar penjualan (desktop) ─────────────────
+    action-bar sudah display:none di mobile (dari admin.css),
+    sehingga blok ini hanya berdampak di breakpoint ≥ 481px.
+    ──────────────────────────────────────────────────────── */
+  .penjualan-action-bar {
+      /* Override ke flex-column agar tab bisa di baris sendiri */
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+  }
+
+  /* Baris yang menampung label + tab dalam satu baris horizontal */
+  .penjualan-filter-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+  }
+
+  /* Label kecil "Status:" dan "Tipe:" */
+  .penjualan-filter-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      flex-shrink: 0;
+
+      /* Mobile: tampil sebagai judul di atas baris tab */
+      display: block;
+      margin-top: 4px;
+      margin-bottom: 2px;
+  }
+
+  /* ── Dot indikator warna di dalam tab status ───────────────
+    Contoh: ● Lunas / ● Pending / ● Gagal
+    ──────────────────────────────────────────────────────── */
+  .tab-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      vertical-align: middle;
+      margin-right: 2px;
+  }
+
+  .tab-dot--lunas   { background: #22c55e; }
+  .tab-dot--pending { background: #f59e0b; }
+  .tab-dot--gagal   { background: #ef4444; }
+
+  /* Saat tab aktif, dot tetap terlihat (warna disesuaikan) */
+  .tab.active .tab-dot--lunas   { background: rgba(255,255,255,0.9); }
+  .tab.active .tab-dot--pending { background: rgba(255,255,255,0.9); }
+  .tab.active .tab-dot--gagal   { background: rgba(255,255,255,0.9); }
+
+  /* ── Row/card yang disembunyikan filter JS ─────────────────
+    Pakai !important supaya tidak bertabrakan dengan
+    style inline display yang mungkin di-set di tempat lain.
+    ──────────────────────────────────────────────────────── */
+  tr.filter-hidden,
+  .trx-card.filter-hidden {
+      display: none !important;
+  }
+
+  /* ── Empty state saat semua row tersembunyi ────────────────
+    Baris ini diinjeksi dinamis oleh penjualan.js
+    ──────────────────────────────────────────────────────── */
+  tr.filter-empty-state td {
+      text-align: center;
+      padding: 40px 0;
+      color: #64748b;
+      font-size: 13px;
+  }
+
+  /* ── Responsive: di desktop label jadi inline, di mobile block ── */
+  @media (min-width: 481px) {
+      .penjualan-filter-label {
+          /* Di desktop: jadi label inline sebelum tab */
+          display: inline-block;
+          margin-top: 0;
+          margin-bottom: 0;
+      }
+
+      /* action-right (search + export) tetap di baris sendiri */
+      .penjualan-action-bar .action-right {
+          width: 100%;
+          justify-content: flex-end;
+      }
+  }
+
+  /* ── Tablet (481–768px): tab bisa scroll horizontal ───────── */
+  @media (min-width: 481px) and (max-width: 768px) {
+      .penjualan-filter-row .category-tabs {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+      }
+
+      .penjualan-filter-row .category-tabs::-webkit-scrollbar {
+          display: none;
+      }
+  }
+}

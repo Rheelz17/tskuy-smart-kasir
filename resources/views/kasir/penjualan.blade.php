@@ -33,57 +33,43 @@
         </button>
     </div>
     </div>
-    <x-tabel-penjualan />
+    <x-tabel-penjualan :transactions="$orders"/>
   </main>
 @endsection
 
 @section('page_popups')
-    <div class="popup popup-detail-transaksi" id="popup-detail-transaksi">
-        <div class="struk-desktop-header">
-            <span>Detail Transaksi</span>
-            <button class="popup-close popup-close-white" data-close aria-label="Tutup">
+<div class="popup popup-detail-transaksi" id="popup-detail-transaksi">
+    <div class="struk-desktop-header">
+        <span>Detail Transaksi</span>
+        <button class="popup-close popup-close-white" data-close aria-label="Tutup">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.8"/>
-                <path d="M15 9L9 15M9 9L15 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="1.8" />
+                <path d="M15 9L9 15M9 9L15 15" stroke="#fff" stroke-width="1.8" stroke-linecap="round" />
             </svg>
-            </button>
-        </div>
+        </button>
+    </div>
 
-        <div class="struk-mobile-header">
-            <button class="struk-mobile-back" data-close aria-label="Kembali">
+    <div class="struk-mobile-header">
+        <button class="struk-mobile-back" data-close aria-label="Kembali">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            </button>
-            <span class="struk-mobile-title">Detail Transaksi</span>
-        </div>
+        </button>
+        <span class="struk-mobile-title">Detail Transaksi</span>
+    </div>
 
-        <!-- ============================================================
-            BODY STRUK
-        ============================================================ -->
-        <div class="struk-body">
-
-            <!-- Logo + Nama Warung -->
-            <div class="struk-logo-wrap">
-            <img
-                src="/assets/img/logo_warkop.png"
-                alt="Logo Tskuy"
-                class="struk-logo-img"
-            >
+    <div class="struk-body">
+        <div class="struk-logo-wrap">
+            <img src="/assets/img/logo_warkop.png" alt="Logo Tskuy" class="struk-logo-img">
             <p class="struk-nama-warung">WARKOP TSKUY</p>
             <p class="struk-alamat-warung">Jl. Kopi Harapan No.12, Bandung</p>
-            </div>
+        </div>
 
-            <hr class="struk-divider-dashed">
+        <hr class="struk-divider-dashed">
 
-            <!-- Info Transaksi -->
-            <div class="struk-info-section">
+        <div class="struk-info-section">
             <div class="struk-info-row">
                 <span class="struk-info-label">No. Transaksi:</span>
-                <!--
-                id="struk-no-trx" → diisi penjualan.js
-                Semua elemen dengan id struk-* diisi saat popup dibuka
-                -->
                 <span class="struk-info-value" id="struk-no-trx">#T0945</span>
             </div>
             <div class="struk-info-row">
@@ -94,180 +80,141 @@
                 <span class="struk-info-label">Tipe Pesanan:</span>
                 <span class="struk-info-value" id="struk-tipe">Dine In (Meja 4)</span>
             </div>
-            <div class="struk-info-row">
+            <!-- <div class="struk-info-row">
                 <span class="struk-info-label">Status Pembayaran:</span>
-                <!--
-                Class "lunas" ditambah/hapus JS tergantung status.
-                Sesuai desain: lunas = hijau, gagal = merah, pending = kuning.
-                -->
                 <span class="struk-info-value lunas" id="struk-status">Lunas (QRIS)</span>
-            </div>
-            </div>
+            </div> -->
+        </div>
 
-            <hr class="struk-divider-dashed">
+        <hr class="struk-divider-dashed">
 
-            <!-- Section Pesanan -->
-            <p class="struk-section-label">PESANAN</p>
+        <p class="struk-section-label">PESANAN</p>
 
-            <!--
-            .struk-items-list → diisi JS secara dinamis.
-            Default diisi placeholder dua item agar popup tidak kosong
-            saat pertama kali dibuka sebelum data real masuk.
-            JS akan replace innerHTML list ini dengan data dari tabel/card.
-            -->
-            <div id="struk-items-list">
-
-            <!-- Item 1 (placeholder, diganti JS) -->
+        <div id="struk-items-list">
             <div class="struk-item">
                 <div class="struk-item-top">
-                <div>
-                    <p class="struk-item-nama">2x Kopi Susu Aren</p>
-                    <p class="struk-item-satuan">@ Rp18.000,-</p>
-                </div>
-                <span class="struk-item-harga">Rp36.000,-</span>
-                </div>
-                <span class="struk-item-note">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                    <rect x="4" y="2" width="16" height="20" rx="2" stroke="#92400e" stroke-width="1.8"/>
-                    <path d="M8 7H16M8 11H16M8 15H12" stroke="#92400e" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-                Es dipisah, less sugar
-                </span>
-            </div>
-
-            <!-- Item 2 (placeholder, diganti JS) -->
-            <div class="struk-item">
-                <div class="struk-item-top">
-                <div>
-                    <p class="struk-item-nama">1x Indomie Nyemek</p>
-                    <p class="struk-item-satuan">@ Rp15.000,-</p>
-                </div>
-                <span class="struk-item-harga">Rp15.000,-</span>
+                    <div>
+                        <p class="struk-item-nama">2x Kopi Susu Aren</p>
+                        <p class="struk-item-satuan">@ Rp18.000,-</p>
+                    </div>
+                    <span class="struk-item-harga">Rp36.000,-</span>
                 </div>
                 <span class="struk-item-note">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                    <rect x="4" y="2" width="16" height="20" rx="2" stroke="#92400e" stroke-width="1.8"/>
-                    <path d="M8 7H16M8 11H16M8 15H12" stroke="#92400e" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-                Pedas level 3
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                        <rect x="4" y="2" width="16" height="20" rx="2" stroke="#92400e" stroke-width="1.8" />
+                        <path d="M8 7H16M8 11H16M8 15H12" stroke="#92400e" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                    Es dipisah, less sugar
                 </span>
             </div>
+        </div>
 
-            </div>
-            <!-- end struk-items-list -->
+        <hr class="struk-divider-dashed">
 
-            <hr class="struk-divider-dashed">
-
-            <!-- Subtotal & Pajak -->
-            <div class="struk-subtotal-row">
-            <span class="struk-subtotal-label">No. Transaksi:</span>
+        <div class="struk-subtotal-row">
+            <span class="struk-subtotal-label">Subtotal:</span>
             <span class="struk-subtotal-value" id="struk-subtotal">Rp51.000,-</span>
-            </div>
-            <div class="struk-subtotal-row">
+        </div>
+        <div class="struk-subtotal-row">
             <span class="struk-subtotal-label">Pajak/PBI (10%):</span>
             <span class="struk-subtotal-value" id="struk-pajak">Rp5.100,-</span>
-            </div>
+        </div>
 
-            <hr class="struk-divider-dashed" style="margin-top:8px;">
+        <hr class="struk-divider-dashed" style="margin-top:8px;">
 
-            <!-- Total -->
-            <div class="struk-total-row">
+        <div class="struk-total-row">
             <span class="struk-total-label">Total</span>
             <span class="struk-total-value" id="struk-total">Rp56.100,-</span>
-            </div>
+        </div>
 
-            <!-- Footer teks -->
-            <p class="struk-footer-text">
+        <p class="struk-footer-text">
             Terimakasih telah berkunjung!<br>
             warkoptskuy.com
-            </p>
+        </p>
+    </div>
 
-        </div>
-        <!-- end struk-body -->
-
-        <!-- Tombol Unduh + Cetak Struk -->
-        <div class="struk-actions">
-            <button class="btn-struk-unduh" id="btn-unduh-struk">
+    <div class="struk-actions">
+        <button class="btn-struk-unduh" id="btn-unduh-struk">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             </svg>
             Unduh
-            </button>
-            <button class="btn-struk-cetak" id="btn-cetak-struk">
+        </button>
+        <button class="btn-struk-cetak" id="btn-cetak-struk">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M6 9V2h12v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 9V2h12v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             Cetak Struk
-            </button>
-        </div>
+        </button>
     </div>
+</div>
     
-    <div class="popup popup-export" id="popupExport">
-        <div class="popup-export-header">
+<div class="popup popup-export" id="popupExport">
+    <div class="popup-export-header">
         <h3>Unduh Data Penjualan</h3>
         <button class="popup-close-white" id="closeExportBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
         </button>
-        </div>
-        <div class="popup-export-body">
+    </div>
+    <div class="popup-export-body">
         <div class="export-format-title">Pilih Format Data</div>
         <div class="export-format-options">
             <div class="export-option selected" data-fmt="xlsx">
-            <div class="export-icon xlsx">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-                </svg>
-            </div>
-            <span class="export-option-name">Excel</span>
+                <div class="export-icon xlsx">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                </div>
+                <span class="export-option-name">Excel</span>
             </div>
             <div class="export-option" data-fmt="pdf">
-            <div class="export-icon pdf">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-                </svg>
-            </div>
-            <span class="export-option-name">PDF</span>
+                <div class="export-icon pdf">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                </div>
+                <span class="export-option-name">PDF</span>
             </div>
         </div>
 
         <div>
             <div class="export-range-title">Rentang Data</div>
             <div class="export-range-list" id="exportRangeList">
-            <label class="export-range-item">
-                <input type="radio" name="exportRange" value="all">
-                <span>Semua Data Penjualan <span>(123 Item)</span></span>
-            </label>
-            <label class="export-range-item">
-                <input type="radio" name="exportRange" value="current" checked>
-                <span>Hanya Penjualan Yang Sedang ditampilkan <span id="exportRangeCount">(8 Penjualan)</span></span>
-            </label>
-            <label class="export-range-item">
-                <input type="radio" name="exportRange" value="none">
-                <span>Tidak Tersedia</span>
-            </label>
+                <label class="export-range-item">
+                    <input type="radio" name="exportRange" value="all">
+                    <span>All Data Penjualan <span>({{ $orders->total() }} Item)</span></span>
+                </label>
+                <label class="export-range-item">
+                    <input type="radio" name="exportRange" value="current" checked>
+                    <span>Hanya Penjualan Yang Sedang ditampilkan <span id="exportRangeCount">({{ $orders->count() }} Penjualan)</span></span>
+                </label>
+                <label class="export-range-item">
+                    <input type="radio" name="exportRange" value="none">
+                    <span>Tidak Tersedia</span>
+                </label>
             </div>
         </div>
 
         <button class="btn-unduh" id="btnUnduhData">Unduh Data</button>
-        </div>
     </div>
+</div>
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/penjualan-kasir.js') }}"></script>
+<script src="{{ asset('js/penjualan.js') }}"></script>
 @endsection

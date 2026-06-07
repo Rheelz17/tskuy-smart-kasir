@@ -1,5 +1,3 @@
-
-
 /* ============================================================
    CONTENT AREA
    ============================================================ */
@@ -15,13 +13,64 @@
    QUEUE SECTION
    ============================================================ */
 .queue-section { background: #fff; border-radius: var(--radius-md); padding: 14px; }
-.queue-header { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; margin-top: 10px; padding-left: 8px;}
+.queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  margin-top: 10px;
+  padding: 0 8px;
+  flex-wrap: wrap;
+}
+
+/* Grup kiri: title + tabs */
+.queue-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Grup filter tabs (no border/margin dari luar) */
+.antrian-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+/* See All — selalu di pojok kanan */
+.queue-see-all {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--kuning);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0;
+  transition: opacity .2s;
+}
+.queue-see-all:hover { opacity: .75; }
 .section-title { font-size: 15px; font-weight: 700; color: #222; }
 .see-all { font-size: 12px; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; }
 .see-all:hover { color: var(--kuning); }
 
 .queue-wrapper { display: flex; align-items: center; gap: 8px; }
-.queue-container { display: flex; gap: 10px; flex: 1; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; }
+.queue-container {
+  display: flex; gap: 10px; flex: 1;
+  overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
 .queue-container::-webkit-scrollbar { display: none; }
 
 .queue-card {
@@ -44,11 +93,12 @@
 
 .nav-arrow {
   background: #fff; border: 1.5px solid var(--border);
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; box-shadow: var(--shadow-sm); transition: .2s;
+  flex-shrink: 0; box-shadow: var(--shadow-sm); transition: all .2s;
 }
-.nav-arrow:hover { background: var(--kuning-light); border-color: var(--kuning); }
+.nav-arrow:hover:not(:disabled) { background: var(--kuning-light); border-color: var(--kuning); }
+.nav-arrow:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
 .pagination-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
 .dot { width: 8px; height: 8px; background: #e5e7eb; border-radius: 50%; transition: .2s; }
@@ -409,6 +459,11 @@
   .popup-menu-detail { width: min(580px, 96vw); }
   .popup-antrian-full { width: min(680px, 96vw); }
   .antrian-full-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 18px 18px; }
+
+  /* Queue header tablet */
+  .queue-header { flex-wrap: wrap; gap: 8px; }
+  .queue-header-left { gap: 8px; }
+  .antrian-tabs { gap: 5px; }
 }
 
 /* ============================================================
@@ -419,6 +474,14 @@
   .mobile-cart-btn-header { display: inline-flex; grid-column: 4; grid-row: 1; justify-self: end; }
   .queue-section, .mood-section, .menu-choice { border: 1.5px solid var(--border); border-radius: 14px; background: #fff; }
   .queue-section { padding: 12px 12px 16px; }
+
+  /* QUEUE HEADER MOBILE — title + see all satu baris, tabs baris bawah */
+  .queue-header { flex-direction: column; align-items: stretch; gap: 8px; padding: 0 4px; margin-top: 4px; }
+  .queue-header-left { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .queue-header-row1 { display: flex; align-items: center; justify-content: space-between; width: 100%; }
+  .antrian-tabs { gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; }
+  .antrian-tabs::-webkit-scrollbar { display: none; }
+  .antrian-tab { flex-shrink: 0; }
 
   /* QUEUE MOBILE */
   .queue-wrapper { display: block; position: relative; }

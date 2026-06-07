@@ -168,7 +168,7 @@
 
             <hr class="struk-divider-dashed">
 
-            @if($isOpenBill)
+            @if($order->is_open_bill == 1 && $order->payment_status !== 'paid')
             {{-- Badge Open Bill Aktif --}}
             <div style="text-align:center; margin-bottom: 12px;">
                 <span style="background:#fffbeb; border:1.5px solid #efb100; color:#92400e; font-size:11px; font-weight:700; padding:5px 14px; border-radius:20px;">
@@ -237,7 +237,7 @@
                 <span class="struk-total-value">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
             </div>
 
-            @if($isOpenBill)
+           @if($order->is_open_bill == 1 && $order->payment_status !== 'paid')
             {{-- ================================================
                  🔥 ACTION BUTTONS KHUSUS OPEN BILL
             ================================================= --}}

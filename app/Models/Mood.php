@@ -13,6 +13,6 @@ class Mood extends Model
     
     //Relasi Many to Many ke menus melalui tabel pivot menu_moods
     public function menus(): BelongsToMany {
-        return $this->belongsToMany(Menu::class, 'menu_mood', 'mood_id', 'menu_id');
+        return $this->belongsToMany(Menu::class, 'menu_moods', 'mood_id', 'menu_id');
     }
 }

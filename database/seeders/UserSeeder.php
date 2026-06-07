@@ -65,5 +65,18 @@ class UserSeeder extends Seeder
                 'is_active' => 1,
             ]
         );
+
+        User::updateOrCreate(
+            ['email' => 'junpuy@gmail.com'],
+            [
+                'employee_id' => 'PLG-00010',  
+                'username' => 'junpuy',    
+                'name' => 'junpuy',
+                'phone' => '082345345678',
+                'password' => Hash::make('password123'),
+                'role_id' => 3, 
+                'is_active' => 1,
+            ]
+        );
     }
 }

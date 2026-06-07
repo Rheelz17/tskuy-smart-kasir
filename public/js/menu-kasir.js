@@ -1,115 +1,219 @@
 /* ============================================================
-   menu-kasir.js — Logika Halaman Manajemen Menu Sisi Kasir
-   Hanya untuk Filter, Search, Toggle Status, & Export
+   menu-kasir.js — Logika Manajemen Menu untuk Kasir
+   Fitur:
+   1. Toggle status tersedia (AJAX ke /menu/{id}/toggle-status  PATCH)
+   2. Filter tab kategori
+   3. Search real-time
+   4. Paginasi dinamis
+   Route: PATCH /menu/{id}/toggle-status → AdminMenuController@toggleStatus
 ============================================================ */
 
-document.addEventListener("DOMContentLoaded", function () {
-  const openFn = window._openPopup;
+document.addEventListener('DOMContentLoaded', function () {
 
-  /* 1. TAB FILTER KATEGORI */
-  document.querySelectorAll(".category-tabs .tab[data-kategori]").forEach((btn) => {
-    btn.addEventListener("click", function () {
-      document.querySelectorAll(".category-tabs .tab[data-kategori]").forEach((b) => b.classList.remove("active"));
-      this.classList.add("active");
+    // ============================================================
+    //  CONFIG
+    // ============================================================
+    const ITEMS_PER_PAGE = 10;
+    let   currentPage    = 1;
 
-      const kategori = this.dataset.kategori;
+    const csrfToken = () =>
+        document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-      // Filter card mobile (jika ada)
-      document.querySelectorAll(".menu-card[data-kategori]").forEach((card) => {
-        card.style.display = (kategori === "all" || card.dataset.kategori === kategori) ? "" : "none";
-      });
+    // ============================================================
+    //  TOAST NOTIFIKASI
+    // ============================================================
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('menu-toast');
+        if (!toast) return;
+        toast.textContent      = msg;
+        toast.style.background = isError ? '#ef4444' : '#22c55e';
+        toast.classList.add('show');
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
 
-      // Filter baris tabel desktop
-      document.querySelectorAll("#tabel-menu tbody tr[data-kategori]").forEach((row) => {
-        row.style.display = (kategori === "all" || row.dataset.kategori === kategori) ? "" : "none";
-      });
+    // ============================================================
+    //  1. TOGGLE STATUS TERSEDIA — AJAX PATCH
+    //     Route: PATCH /menu/{id}/toggle-status
+    //     Body:  { is_available: 0 | 1 }
+    // ============================================================
+    document.getElementById('tabel-menu')?.addEventListener('change', function (e) {
+        const toggle = e.target.closest('.toggle-status-menu');
+        if (!toggle) return;
+
+        const menuId    = toggle.dataset.id;
+        const namaMenu  = toggle.dataset.nama || `Menu #${menuId}`;
+        const isChecked = toggle.checked;
+        const prevState = !isChecked; // untuk rollback jika gagal
+
+        fetch(`/menu/${menuId}/toggle-status`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN':  csrfToken(),
+                'Content-Type':  'application/json',
+                'Accept':        'application/json',
+            },
+            body: JSON.stringify({ is_available: isChecked ? 1 : 0 }),
+        })
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const statusTeks = isChecked ? 'Tersedia ✓' : 'Tidak Tersedia';
+                showToast(`${namaMenu} → ${statusTeks}`);
+            } else {
+                toggle.checked = prevState; // rollback
+                showToast(data.message || 'Gagal mengubah status.', true);
+            }
+        })
+        .catch(err => {
+            console.error('Toggle error:', err);
+            toggle.checked = prevState; // rollback
+            showToast('Gagal koneksi ke server.', true);
+        });
     });
-  });
 
-  /* 2. REAL-TIME SEARCH FILTER */
-  const searchInput = document.querySelector(".search-wrapper input");
-  searchInput?.addEventListener("input", function () {
-    const keyword = this.value.toLowerCase().trim();
-
-    document.querySelectorAll(".menu-card").forEach((card) => {
-      card.style.display = card.textContent.toLowerCase().includes(keyword) ? "" : "none";
+    // ============================================================
+    //  2. FILTER TAB KATEGORI
+    // ============================================================
+    document.querySelectorAll('.category-tabs .tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.category-tabs .tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentPage = 1;
+            renderTable();
+        });
     });
 
-    document.querySelectorAll("#tabel-menu tbody tr").forEach((row) => {
-      row.style.display = row.textContent.toLowerCase().includes(keyword) ? "" : "none";
+    // ============================================================
+    //  3. SEARCH REAL-TIME
+    // ============================================================
+    document.getElementById('search-menu-input')?.addEventListener('input', function () {
+        currentPage = 1;
+        renderTable();
     });
-  });
 
-  /* 3. TOGGLE STATUS KETERSEDIAAN (Read-only / Update sesuai hak akses) */
-  // Catatan: Jika kasir tidak boleh mengubah status, input checkbox di Blade diberi atribut 'disabled'
-  document.querySelectorAll(".toggle-status-menu").forEach((checkbox) => {
-    checkbox.addEventListener("change", function () {
-      const menuId = this.dataset.id;
-      const isChecked = this.checked;
-      console.log(`Menu ID ${menuId} status diubah menjadi: ${isChecked ? 'tersedia' : 'habis'}`);
-      // Lakukan hit AJAX update status kasir di sini jika diperlukan
-    });
-  });
+    // ============================================================
+    //  4. RENDER TABEL + FILTER + PAGINASI
+    // ============================================================
+    function getFilteredRows() {
+        const activeTab = document.querySelector('.category-tabs .tab.active');
+        const kategori  = activeTab?.dataset.kategori || 'all';
+        const keyword   = (document.getElementById('search-menu-input')?.value || '')
+                            .toLowerCase().trim();
 
-  /* 4. PICU POPUP EXPORT */
-  const btnExport = document.getElementById("btnExport");
-  const closeExportBtn = document.getElementById('closeExportBtn');
-  if (btnExport) {
-    btnExport.addEventListener("click", function (e) {
-      e.preventDefault();
-      
-      // Hitung menu yang sedang tampil di tabel untuk dioper ke popup export range count
-      const visibleRows = document.querySelectorAll("#tabel-menu tbody tr:not([style*='display: none'])");
-      const countEl = document.getElementById("exportRangeCount");
-      if (countEl) countEl.textContent = `(${visibleRows.length} Menu)`;
+        const allRows = Array.from(
+            document.querySelectorAll('#menu-tbody tr[data-id]')
+        );
 
-      if (typeof openFn === "function") openFn("popupExport");
-    });
-  }
+        return allRows.filter(row => {
+            const rowKat  = row.dataset.kategori || '';
+            const rowNama = row.dataset.nama || '';
 
-  if (closeExportBtn) {
-    closeExportBtn.addEventListener('click', function (e) {
-      e.preventDefault();
-      if (typeof window._closePopup === "function") {
-        window._closePopup?.('popupExport');
-      } else if (typeof window.triggerGlobalClose === "function") {
-        window.triggerGlobalClose?.('popupExport');
-      }
-    });
-  }
-    // C. Memilih Opsi Format Dokumen (Excel / PDF) secara Visual
-  document.querySelectorAll('.export-option').forEach(opt => {
-    opt.addEventListener('click', function () {
-      document.querySelectorAll('.export-option').forEach(o => o.classList.remove('selected'));
-      this.classList.add('selected');
-    });
-  });
+            const matchKat  = kategori === 'all' || rowKat === kategori;
+            const matchCari = keyword === '' || rowNama.includes(keyword) ||
+                              row.textContent.toLowerCase().includes(keyword);
 
-  // D. Aksi Tombol Konfirmasi Unduh Data
-  const btnUnduhData = document.getElementById('btnUnduhData');
-  if (btnUnduhData) {
-    btnUnduhData.addEventListener('click', function (e) {
-      e.preventDefault();
-      
-      // Ambil tipe format data yang dipilih (.selected)
-      const selectedOpt = document.querySelector('.export-option.selected');
-      const fmtType = selectedOpt ? selectedOpt.dataset.fmt : 'xlsx';
-      
-      // Ambil opsi rentang data radio button yang dipilih
-      const rentangOpt = document.querySelector('input[name="exportRange"]:checked');
-      const rentangNilai = rentangOpt ? rentangOpt.value : 'current';
+            return matchKat && matchCari;
+        });
+    }
 
-      // Tutup popup setelah tombol diklik
-      if (typeof window._closePopup === "function") {
-        window._closePopup?.('popupExport');
-      } else if (typeof window.triggerGlobalClose === "function") {
-        window.triggerGlobalClose?.('popupExport');
-      }
-      
-      // Tampilkan umpan balik Toast Sukses
-      if (typeof window.showToast === "function") {
-        window.showToast(`Data (${rentangNilai}) berhasil diunduh sebagai ${fmtType.toUpperCase()} ✓`);
-      }
-    });
-  }
+    function renderTable() {
+        const filtered  = getFilteredRows();
+        const total     = filtered.length;
+        const totalPage = Math.ceil(total / ITEMS_PER_PAGE) || 1;
+
+        if (currentPage > totalPage) currentPage = totalPage;
+
+        const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIdx   = startIdx + ITEMS_PER_PAGE;
+
+        // Sembunyikan SEMUA baris dulu
+        document.querySelectorAll('#menu-tbody tr').forEach(r => r.style.display = 'none');
+
+        // Tampilkan hanya yang masuk halaman ini
+        filtered.forEach((row, i) => {
+            row.style.display = (i >= startIdx && i < endIdx) ? '' : 'none';
+        });
+
+        // Update info label
+        const infoEl = document.getElementById('data-info-label');
+        if (infoEl) {
+            const dari  = total === 0 ? 0 : startIdx + 1;
+            const ke    = Math.min(endIdx, total);
+            infoEl.textContent = total === 0
+                ? 'Tidak ada menu yang cocok'
+                : `Menampilkan ${dari}–${ke} dari ${total} menu`;
+        }
+
+        // Render tombol paginasi
+        renderPagination(totalPage);
+    }
+
+    function renderPagination(totalPage) {
+        const container = document.getElementById('pagination-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        // Tombol Sebelumnya
+        const prev = document.createElement('button');
+        prev.className   = 'page-link';
+        prev.textContent = 'Sebelumnya';
+        prev.disabled    = currentPage === 1;
+        prev.addEventListener('click', () => {
+            if (currentPage > 1) { currentPage--; renderTable(); }
+        });
+        container.appendChild(prev);
+
+        // Angka halaman — tampilkan maksimal 5 angka di sekitar currentPage
+        const range = pagRange(currentPage, totalPage, 5);
+        range.forEach(page => {
+            if (page === '...') {
+                const dots = document.createElement('span');
+                dots.textContent = '…';
+                dots.style.cssText = 'padding:0 4px; line-height:32px; color:#aaa; font-size:12px;';
+                container.appendChild(dots);
+            } else {
+                const btn = document.createElement('button');
+                btn.className   = `page-number${page === currentPage ? ' active' : ''}`;
+                btn.textContent = page;
+                btn.addEventListener('click', () => { currentPage = page; renderTable(); });
+                container.appendChild(btn);
+            }
+        });
+
+        // Tombol Selanjutnya
+        const next = document.createElement('button');
+        next.className   = 'page-link';
+        next.textContent = 'Selanjutnya';
+        next.disabled    = currentPage === totalPage;
+        next.addEventListener('click', () => {
+            if (currentPage < totalPage) { currentPage++; renderTable(); }
+        });
+        container.appendChild(next);
+    }
+
+    // Helper: hasilkan array nomor halaman dengan ellipsis
+    function pagRange(current, total, maxVisible) {
+        if (total <= maxVisible) return Array.from({length: total}, (_, i) => i + 1);
+
+        const half = Math.floor(maxVisible / 2);
+        let start  = Math.max(2, current - half);
+        let end    = Math.min(total - 1, current + half);
+
+        if (current - half <= 1) end = Math.min(total - 1, maxVisible - 1);
+        if (current + half >= total) start = Math.max(2, total - maxVisible + 2);
+
+        const pages = [1];
+        if (start > 2) pages.push('...');
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (end < total - 1) pages.push('...');
+        pages.push(total);
+        return pages;
+    }
+
+    // Jalankan render pertama kali
+    renderTable();
 });

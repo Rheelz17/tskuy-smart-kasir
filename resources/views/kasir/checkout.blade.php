@@ -1,4 +1,4 @@
-@extends('layouts.pelanggan')
+@extends('layouts.kasir')
 
 @section('title', 'Checkout - Warkop Tskuy')
 
@@ -19,7 +19,7 @@
 
             {{-- HEADER KIRI --}}
             <div class="checkout-section-header">
-                <a href="{{ route('pelanggan.orders') }}" class="checkout-back-btn">
+                <a href="{{ route('kasir.orders') }}" class="checkout-back-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
                 </a>
                 <div>
@@ -55,7 +55,7 @@
             <div class="checkout-section-box">
                 <div class="checkout-ringkasan-header">
                     <p class="checkout-section-label">Ringkasan Pesanan (<span id="co-item-count-2">0</span>)</p>
-                    <a href="{{ route('pelanggan.orders') }}" class="checkout-tambah-btn">
+                    <a href="{{ route('kasir.orders') }}" class="checkout-tambah-btn">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         Tambah
                     </a>
@@ -67,7 +67,7 @@
                     <div class="checkout-empty-state" id="co-empty-state">
                         <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6V20C3 21.1 3.9 22 5 22H19C20.1 22 21 21.1 21 20V6L18 2H6Z" stroke="#ddd" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 6H21" stroke="#ddd" stroke-width="1.8"/></svg>
                         <p>Keranjang masih kosong.</p>
-                        <a href="{{ route('pelanggan.orders') }}" class="checkout-tambah-btn" style="margin-top: 8px;">Tambah Menu</a>
+                        <a href="{{ route('kasir.orders') }}" class="checkout-tambah-btn" style="margin-top: 8px;">Tambah Menu</a>
                     </div>
                 </div>
             </div>
@@ -503,6 +503,40 @@ document.addEventListener('DOMContentLoaded', function() {
             const id = this.dataset.id;
             // Buka popup detail menu
             openPopup('popup-detail-' + id);
+        });
+    });
+
+    
+    document.querySelectorAll('#co-btn-submit, #co-btn-submit-mobile').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+
+            const payload = {
+                _token:         '{{ csrf_token() }}',
+                items:          cart,
+                eating_option:  document.querySelector('[name="eating_option"]:checked')?.value || 'dine in',
+                payment_method: document.getElementById('co-pay-openbill')?.classList.contains('selected') 
+                                ? 'open_bill' : 'pay_now',
+                table_number:   document.getElementById('co-meja')?.value || '',
+                catatan:        document.getElementById('co-catatan')?.value || '',
+            };
+
+            fetch('{{ route("kasir.checkout.submit") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.removeItem('tskuy_cart'); // Kosongkan cart
+                    window.location.href = data.redirect;
+                }
+            })
+            .catch(err => console.error(err));
         });
     });
 

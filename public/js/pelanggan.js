@@ -116,17 +116,30 @@ function addToCart(menuData) {
     renderCart(); showAddedToast(menuData.name);
 }
 
-// 🔥 FUNGSI CHECKOUT YANG UDAH DIBERSIHIN (PLAN B) 🔥
+// 🔥 FUNGSI CHECKOUT UNIFIED (MIDTRANS + DB) 🔥
 function submitOrderToDatabase(orderType) {
-    const activeOrderId = "{{ session('active_order_id') }}"; 
+    const activeOrderId = document.getElementById('active_order_id')?.value || null; 
     const url = activeOrderId ? `/pelanggan/checkout/${activeOrderId}/add` : '/pelanggan/checkout';
 
     if (cartItems.length === 0) { alert("Keranjang belanja kosong!"); return; }
 
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-    const payload = { type: orderType, items: cartItems.map(item => ({ id: parseInt(item.id), qty: item.qty })) };
+    const eatingOption = document.querySelector('[name="eating_option"]:checked')?.value || 'dine in';
+    const tableNumber  = document.getElementById('co-meja')?.value || '';
+    const globalNote   = document.getElementById('co-catatan')?.value || '';
 
-    fetch('/pelanggan/checkout', {
+    const payload = { 
+        type: orderType, 
+        eating_option: eatingOption,
+        table_number: tableNumber,
+        items: cartItems.map(item => ({ 
+            id: parseInt(item.id), 
+            qty: item.qty,
+            catatan: globalNote 
+        })) 
+    };
+
+    fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
         body: JSON.stringify(payload)
@@ -134,11 +147,34 @@ function submitOrderToDatabase(orderType) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert(data.message); 
             cartItems = []; 
             renderCart();
             closePopup();
-            window.location.href = data.redirect_url; // Langsung mental ke halaman riwayat
+
+            // Kalo Pay Now, panggil popup Snap Midtrans
+            if (orderType === 'pay_now' && data.snap_token) {
+                snap.pay(data.snap_token, {
+                    onSuccess: function(result) {
+                        // Anti-kesasar ke example.com! Langsung paksa ke halaman sukses
+                        window.location.href = `/pelanggan/payment/success/${data.order_code}`;
+                    },
+                    onPending: function(result) {
+                        window.location.href = `/pelanggan/riwayat`;
+                    },
+                    onError: function(result) {
+                        alert("Pembayaran gagal!");
+                        window.location.href = `/pelanggan/riwayat`;
+                    },
+                    onClose: function() {
+                        alert('Anda menutup popup sebelum menyelesaikan pembayaran.');
+                        window.location.href = `/pelanggan/riwayat`;
+                    }
+                });
+            } else {
+                // Kalo Open Bill, langsung pindah ke riwayat
+                if (data.message) alert(data.message);
+                window.location.href = data.redirect_url;
+            }
         } else { 
             alert("Gagal memproses database: " + data.message); 
         }
@@ -146,6 +182,36 @@ function submitOrderToDatabase(orderType) {
     .catch(err => { 
         console.error(err); 
         alert("Terjadi gangguan sinkronisasi sistem."); 
+    });
+}
+
+function payNow()
+{
+    if (cartItems.length === 0) {
+        alert("Keranjang kosong");
+        return;
+    }
+    const csrfToken =
+        document.querySelector(
+            'meta[name="csrf-token"]'
+        ).content;
+    fetch('/pelanggan/checkout/pay-now', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify({
+            items: cartItems
+        })
+    })
+    .then(async res => {
+        const data = await res.json();
+        console.log(data);
+        snap.pay(data.snap_token);
+    })
+    .catch(err => {
+        console.error(err);
     });
 }
 
@@ -296,10 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const btnPayNowAction = e.target.closest('#choice-pay-now');
+        const btnPayNowAction =
+            e.target.closest('#choice-pay-now');
         if (btnPayNowAction) {
             e.stopPropagation();
-            submitOrderToDatabase('pay_now');
+            payNow();
             return;
         }
 

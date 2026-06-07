@@ -37,9 +37,11 @@ class AuthenticatedSessionController extends Controller
         } elseif ($roleId == 2) {
             // Jika Kasir
             return redirect()->intended('/kasir/pos');
-        } else {
+        } elseif ($roleId == 3) {
             // Jika Pelanggan (Role 3)
             return redirect()->intended('/pelanggan/orders');
+        } else {
+            return redirect()->intended('/koki');
         }
     }
 

@@ -257,3 +257,9 @@
         @endforeach
     @endif
 @endsection
+
+@push('script')
+<script>
+    
+</script>
+@endpush

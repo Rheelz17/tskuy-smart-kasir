@@ -100,12 +100,13 @@ return new class extends Migration
             $table->foreignId('table_id')->nullable()->constrained('tables')->onDelete('set null'); // Nullable support takeaway
             $table->enum('order_type', ['self order', 'cashier']);
             $table->enum('source', ['qr', 'kasir']);
-            $table->enum('status', ['PENDING', 'COOKING', 'READY', 'COMPLETED', 'CANCELLED'])->default('PENDING');
+            $table->enum('status', ['PENDING', 'COOKING', 'COMPLETED', 'CANCELLED'])->default('PENDING');
             $table->enum('eating_option', ['dine in', 'take away'])->default('dine in');
             $table->boolean('is_open_bill')->default(false);
             $table->decimal('subtotal', 10, 2)->default(0.00);
             $table->decimal('tax', 10, 2)->default(0.00);
             $table->decimal('total', 10, 2)->default(0.00);
+            
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
         });
