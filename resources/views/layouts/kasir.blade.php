@@ -27,6 +27,9 @@
     @include('partials.popups')
     @yield('page_popups')
 
+    <script type="text/javascript"
+            src="https://app.sandbox.midtrans.com/snap/snap.js"
+            data-client-key="{{ env('SB-Mid-client-hRh2EhIfz4IKWhaa') }}"></script>
     <script src="{{ asset('js/kasir-core.js') }}"></script>
     @yield('scripts')
 </body>

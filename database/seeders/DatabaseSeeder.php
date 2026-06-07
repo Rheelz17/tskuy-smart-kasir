@@ -13,10 +13,10 @@ class DatabaseSeeder extends Seeder
     {
         // Panggil semua seeder di sini sesuai urutan yang bener
         $this->call([
-            RoleSeeder::class,
+            // RoleSeeder::class,
             UserSeeder::class,
-            MenuSeeder::class,
-            CategorySeeder::class,
+            // MenuSeeder::class,
+            // CategorySeeder::class,
         ]);
     }
 }

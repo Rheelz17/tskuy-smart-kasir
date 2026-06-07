@@ -11,35 +11,42 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('categories')) {
+            Schema::create('categories', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('moods', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('icon'); // Menyimpan nama file gambar icon
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('moods')) {
+            Schema::create('moods', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('icon'); // Menyimpan nama file gambar icon
+                $table->timestamps();
+            });
+        }
+        if (!Schema::hasTable('menus')) {
+            Schema::create('menus', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('category_id')->constrained()->onDelete('cascade');
+                $table->string('name');
+                $table->text('description');
+                $table->integer('price');
+                $table->string('image');
+                $table->boolean('is_available')->default(true);
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('menus', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->text('description');
-            $table->integer('price');
-            $table->string('image');
-            $table->boolean('is_available')->default(true);
-            $table->timestamps();
-        });
-
-        Schema::create('menu_mood', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('menu_id')->constrained()->onDelete('cascade');
-            $table->foreignId('mood_id')->constrained()->onDelete('cascade');
-        });
+        if (!Schema::hasTable('menu_mood')) {
+            Schema::create('menu_mood', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('menu_id')->constrained()->onDelete('cascade');
+                $table->foreignId('mood_id')->constrained()->onDelete('cascade');
+            });
+        }
     }
 
     /**
@@ -47,6 +54,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tskuy_catalog_tables');
+        if (!Schema::hasTable('tskuy_catalog_tables')) {
+            Schema::dropIfExists('tskuy_catalog_tables');
+        }
     }
 };

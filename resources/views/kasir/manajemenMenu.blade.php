@@ -3,248 +3,475 @@
 @section('title', 'Manajemen Menu – Warkop Tskuy')
 
 @section('header_title', 'Manajemen Menu')
-@section('header_subtitle', 'Kelola daftar menu dan ketersediaan stok produk')
+@section('header_subtitle', 'Kelola ketersediaan menu')
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('css/kasir-pages.css') }}" />
-@endsection
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<style>
+    /* ============================================================
+           TAMBAHAN STYLE — Tabel Menu Kasir
+           ============================================================ */
 
+    /* Scroll area utama */
+    .scroll-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    /* Action bar atas */
+    .action-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Tab kategori */
+    .category-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .tab {
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1.5px solid var(--border);
+        background: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+
+    .tab:hover {
+        border-color: var(--kuning);
+        color: #92400e;
+    }
+
+    .tab.active {
+        background: var(--kuning);
+        border-color: var(--kuning);
+        color: #fff;
+    }
+
+    /* Search */
+    .action-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-wrapper {
+        position: relative;
+    }
+
+    .search-wrapper input {
+        height: 38px;
+        padding: 0 36px 0 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 20px;
+        font-size: 13px;
+        outline: none;
+        width: 200px;
+        transition: border-color .2s;
+        font-family: "Poppins", sans-serif;
+        color: var(--teks);
+        background: var(--bg-page);
+    }
+
+    .search-wrapper input:focus {
+        border-color: var(--kuning);
+        background: #fff;
+    }
+
+    .search-wrapper .search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    /* Table container */
+    .table-container {
+        background: #fff;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+    }
+
+    #tabel-menu {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    #tabel-menu thead tr {
+        background: #fafafa;
+        border-bottom: 1.5px solid var(--border);
+    }
+
+    #tabel-menu th {
+        padding: 12px 14px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #888;
+        white-space: nowrap;
+    }
+
+    #tabel-menu th.col-left,
+    #tabel-menu td.col-left {
+        text-align: left;
+    }
+
+    #tabel-menu tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+        transition: background .15s;
+    }
+
+    #tabel-menu tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    #tabel-menu tbody tr:hover {
+        background: #fffbeb;
+    }
+
+    #tabel-menu td {
+        padding: 12px 14px;
+        text-align: center;
+        color: var(--teks);
+        vertical-align: middle;
+    }
+
+    .text-bold {
+        font-weight: 600;
+    }
+
+    .stok-badge {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #555;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* Status badge */
+    .status-avail {
+        display: inline-block;
+        background: #dcfce7;
+        color: #166534;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .status-habis {
+        display: inline-block;
+        background: #fee2e2;
+        color: #991b1b;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    /* Toggle switch — sesuai style admin */
+    .popup-form-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .popup-toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        cursor: pointer;
+        display: block;
+    }
+
+    .popup-toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+
+    .popup-toggle-track {
+        position: absolute;
+        inset: 0;
+        background: #d1d5db;
+        border-radius: 999px;
+        transition: background .25s;
+    }
+
+    .popup-toggle-thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        background: #fff;
+        border-radius: 50%;
+        transition: transform .25s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+    }
+
+    .popup-toggle-switch input:checked+.popup-toggle-track {
+        background: #22c55e;
+    }
+
+    .popup-toggle-switch input:checked+.popup-toggle-track .popup-toggle-thumb {
+        transform: translateX(20px);
+    }
+
+    /* Kategori badge */
+    .kat-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .kat-makanan {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .kat-minuman {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .kat-snack {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    /* Footer info */
+    .content-footer {
+        padding: 8px 0 2px;
+        font-size: 12px;
+        color: #aaa;
+    }
+
+    /* Empty state */
+    .empty-row td {
+        padding: 48px 20px !important;
+        text-align: center !important;
+        color: #bbb;
+        font-size: 13px;
+    }
+
+    /* Toast notifikasi */
+    #menu-toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: #1a1a1a;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity .3s, transform .3s;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    #menu-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        .action-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+        }
+
+        .action-right {
+            width: 100%;
+        }
+
+        #tabel-menu th:nth-child(3),
+        #tabel-menu td:nth-child(3),
+        #tabel-menu th:nth-child(4),
+        #tabel-menu td:nth-child(4),
+        #tabel-menu th:nth-child(6),
+        #tabel-menu td:nth-child(6) {
+            display: none;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+    }
+</style>
+@endsection
 
 @section('content')
 <main class="scroll-area">
+
+    {{-- ===== ACTION BAR ===== --}}
     <div class="action-bar">
-        <div class="category-tabs">
-            <button class="tab active" data-kategori="all">All</button>
-            <button class="tab" data-kategori="makanan">Makanan</button>
-            <button class="tab" data-kategori="minuman">Minuman</button>
-            <button class="tab" data-kategori="cemilan">Cemilan</button>
-        </div>
-        <div class="action-right">
-            <div class="search-wrapper">
-                <input type="text" placeholder="Cari Menu...">
-                <span class="search-icon"><svg width="16" height="16" viewBox="0 0 26 26" fill="none">
-                        <path d="M25.103 22.071L19.66 16.628A10.721 10.721 0 1010.721 21.443c2.182 0 4.212-.662 5.907-1.786l5.443 5.443a2.143 2.143 0 003.032-3.03zM3.216 10.721a7.505 7.505 0 1115.01 0 7.505 7.505 0 01-15.01 0z" fill="#F8B602" />
-                    </svg></span>
-            </div>
-            <button class="btn-outline" id="btnExport">
-                <svg width="16" height="16" viewBox="0 0 30 30" fill="none">
-                    <path d="M15.603 14.095V5.284M13.132 7.549l1.375-1.742a2.32 2.32 0 013.563 0l1.375 1.742M21.639 19.836H9.567M11.768 10.893C5.511 12.51 6.009 17.071 6.009 17.071s-.498 4.577 5.759 6.174a13.124 13.124 0 007.663 0c6.255-1.616 5.759-6.174 5.759-6.174s.496-4.578-5.759-6.178z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        {{-- Tab Kategori --}}
+        {{-- <div class="category-tabs">
+                <button class="tab active" data-kategori="all">Semua</button>
+                @foreach ($categories as $cat)
+                    <button class="tab" data-kategori="{{ strtolower($cat->name) }}">
+        {{ ucfirst($cat->name) }}
+        </button>
+        @endforeach
+    </div> --}}
+
+    {{-- Search --}}
+    <div class="action-right">
+        <div class="search-wrapper">
+            <input type="text" id="search-menu-input" placeholder="Cari menu...">
+            <span class="search-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                    <circle cx="11" cy="11" r="7" stroke="#fbbf24" stroke-width="2" />
+                    <path d="M16.5 16.5L21 21" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" />
                 </svg>
-                Export
-            </button>
+            </span>
         </div>
     </div>
+    </div>
 
-    <!-- Tabel desktop -->
-    <!-- <div class="table-container">
-        <table id="tabel-menu">
-            <thead>
-                <tr>
-                    <th class="col-foto">Foto</th>
-                    <th class="col-left">Nama</th>
-                    <th>ID Menu</th>
-                    <th>Kategori</th>
-                    <th>Stok</th>
-                    <th>Harga</th>
-                    <th>Status</th>
-                    <th>Tindakan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr data-kategori="minuman">
-                    <td>
-                        <div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div>
-                    </td>
-                    <td class="col-left text-bold">Kopi Susu Tskuy</td>
-                    <td>MNU001</td>
-                    <td>Minuman</td>
-                    <td><span class="stok-badge">50 Porsi</span></td>
-                    <td>Rp 15.000</td>
-                    <td>
-                        <div class="popup-form-toggle" style="padding: 0; margin: 0; justify-content: center; border: none;">
-                            <label class="popup-toggle-switch">
-                                <input type="checkbox" class="toggle-status-menu" data-id="{{ $menu->id ?? '1' }}" checked>
-                                <div class="popup-toggle-track">
-                                    <div class="popup-toggle-thumb"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="tindakan-col">
-                            <a href="#" class="btn-tindakan btn-edit-menu" data-id="MNU001" data-nama="Kopi Susu Tskuy" data-kategori="minuman" data-stok="50" data-harga="15000" data-status="tersedia">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                                    <rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2" />
-                                    <path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </a>
-                            <a href="#" class="btn-tindakan btn-hapus-menu" data-nama="Kopi Susu Tskuy">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                                    <rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15" />
-                                    <path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
+    {{-- ===== TABEL MENU ===== --}}
+    @include('components.menu-tabel', ['menus' => $menus])
 
-                <tr data-kategori="makanan">
-                    <td>
-                        <div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div>
-                    </td>
-                    <td class="col-left text-bold">Roti Bakar Cokelat</td>
-                    <td>MNU002</td>
-                    <td>Makanan</td>
-                    <td><span class="stok-badge">20 Porsi</span></td>
-                    <td>Rp 18.000</td>
-                    <td>
-                        <div class="popup-form-toggle" style="padding: 0; margin: 0; justify-content: center; border: none;">
-                            <label class="popup-toggle-switch">
-                                <input type="checkbox" class="toggle-status-menu" data-id="{{ $menu->id ?? '1' }}" checked>
-                                <div class="popup-toggle-track">
-                                    <div class="popup-toggle-thumb"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="tindakan-col">
-                            <a href="#" class="btn-tindakan btn-edit-menu" data-id="MNU001" data-nama="Kopi Susu Tskuy" data-kategori="minuman" data-stok="50" data-harga="15000" data-status="tersedia">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                                    <rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2" />
-                                    <path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </a>
-                            <a href="#" class="btn-tindakan btn-hapus-menu" data-nama="Kopi Susu Tskuy">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                                    <rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15" />
-                                    <path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr data-kategori="cemilan">
-                    <td>
-                        <div style="width:48px;height:48px;border-radius:8px;background:#e5e7eb;margin:0 auto;"></div>
-                    </td>
-                    <td class="col-left text-bold">French Fries</td>
-                    <td>MNU003</td>
-                    <td>Cemilan</td>
-                    <td><span class="stok-badge">0 Porsi</span></td>
-                    <td>Rp 12.000</td>
-                    <td>
-                        <div class="popup-form-toggle" style="padding: 0; margin: 0; justify-content: center; border: none;">
-                            <label class="popup-toggle-switch">
-                                <input type="checkbox" class="toggle-status-menu" data-id="{{ $menu->id ?? '1' }}" checked>
-                                <div class="popup-toggle-track">
-                                    <div class="popup-toggle-thumb"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="tindakan-col">
-                            <a href="#" class="btn-tindakan btn-edit-menu" data-id="MNU001" data-nama="Kopi Susu Tskuy" data-kategori="minuman" data-stok="50" data-harga="15000" data-status="tersedia">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                                    <rect width="40" height="40" rx="10" fill="#EFB100" fill-opacity="0.2" />
-                                    <path d="M28 12L16 24c-1.1 1.1-4 1.5-4.5 1s.4-3.4 1.5-4.5L25 8.5c1.2-1.2 3-.3 3.5 1 .5.7.7 2.1-.5 2.5z" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M15 8H10a2 2 0 00-2 2v20a2 2 0 002 2h20a2 2 0 002-2v-5" stroke="#EFB100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </a>
-                            <a href="#" class="btn-tindakan btn-hapus-menu" data-nama="Kopi Susu Tskuy">
-                                <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-                                    <rect width="40" height="40" rx="10" fill="#FB2C36" fill-opacity="0.15" />
-                                    <path d="M14 16v12a2 2 0 002 2h8a2 2 0 002-2V16M12 13h16M17 13v-2a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#FB2C36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div> -->
-    <x-menu-tabel />
-
+    {{-- Footer info --}}
     <footer class="content-footer">
-        <p class="data-info">Menampilkan 8 dari 9 menu</p>
+        <p class="data-info">Memuat data...</p>
         <div class="pagination">
-            <button class="page-link disabled">Sebelumnya</button>
-            <button class="page-number active">1</button>
-            <button class="page-number">2</button>
-            <button class="page-link">Selanjutnya</button>
         </div>
     </footer>
+
 </main>
-@endsection
 
-@section('page_popups')
-<!-- POPUP EXPORT -->
-<div class="popup popup-export" id="popupExport">
-    <div class="popup-export-header">
-        <h3>Unduh Data Menu</h3>
-        <button class="popup-close-white" id="closeExportBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-        </button>
-    </div>
-    <div class="popup-export-body">
-        <div class="export-format-title">Pilih Format Data</div>
-        <div class="export-format-options">
-            <div class="export-option selected" data-fmt="xlsx">
-                <div class="export-icon xlsx">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                </div>
-                <span class="export-option-name">Excel</span>
-            </div>
-            <div class="export-option" data-fmt="pdf">
-                <div class="export-icon pdf">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10 9 9 9 8 9" />
-                    </svg>
-                </div>
-                <span class="export-option-name">PDF</span>
-            </div>
-        </div>
+{{-- Toast --}}
+<div id="menu-toast"></div>
 
-        <div>
-            <div class="export-range-title">Rentang Data</div>
-            <div class="export-range-list" id="exportRangeList">
-                <label class="export-range-item">
-                    <input type="radio" name="exportRange" value="all">
-                    <span>Semua Data Menu <span>(123 Item)</span></span>
-                </label>
-                <label class="export-range-item">
-                    <input type="radio" name="exportRange" value="current" checked>
-                    <span>Hanya Menu Yang Sedang ditampilkan <span id="exportRangeCount">(8 Menu)</span></span>
-                </label>
-                <label class="export-range-item">
-                    <input type="radio" name="exportRange" value="none">
-                    <span>Tidak Tersedia</span>
-                </label>
-            </div>
-        </div>
-
-        <button class="btn-unduh" id="btnUnduhData">Unduh Data</button>
-    </div>
-</div>
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/menu-kasir.js') }}"></script>
+<script src="{{ asset('js/menu.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ============================================================
+        // HELPER: Toast notifikasi
+        // ============================================================
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('menu-toast');
+            if (!toast) return;
+            toast.textContent = msg;
+            toast.style.background = isError ? '#ef4444' : '#1a1a1a';
+            toast.classList.add('show');
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ============================================================
+        // FILTER: Tab Kategori
+        // ============================================================
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                filterTable();
+            });
+        });
+
+        // ============================================================
+        // FILTER: Search
+        // ============================================================
+        document.getElementById('search-menu-input')?.addEventListener('input', filterTable);
+
+        function filterTable() {
+            const activeKat = document.querySelector('.tab.active')?.dataset.kategori || 'all';
+            const query = document.getElementById('search-menu-input')?.value.toLowerCase().trim() || '';
+            let count = 0;
+
+            document.querySelectorAll('#menu-tbody tr[data-kategori]').forEach(row => {
+                const kat = row.dataset.kategori || '';
+                const nama = row.dataset.nama || '';
+
+                const matchKat = activeKat === 'all' || kat === activeKat;
+                const matchCari = query === '' || nama.includes(query);
+
+                row.style.display = (matchKat && matchCari) ? '' : 'none';
+                if (matchKat && matchCari) count++;
+            });
+
+            document.getElementById('data-info-label').textContent =
+                `Menampilkan ${count} menu`;
+        }
+
+        // ============================================================
+        // TOGGLE STATUS MENU (AJAX)
+        // ============================================================
+        document.querySelectorAll('.toggle-status-menu').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const menuId = this.dataset.id;
+                const menuNama = this.dataset.nama;
+                const isChecked = this.checked;
+                const self = this;
+
+                // Kirim ke endpoint toggle kasir
+                fetch(`/kasir/menu/${menuId}/toggle`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            const label = isChecked ? 'Tersedia' : 'Habis';
+                            showToast(`${menuNama} → ${label}`);
+                        } else {
+                            // Kembalikan toggle ke posisi sebelumnya
+                            self.checked = !isChecked;
+                            showToast('Gagal mengubah status menu.', true);
+                        }
+                    })
+                    .catch(() => {
+                        self.checked = !isChecked;
+                        showToast('Gagal koneksi ke server.', true);
+                    });
+            });
+        });
+
+    });
+</script>
 @endsection

@@ -42,6 +42,12 @@ class Menu extends Model
         return $this->hasMany(OrderItem::class, 'menu_id');
     }
 
+        // Relasi: Satu menu memiliki banyak grup opsi (level pedas, es, gula, dll)
+    public function options(): HasMany
+    {
+        return $this->hasMany(MenuOption::class, 'menu_id');
+    }
+
     public function moods(): BelongsToMany
     {
         return $this->belongsToMany(Mood::class, 'menu_mood', 'menu_id', 'mood_id');

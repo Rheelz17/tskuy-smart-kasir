@@ -102,10 +102,6 @@
             <p class="section-title" style="margin-bottom: 0">
                 Transaksi Terbaru
             </p>
-            <!--
-            PERUBAHAN dari SPA: bukan switchPage(), tapi navigasi ke penjualan.html
-            dashboard.js handle klik ini via window.location.href
-        -->
             <button class="see-all-link " id="btn-lihat-semua">
                 Lihat Semua
             </button>
@@ -224,41 +220,28 @@
 
         <div class="stock-alert-card">
             <div class="stock-alert-header">
-            <p class="section-title">Peringatan Stok</p>
-            <button class="manage-link">Kelola Stok</button>
+                <p class="section-title">Peringastan Stok</p>
+                <a href="/admin/menu" class="manage-link" style="text-decoration: none;">Kelola Stok</a>            
             </div>
             <div class="alert-list">
-            <div class="alert-item">
-                <div class="alert-icon">!</div>
-                <div class="alert-info">
-                <p class="alert-name">Indomie Bangladesh</p>
-                <p class="alert-stock critical">Kritis: 2 Unit Tersisa</p>
-                </div>
-                <button class="restock-btn">Restok</button>
-            </div>
-            <div class="alert-item">
-                <div class="alert-icon">!</div>
-                <div class="alert-info">
-                <p class="alert-name">Kopi Susu ABC</p>
-                <p class="alert-stock critical">Kritis: 3 Unit Tersisa</p>
-                </div>
-                <button class="restock-btn">Restok</button>
-            </div>
-            <div class="alert-item">
-                <div
-                class="alert-icon"
-                style="background: #fef3e8; color: #f59e0b"
-                >
-                !
-                </div>
-                <div class="alert-info">
-                <p class="alert-name">Cireng Isi</p>
-                <p class="alert-stock warning">Hampir Habis: 7 Unit</p>
-                </div>
-                <button class="restock-btn" style="background: #f59e0b">
-                Restok
-                </button>
-            </div>
+                @forelse($lowStockMenus as $item)
+                    <div class="alert-item">
+                        <div class="alert-icon" style="{{ $item->stock <= 2 ? '' : 'background: #fef3e8; color: #f59e0b' }}">!</div>
+                        <div class="alert-info">
+                            <p class="alert-name">{{ $item->name }}</p>
+                            <p class="alert-stock {{ $item->stock <= 2 ? 'critical' : 'warning' }}">
+                                {{ $item->stock <= 2 ? 'Kritis' : 'Hampir Habis' }}: {{ $item->stock }} Unit Tersisa
+                            </p>
+                        </div>
+                        <a href="/admin/menu" class="restock-btn" style="{{ $item->stock <= 2 ? '' : 'background: #f59e0b; text-decoration: none; text-align: center;' }}">
+                            Restok
+                        </a>
+                    </div>
+                @empty
+                    <div style="text-align: center; padding: 20px; color: #94a3b8;">
+                        <p>🎉 Semua stok menu aman!</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>

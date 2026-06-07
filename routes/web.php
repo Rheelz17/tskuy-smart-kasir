@@ -6,8 +6,13 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KokiController;
 use App\Http\Controllers\CashierOrderController;
 use App\Http\Controllers\AdminMenuController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; // <-- Tambahan wajib untuk ngecek sesi login
+// use App\Http\Controllers\koki\KokiController;
+use App\Http\Controllers\pelanggan\MenuController;
+use App\Http\Controllers\pelanggan\RiwayatController;
+use App\Http\Controllers\KasirController;
 
 // ==========================================
 // RUTE UTAMA (SPLASH SCREEN / REDIRECT)
@@ -63,10 +68,11 @@ require __DIR__.'/auth.php';
 // ==========================================
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')->group(function () {
     // Halaman Utama & Penjualan (Dihandle AdminController)
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/penjualan', [AdminController::class, 'penjualan'])->name('penjualan');
     Route::get('/menu', [AdminController::class, 'menu'])->name('menu');
-
+    
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
     // Halaman Karyawan (Dihandle KaryawanController)
     Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan');
     Route::get('/karyawan/tambah', [KaryawanController::class, 'tambah'])->name('karyawan.tambah');
@@ -89,76 +95,52 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::put('/menu/{id}', [AdminMenuController::class, 'update'])->name('menu.update');
     // 6. Proses Hapus Menu (AJAX DELETE dengan proteksi transaksi)
     Route::delete('/menu/{id}', [AdminMenuController::class, 'destroy'])->name('menu.destroy');
-    Route::patch('/menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus']);
+    Route::post('/menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus']);
 });
 
 // ==========================================
 // AREA KASIR
 // ==========================================
 Route::middleware(['auth', 'role:kasir'])->group(function () {
-// 1. Rute Halaman Utama POS Kasir (Ditambahkan Name)
-    Route::get('/kasir/pos', function () {
-        return view('kasir.pos');
-    })->name('kasir.pos');
-
-    // 2. Rute Baru Halaman Manajemen Menu (Sesuai Struktur Folder Baru)
-    Route::get('/kasir/manajemen-menu', function () {
-        return view('kasir.manajemenMenu');
-    })->name('kasir.manajemen-menu');
-
-    // 3. Rute Placeholder untuk Detail penjualan
-    Route::get('/kasir/penjualan', function () {
-        return view('kasir.penjualan');
-    })->name('kasir.penjualan');
-
-    // API ENDPOINT UNTUK MEMPROSES CHEKOUT KASIR & MEMINTA TOKEN MIDTRANS
-    Route::post('/kasir/order/checkout', [CashierOrderController::class, 'checkout'])->name('kasir.order.checkout');
+    Route::get('/kasir/pos', [KasirController::class, 'pos']) ->name('kasir.pos');
+    Route::get('/kasir/manajemen-menu', [KasirController::class, 'manajemenMenu'])->name('kasir.manajemen-menu');
+    Route::get('/kasir/penjualan', function () { return view('kasir.penjualan'); })->name('kasir.penjualan');
+    Route::patch('/menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus']);
+    Route::get('/kasir/api/antrian', [KasirController::class, 'apiAntrian'])->name('kasir.api.antrian');
+    Route::get('/kasir/api/menu/{id}', function ($id) {
+        $menu = \App\Models\Menu::with([
+            'category',
+            'options',
+            'options.values',
+        ])->where('is_available', true)->findOrFail($id);
+    
+        return response()->json($menu);
+    })->name('kasir.api.menu.detail');
 });
-
-// ==========================================
-// WEBHOOK NOTIFIKASI MIDTRANS (Wajib di luar Auth Middleware)
-// ==========================================
-Route::post('/api/midtrans/notification', [CashierOrderController::class, 'handleNotification']);
 
 // ==========================================
 // AREA PELANGGAN
 // ==========================================
-use App\Http\Controllers\pelanggan\MenuController;
-
 // Rute buat di-scan di QR Code Meja (contoh: tskuy.com/table/4)
 Route::get('/table/{number}', [MenuController::class, 'initializeTable'])->name('table.init');
 
-// Timpa rute order lu yang lama jadi memanggil MenuController
 Route::middleware(['auth', 'role:pelanggan'])->group(function () {
-    // Hapus rute Closure yang lama, ganti pakai ini
     Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
+    Route::post('/pelanggan/checkout', [MenuController::class, 'checkout'])->name('pelanggan.checkout');
+    Route::get('/pelanggan/riwayat', [RiwayatController::class, 'riwayat'])->name('pelanggan.riwayat');
 });
 
-// PENTING: Karena pelanggan belum login harus bisa liat menu, 
-// pindahkan rute pelanggan.orders KELUAR dari middleware auth!
-// Jadinya taruh rute ini di luar/bebas:
 Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
+
 
 // ==========================================
 // AREA KOKI (CHEF)
 // ==========================================
 Route::middleware(['auth', 'role:koki'])->prefix('koki')->name('koki.')->group(function () {
-
-    // GET  /koki           → daftar antrian
-    Route::get('/', [KokiController::class, 'index'])->name('index');
-
-    // GET  /koki/{id}      → detail satu pesanan
-    Route::get('/{id}', [KokiController::class, 'detail'])->name('detail');
-
-    // GET  /koki/{id}/selesai → halaman sukses setelah pesanan selesai
-    Route::get('/{id}/selesai', [KokiController::class, 'selesai'])->name('selesai');
-
-    // POST /koki/{orderId}/item/{itemId}/toggle → toggle centang satu item (AJAX)
+    Route::get('/',                  [KokiController::class, 'index'])     ->name('index');
+    Route::get('/{id}',              [KokiController::class, 'detail'])    ->name('detail');
+    Route::get('/{id}/selesai',      [KokiController::class, 'selesai'])   ->name('selesai');
     Route::post('/{orderId}/item/{itemId}/toggle', [KokiController::class, 'toggleItem'])->name('item.toggle');
-
-    // POST /koki/{id}/selesaikan → tandai seluruh pesanan selesai (AJAX)
-    Route::post('/{id}/selesaikan', [KokiController::class, 'selesaikan'])->name('selesaikan');
-
-    // POST /koki/{id}/batalkan  → batalkan pesanan (AJAX, hanya saat 'menunggu')
-    Route::post('/{id}/batalkan', [KokiController::class, 'batalkan'])->name('batalkan');
+    Route::post('/{id}/selesaikan',  [KokiController::class, 'selesaikan'])->name('selesaikan');
+    Route::post('/{id}/batalkan',    [KokiController::class, 'batalkan'])  ->name('batalkan');
 });

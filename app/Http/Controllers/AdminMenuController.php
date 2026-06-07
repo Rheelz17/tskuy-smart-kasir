@@ -23,7 +23,10 @@ class AdminMenuController extends Controller
 
         public function tambah()
     {
-        return view('admin.menu-tambah');
+        $categories = Category::all();   // untuk <select> kategori
+        $moods      = Mood::all();       // untuk chips mood
+
+        return view('admin.menu-tambah', compact('categories', 'moods'));
     }
 
     // 2. SIMPAN MENU BARU (Mendukung AJAX Fetch dari Desktop / Form Mobile)
@@ -88,26 +91,33 @@ class AdminMenuController extends Controller
         $menu = Menu::findOrFail($id);
 
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'category_id'   => 'required|exists:categories,id',
-            'price'         => 'required|numeric|min:0',
-            'stock'         => 'required|integer|min:0',
-            'description'   => 'nullable|string',
-            'image'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'name'        => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'description' => 'nullable|string',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $imagePath = $menu->image; // Pertahankan gambar lama secara default
-        
-        if ($request->hasFile('image')) {
-            // Hapus gambar lama dari folder storage jika ada sebelum ditimpa
+
+        // Cek: user minta hapus foto (tombol Hapus di edit mobile)
+        if ($request->input('hapus_foto') == '1') {
             if ($menu->image && Storage::disk('public')->exists($menu->image)) {
                 Storage::disk('public')->delete($menu->image);
             }
-            // Simpan gambar baru
+            $imagePath = null;
+        }
+
+        // Cek: ada file foto baru yang diupload (ganti foto)
+        if ($request->hasFile('image')) {
+            // Hapus foto lama sebelum simpan yang baru
+            if ($menu->image && Storage::disk('public')->exists($menu->image)) {
+                Storage::disk('public')->delete($menu->image);
+            }
             $imagePath = $request->file('image')->store('menus', 'public');
         }
 
-        // Lakukan update data
         $menu->update([
             'name'           => $request->name,
             'category_id'    => $request->category_id,
@@ -115,20 +125,22 @@ class AdminMenuController extends Controller
             'stock'          => $request->stock,
             'description'    => $request->description,
             'image'          => $imagePath,
+            'is_available'   => $request->has('is_available'),
             'is_recommended' => $request->has('is_recommended'),
             'is_new'         => $request->has('is_new'),
             'is_promo'       => $request->has('is_promo'),
         ]);
 
-        // Sinkronkan ulang data tabel pivot menu_moods
-        // Jika tidak ada mood yang dicentang, kirim array kosong [] untuk menghapus relasi lama
+        // Sync moods — kirim array kosong jika tidak ada yang dicentang
         $menu->moods()->sync($request->input('moods', []));
 
         return response()->json([
-            'success' => true, 
-            'message' => 'Data menu berhasil diperbarui!'
+            'success' => true,
+            'message' => 'Data menu berhasil diperbarui!',
+            'data'    => $menu->fresh()->load('category', 'moods'),
         ], 200);
     }
+
 
     // 5. PROSES HAPUS MENU (Dengan Fitur Proteksi Riwayat Transaksi Kasir)
     public function destroy($id)

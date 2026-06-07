@@ -364,10 +364,10 @@
             </div>
         </div>
     </div>
-
+    
     <div class="popup popup-export" id="popupExport">
         <div class="popup-export-header">
-        <h3>Unduh Data Menu</h3>
+        <h3>Unduh Data Karyawan</h3>
         <button class="popup-close-white" id="closeExportBtn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -409,11 +409,11 @@
             <div class="export-range-list" id="exportRangeList">
             <label class="export-range-item">
                 <input type="radio" name="exportRange" value="all">
-                <span>Semua Data Menu <span>(123 Item)</span></span>
+                <span>Semua Data Karyawan <span>(123 Item)</span></span>
             </label>
             <label class="export-range-item">
                 <input type="radio" name="exportRange" value="current" checked>
-                <span>Hanya Menu Yang Sedang Sditampilkan <span id="exportRangeCount">(8 Menu)</span></span>
+                <span>Hanya karyawan Yang Sedang ditampilkan <span id="exportRangeCount">(8 Karyawan)</span></span>
             </label>
             <label class="export-range-item">
                 <input type="radio" name="exportRange" value="none">
