@@ -16,36 +16,22 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', function () {
     if (Auth::check()) {
         $roleId = Auth::user()->role_id;
-        
-        if ($roleId == 1) {
-            return redirect('/admin/dashboard');
-        } elseif ($roleId == 2) {
-            return redirect('/kasir/pos');
-        } elseif ($roleId == 3) {
-            return redirect('/pelanggan/orders');
-        } elseif ($roleId == 4) {
-            return redirect('/koki');
-        } else {
-            return redirect('/');
-        }
+        if ($roleId == 1) return redirect('/admin/dashboard');
+        elseif ($roleId == 2) return redirect('/kasir/pos');
+        elseif ($roleId == 3) return redirect('/pelanggan/orders');
+        elseif ($roleId == 4) return redirect('/koki');
+        else return redirect('/');
     }
     return view('splash');
 });
 
 Route::get('/dashboard', function () {
     $roleId = Auth::user()->role_id;
-    
-    if ($roleId == 1) {
-        return redirect('/admin/dashboard');
-    } elseif ($roleId == 2) {
-        return redirect('/kasir/pos');
-    } elseif ($roleId == 3) {
-        return redirect('/pelanggan/orders');
-    } elseif ($roleId == 4) {
-        return redirect('/koki');
-    } else {
-        return redirect('/');
-    }
+    if ($roleId == 1) return redirect('/admin/dashboard');
+    elseif ($roleId == 2) return redirect('/kasir/pos');
+    elseif ($roleId == 3) return redirect('/pelanggan/orders');
+    elseif ($roleId == 4) return redirect('/koki');
+    else return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -81,18 +67,45 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
 // ==========================================
 // AREA PELANGGAN (DATABASE INTEGRATED)
 // ==========================================
+
+// QR Table init — tidak perlu auth (pelanggan scan QR sebelum login)
 Route::get('/table/{number}', [MenuController::class, 'initializeTable'])->name('table.init');
 
 Route::middleware(['auth', 'role:pelanggan'])->group(function () {
+
+    // ── Menu & Pesanan ──────────────────────────────────────
     Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
     Route::post('/pelanggan/checkout', [MenuController::class, 'checkout'])->name('pelanggan.checkout');
-    Route::get('/pelanggan/riwayat', [RiwayatController::class, 'riwayat'])->name('pelanggan.riwayat');
-    Route::post('/pelanggan/checkout/submit', [MenuController::class, 'submitCheckout'])->name('pelanggan.checkout.submit');
-    Route::post('/midtrans/notification', [MenuController::class, 'midtransNotification'])
-    ->withoutMiddleware([ValidateCsrfToken::class]);
-});
 
-Route::get('/pelanggan/orders', [MenuController::class, 'index'])->name('pelanggan.orders');
+    // ── Riwayat ─────────────────────────────────────────────
+    Route::get('/pelanggan/riwayat', [RiwayatController::class, 'riwayat'])->name('pelanggan.riwayat');
+
+    // ── Open Bill: lanjut tambah pesanan ────────────────────
+    // Redirect ke halaman menu dengan membawa active_order_id di session
+    Route::get('/pelanggan/order/{orderId}/continue', [MenuController::class, 'continueOrder'])
+        ->name('pelanggan.order.continue');
+
+    // Submit item tambahan ke order open bill yang sudah ada
+    Route::post('/pelanggan/checkout/{orderId}/add', [MenuController::class, 'addMoreItems'])
+        ->name('pelanggan.checkout.add');
+
+    // ── Pembayaran QRIS ─────────────────────────────────────
+    // Halaman scan QRIS (pay_now baru & open bill yang mau bayar lunas)
+    Route::get('/pelanggan/payment/qris/{orderCode}', [MenuController::class, 'showQris'])
+        ->name('pelanggan.qris');
+
+    // Konfirmasi / simulasi pembayaran → set status COMPLETED
+    Route::post('/pelanggan/payment/qris/{orderCode}/pay', [MenuController::class, 'simulatePay'])
+        ->name('pelanggan.qris.pay');
+
+    // Struk sukses (hanya accessible jika status = COMPLETED)
+    Route::get('/pelanggan/payment/success/{orderCode}', [MenuController::class, 'paymentSuccess'])
+        ->name('pelanggan.payment.success');
+
+    // ── Midtrans (jika masih dipakai) ───────────────────────
+    Route::post('/midtrans/notification', [MenuController::class, 'midtransNotification'])
+        ->withoutMiddleware([ValidateCsrfToken::class]);
+});
 
 // ==========================================
 // AREA KOKI (CHEF)

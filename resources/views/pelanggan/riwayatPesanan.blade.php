@@ -10,7 +10,7 @@
     </section>
 
     @if(!$activeBill && $pastOrders->isEmpty())
-        <!-- 📭 KONDISI JIKA BELUM ADA LOG SAMA SEKALI -->
+        {{-- 📭 KOSONG TOTAL --}}
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; background: #fff; border-radius: 16px; box-shadow: var(--shadow-sm); text-align: center;">
             <div style="font-size: 50px; margin-bottom: 12px;">☕</div>
             <h3 style="font-weight: 700; color: #1a1a1a; margin-bottom: 6px;">Belum Ada Riwayat Pesanan</h3>
@@ -19,131 +19,134 @@
         </div>
     @else
 
-        <!-- 📝 LOG SEKSI 1: PESANAN BERJALAN (SEDANG DIPROSES / OPEN BILL) -->
-        @if($activeBill)
-            <div style="background: #fffbeb; border: 1.5px solid #efb100; padding: 20px; border-radius: 16px; margin-bottom: 28px; box-shadow: var(--shadow-sm);">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
-                    <div>
-                        <span style="background: #efb100; color: #fff; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Pemesanan Aktif ⏳</span>
-                        <h3 style="font-size: 16px; font-weight: 800; color: #1a1a1a; margin-top: 6px;">{{ $activeBill->order_code }}</h3>
-                        <p style="font-size: 11px; color: #64748b;">Waktu Order: {{ \Carbon\Carbon::parse($activeBill->created_at)->format('H:i') }} WIB</p>
-                    </div>
-                    <span class="status-badge pending" style="font-size: 12px; padding: 6px 14px;">{{ $activeBill->status }}</span>
-                </div>
+        {{-- =====================================================
+             📜 TABEL SEMUA TRANSAKSI (termasuk open bill aktif)
+        ====================================================== --}}
+        <p class="section-title" style="font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px;">Semua Riwayat Transaksi</p>
 
-                <div style="background: #fff; border-radius: 10px; padding: 12px; border: 1px solid #fce4a0;">
-                    <p style="font-size: 12px; font-weight: 700; color: #92400e; margin-bottom: 8px;">Rincian Item Diproses:</p>
-                    <ul style="list-style: none; padding: 0; font-size: 13px; color: #334155; display: flex; flex-direction: column; gap: 4px;">
-                        @foreach($activeBill->items as $item)
-                            <li style="display: flex; justify-content: space-between;">
-                                <span>• {{ $item->menu_name }} <strong style="color: #64748b;">x{{ $item->quantity }}</strong></span>
-                                <span style="font-weight: 600;">Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                    
-                    <div style="margin-top: 8px; font-size: 11px; color: #64748b;">
-                        📍 Layanan: <span style="text-transform: capitalize; color: #1a1a1a; font-weight: 600;">{{ $activeBill->eating_option }}</span> 
-                        @if($activeBill->table_number)
-                            | Meja: <span style="color: #1a1a1a; font-weight: 600;">#{{ $activeBill->table_number }}</span>
-                        @endif
-                    </div>
+        {{-- Gabungkan activeBill + pastOrders jadi satu koleksi untuk ditampilkan --}}
+        @php
+            $allOrders = collect($pastOrders);
+            if ($activeBill) { $allOrders->prepend($activeBill); }
+        @endphp
 
-                    <div style="border-top: 1px dashed #fce4a0; margin-top: 10px; padding-top: 8px; display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; color: #1a1a1a;">
-                        <span>Total Tagihan Sementara:</span>
-                        <span style="color: #efb100;">Rp {{ number_format($activeBill->total, 0, ',', '.') }}</span>
-                    </div>
-                </div>
-                <button class="trx-card-detail-btn" data-open="popup-detail-{{ $activeBill->id }}" style="margin-top: 12px; background: #222;">
-                    Lihat Live Nota Struk
-                </button>
-            </div>
-        @endif
-
-        <!-- 📜 LOG SEKSI 2: JURNAL TRANSAKSI LAMPAU (SELESAI / LUNAS / REKOR SEBELUMNYA) -->
-        @if(!$pastOrders->isEmpty())
-            <p class="section-title" style="font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px;">Arsip Riwayat Transaksi</p>
-            
-            <!-- 💻 Versi Monitor / Desktop -->
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Kode Order</th>
-                            <th>Tanggal & Waktu</th>
-                            <th>Opsi Layanan</th>
-                            <th>Total Bayar</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pastOrders as $order)
-                            <tr>
-                                <td class="text-bold">{{ $order->order_code }}</td>
-                                <td class="text-muted">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y, H:i') }} WIB</td>
-                                <td style="text-transform: capitalize;">
-                                    {{ $order->eating_option == 'dine in' ? '🍽️ Dine In' : '🛍️ Take Away' }}
-                                </td>
-                                <td class="text-bold" style="color: var(--kuning);">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
-                                <td>
-                                    <span class="status-badge {{ strtolower($order->status) == 'completed' ? 'success' : 'failed' }}">
-                                        {{ $order->status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <button class="view-btn" data-open="popup-detail-{{ $order->id }}">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 📱 Versi Layar HP / Mobile -->
-            <div class="card-grid">
-                <div class="trx-card-grid">
-                    @foreach($pastOrders as $order)
-                        <div class="trx-card">
-                            <div class="trx-card-top">
-                                <div>
-                                    <span class="trx-card-id">{{ $order->order_code }}</span>
-                                    <div class="trx-card-date">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y - H:i') }}</div>
-                                </div>
-                                <span class="status-badge {{ strtolower($order->status) == 'completed' ? 'success' : 'failed' }}">
-                                    {{ $order->status }}
-                                </span>
-                            </div>
-                            <div class="trx-card-items" style="margin-top: 4px;">
-                                <div style="font-size: 11px; color: #64748b;">Layanan: <span style="text-transform: capitalize; color: #1a1a1a; font-weight: 500;">{{ $order->eating_option }}</span></div>
-                            </div>
-                            <div class="trx-card-footer">
-                                <span class="trx-card-payment">Total Transaksi</span>
-                                <span class="trx-card-amount" style="color: var(--kuning);">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
-                            </div>
-                            <button class="trx-card-detail-btn" data-open="popup-detail-{{ $order->id }}">
-                                Lihat Detail Nota
+        {{-- 💻 VERSI DESKTOP --}}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kode Order</th>
+                        <th>Tanggal & Waktu</th>
+                        <th>Opsi Layanan</th>
+                        <th>Total Bayar</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($allOrders as $order)
+                    @php
+                        $isActive = $activeBill && $order->id === $activeBill->id;
+                        $statusLower = strtolower($order->status);
+                        $badgeClass = match($statusLower) {
+                            'completed'  => 'success',
+                            'cooking'    => 'cooking',
+                            'pending'    => 'pending',
+                            default      => 'pending',
+                        };
+                    @endphp
+                    <tr @if($isActive) style="background: #fffbeb;" @endif>
+                        <td class="text-bold">
+                            {{ $order->order_code }}
+                            @if($isActive)
+                                <span style="background:#efb100; color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; margin-left:6px; vertical-align:middle;">AKTIF ⏳</span>
+                            @endif
+                        </td>
+                        <td class="text-muted">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y, H:i') }} WIB</td>
+                        <td style="text-transform: capitalize;">
+                            {{ $order->eating_option == 'dine in' ? '🍽️ Dine In' : '🛍️ Take Away' }}
+                        </td>
+                        <td class="text-bold" style="color: var(--kuning);">Rp {{ number_format($order->total, 0, ',', '.') }}</td>
+                        <td>
+                            <span class="status-badge {{ $badgeClass }}">
+                                {{ $order->status }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="view-btn" data-open="popup-detail-{{ $order->id }}">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#efb100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </button>
-                        </div>
+                        </td>
+                    </tr>
                     @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        {{-- 📱 VERSI MOBILE --}}
+        <div class="card-grid">
+            <div class="trx-card-grid">
+                @foreach($allOrders as $order)
+                @php
+                    $isActive = $activeBill && $order->id === $activeBill->id;
+                    $statusLower = strtolower($order->status);
+                    $badgeClass = match($statusLower) {
+                        'completed'  => 'success',
+                        'cooking'    => 'cooking',
+                        'pending'    => 'pending',
+                        default      => 'pending',
+                    };
+                @endphp
+                <div class="trx-card" @if($isActive) style="border: 1.5px solid #efb100; background: #fffbeb;" @endif>
+                    <div class="trx-card-top">
+                        <div>
+                            <span class="trx-card-id">
+                                {{ $order->order_code }}
+                                @if($isActive)
+                                    <span style="background:#efb100; color:#fff; font-size:9px; font-weight:700; padding:2px 7px; border-radius:20px; margin-left:4px; vertical-align:middle;">AKTIF</span>
+                                @endif
+                            </span>
+                            <div class="trx-card-date">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y - H:i') }}</div>
+                        </div>
+                        <span class="status-badge {{ $badgeClass }}">
+                            {{ $order->status }}
+                        </span>
+                    </div>
+                    <div class="trx-card-items" style="margin-top: 4px;">
+                        <div style="font-size: 11px; color: #64748b;">Layanan: <span style="text-transform: capitalize; color: #1a1a1a; font-weight: 500;">{{ $order->eating_option }}</span></div>
+                    </div>
+                    <div class="trx-card-footer">
+                        <span class="trx-card-payment">Total Transaksi</span>
+                        <span class="trx-card-amount" style="color: var(--kuning);">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+                    </div>
+                    <button class="trx-card-detail-btn" data-open="popup-detail-{{ $order->id }}"
+                        @if($isActive) style="background: #efb100;" @endif>
+                        @if($isActive) Lihat Nota & Aksi @else Lihat Detail Nota @endif
+                    </button>
                 </div>
+                @endforeach
             </div>
-        @endif
+        </div>
 
     @endif
 </main>
 @endsection
 
 @section('page_popups')
-    <!-- 🧾 POPUP INLINE DETAIL NOTA STRUK -->
-    @php 
+
+    {{-- =====================================================
+         🧾 POPUP DETAIL NOTA STRUK (untuk SEMUA order)
+    ====================================================== --}}
+    @php
         $allPopups = collect($pastOrders);
-        if($activeBill) { $allPopups->prepend($activeBill); }
+        if ($activeBill) { $allPopups->prepend($activeBill); }
     @endphp
 
     @foreach($allPopups as $order)
+    @php
+        $isOpenBill = $activeBill && $order->id === $activeBill->id;
+    @endphp
+
     <div class="popup popup-detail-transaksi" id="popup-detail-{{ $order->id }}">
         <div class="struk-desktop-header">
             <h3>Detail Nota Transaksi</h3>
@@ -165,6 +168,15 @@
 
             <hr class="struk-divider-dashed">
 
+            @if($isOpenBill)
+            {{-- Badge Open Bill Aktif --}}
+            <div style="text-align:center; margin-bottom: 12px;">
+                <span style="background:#fffbeb; border:1.5px solid #efb100; color:#92400e; font-size:11px; font-weight:700; padding:5px 14px; border-radius:20px;">
+                    ⏳ Open Bill – Sedang Berjalan
+                </span>
+            </div>
+            @endif
+
             <div class="struk-info-section">
                 <div class="struk-info-row">
                     <span class="struk-info-label">Kode Order</span>
@@ -181,7 +193,7 @@
                 <div class="struk-info-row">
                     <span class="struk-info-label">Opsi / Tempat</span>
                     <span class="struk-info-value text-bold" style="text-transform: capitalize;">
-                        {{ $order->eating_option }} {{$order->table_number ? '(Meja #' . $order->table_number . ')' : ''}}
+                        {{ $order->eating_option }} {{ $order->table_number ? '(Meja #' . $order->table_number . ')' : '' }}
                     </span>
                 </div>
                 <div class="struk-info-row">
@@ -225,10 +237,31 @@
                 <span class="struk-total-value">Rp {{ number_format($order->total, 0, ',', '.') }}</span>
             </div>
 
+            @if($isOpenBill)
+            {{-- ================================================
+                 🔥 ACTION BUTTONS KHUSUS OPEN BILL
+            ================================================= --}}
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px dashed #fce4a0;">
+                {{-- Tombol Tambah Pesanan --}}
+                <a href="{{ route('pelanggan.order.continue', $order->id) }}"
+                   style="display:flex; align-items:center; justify-content:center; gap:10px; background:#222; color:#fff; padding:14px; border-radius:12px; font-size:13px; font-weight:700; text-decoration:none; text-align:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+                    Tambah Pesanan
+                </a>
+                {{-- Tombol Selesaikan & Bayar --}}
+                <a href="{{ route('pelanggan.qris', ['orderCode' => $order->order_code]) }}"
+                   style="display:flex; align-items:center; justify-content:center; gap:10px; background:#efb100; color:#fff; padding:14px; border-radius:12px; font-size:13px; font-weight:700; text-decoration:none; text-align:center;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1" stroke="white" stroke-width="2"/><rect x="13" y="3" width="8" height="8" rx="1" stroke="white" stroke-width="2"/><rect x="3" y="13" width="8" height="8" rx="1" stroke="white" stroke-width="2"/><path d="M13 13h3v3M16 16v5M13 16h3M13 21h8" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                    Selesaikan & Bayar via QRIS
+                </a>
+            </div>
+            @else
             <div class="struk-footer-text">
                 Terima kasih sudah nongkrong di Warkop Tskuy!<br>Satu persen lebih baik setiap hari 🙌
             </div>
+            @endif
         </div>
     </div>
     @endforeach
+
 @endsection

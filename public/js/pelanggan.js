@@ -118,8 +118,11 @@ function addToCart(menuData) {
 
 // 🔥 FUNGSI CHECKOUT YANG UDAH DIBERSIHIN (PLAN B) 🔥
 function submitOrderToDatabase(orderType) {
+    const activeOrderId = "{{ session('active_order_id') }}"; 
+    const url = activeOrderId ? `/pelanggan/checkout/${activeOrderId}/add` : '/pelanggan/checkout';
+
     if (cartItems.length === 0) { alert("Keranjang belanja kosong!"); return; }
-    
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
     const payload = { type: orderType, items: cartItems.map(item => ({ id: parseInt(item.id), qty: item.qty })) };
 
@@ -319,6 +322,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnClear = e.target.closest('#btn-clear-cart');
         if (btnClear) { cartItems = []; renderCart(); return; }
     });
+
+    // Tambahkan di riwayat.js atau script di riwayat.blade.php
+    function showDetailModal(order) {
+    // 1. Munculin Modal (seperti gambar image_b9efd9.png)
+    // 2. Tombol "Tambah Pesanan"
+    document.getElementById('btn-add-more').onclick = () => {
+        window.location.href = `/pelanggan/orders/${order.id}/add`;
+    };
+    // 3. Tombol "Selesaikan Pesanan"
+    document.getElementById('btn-finish').onclick = () => {
+        window.location.href = `/pelanggan/payment/qris/${order.order_code}`;
+    };
+}
 
     renderCart();
 });
