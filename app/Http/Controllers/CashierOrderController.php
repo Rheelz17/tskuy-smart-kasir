@@ -15,7 +15,7 @@ class CashierOrderController extends Controller
     public function __construct()
     {
         // Set konfigurasi Midtrans
-        Config::$serverKey = env('SB-Mid-server-bvCLYkn6O3LlgVFRfwXt3Pji');
+        Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
         Config::$isSanitized = true;
         Config::$is3ds = true;
