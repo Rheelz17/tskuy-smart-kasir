@@ -2602,3 +2602,124 @@
   }
 
 }
+
+/* ============================================================
+   penjualan-filter.css
+   Style TAMBAHAN untuk halaman detail penjualan.
+   
+   Semua style tab (.category-tabs, .tab, .tab.active) sudah
+   ada di admin.css global — TIDAK diulang di sini.
+   
+   Yang ditambahkan hanya elemen spesifik penjualan:
+     - Label "Status:" / "Tipe:" sebelum baris tab
+     - Dot warna di dalam tab status
+     - Layout action-bar penjualan (2 baris tab + action-right)
+     - Empty state tabel saat filter tidak ada hasil
+     - class filter-hidden (disembunyikan JS)
+   ============================================================ */
+
+/* ── Layout action-bar penjualan (desktop) ─────────────────
+   action-bar sudah display:none di mobile (dari admin.css),
+   sehingga blok ini hanya berdampak di breakpoint ≥ 481px.
+   ──────────────────────────────────────────────────────── */
+.penjualan-action-bar {
+    /* Override ke flex-column agar tab bisa di baris sendiri */
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* Baris yang menampung label + tab dalam satu baris horizontal */
+.penjualan-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Label kecil "Status:" dan "Tipe:" */
+.penjualan-filter-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    /* Mobile: tampil sebagai judul di atas baris tab */
+    display: block;
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+/* ── Dot indikator warna di dalam tab status ───────────────
+   Contoh: ● Lunas / ● Pending / ● Gagal
+   ──────────────────────────────────────────────────────── */
+.tab-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+.tab-dot--lunas   { background: #22c55e; }
+.tab-dot--pending { background: #f59e0b; }
+.tab-dot--gagal   { background: #ef4444; }
+
+/* Saat tab aktif, dot tetap terlihat (warna disesuaikan) */
+.tab.active .tab-dot--lunas   { background: rgba(255,255,255,0.9); }
+.tab.active .tab-dot--pending { background: rgba(255,255,255,0.9); }
+.tab.active .tab-dot--gagal   { background: rgba(255,255,255,0.9); }
+
+/* ── Row/card yang disembunyikan filter JS ─────────────────
+   Pakai !important supaya tidak bertabrakan dengan
+   style inline display yang mungkin di-set di tempat lain.
+   ──────────────────────────────────────────────────────── */
+tr.filter-hidden,
+.trx-card.filter-hidden {
+    display: none !important;
+}
+
+/* ── Empty state saat semua row tersembunyi ────────────────
+   Baris ini diinjeksi dinamis oleh penjualan.js
+   ──────────────────────────────────────────────────────── */
+tr.filter-empty-state td {
+    text-align: center;
+    padding: 40px 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* ── Responsive: di desktop label jadi inline, di mobile block ── */
+@media (min-width: 481px) {
+    .penjualan-filter-label {
+        /* Di desktop: jadi label inline sebelum tab */
+        display: inline-block;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    /* action-right (search + export) tetap di baris sendiri */
+    .penjualan-action-bar .action-right {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* ── Tablet (481–768px): tab bisa scroll horizontal ───────── */
+@media (min-width: 481px) and (max-width: 768px) {
+    .penjualan-filter-row .category-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .penjualan-filter-row .category-tabs::-webkit-scrollbar {
+        display: none;
+    }
+}

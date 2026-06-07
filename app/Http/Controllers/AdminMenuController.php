@@ -5,11 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Category;
 use App\Models\Mood;
+use App\Models\Transaction; // 👈 1. WAJIB TAMBAH INI biar bisa narik data transaksi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AdminMenuController extends Controller
 {
+    // ──────────────────────────────────────────────────────────
+    // TITIPAN: 0. DASHBOARD & PENJUALAN
+    // ──────────────────────────────────────────────────────────
+    public function dashboard()
+    {
+        return view('admin.dashboard');
+    }
+
+    public function penjualan()
+    {
+        // Ambil data transaksi terbaru + batasi 10 data per halaman (Pagination)
+        // Gunakan ->with('details') jika relasi detail item transaksi ada di model kamu
+        $transactions = Transaction::with('details')->latest()->paginate(10);
+
+        // Lempar data variabel $transactions ke view utama admin penjualan
+        return view('admin.penjualan', compact('transactions'));
+    }
+
     // ──────────────────────────────────────────────────────────
     // 1. INDEX — Tampilkan halaman utama manajemen menu
     // ──────────────────────────────────────────────────────────
@@ -184,6 +203,7 @@ class AdminMenuController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Menu berhasil dihapus permanen!',
+            'value'   => 200, // Menjaga return response format sebelumnya
         ], 200);
     }
 

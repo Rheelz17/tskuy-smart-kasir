@@ -6,6 +6,8 @@ use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\KokiController;
 use App\Http\Controllers\CashierOrderController;
 use App\Http\Controllers\AdminMenuController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminPenjualanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth; // <-- Tambahan wajib untuk ngecek sesi login
 
@@ -62,11 +64,11 @@ require __DIR__.'/auth.php';
 // AREA SUPER ADMIN
 // ==========================================
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Halaman Utama & Penjualan (Dihandle AdminController)
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/penjualan', [AdminController::class, 'penjualan'])->name('penjualan');
     Route::get('/menu', [AdminController::class, 'menu'])->name('menu');
-
+    
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
     // Halaman Karyawan (Dihandle KaryawanController)
     Route::get('/karyawan', [KaryawanController::class, 'index'])->name('karyawan');
     Route::get('/karyawan/tambah', [KaryawanController::class, 'tambah'])->name('karyawan.tambah');
@@ -89,8 +91,10 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::put('/menu/{id}', [AdminMenuController::class, 'update'])->name('menu.update');
     // 6. Proses Hapus Menu (AJAX DELETE dengan proteksi transaksi)
     Route::delete('/menu/{id}', [AdminMenuController::class, 'destroy'])->name('menu.destroy');
-    Route::patch('/menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus']);
+    Route::post('/menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus']);
 });
+
+    
 
 // ==========================================
 // AREA KASIR

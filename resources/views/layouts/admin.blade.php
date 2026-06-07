@@ -13,6 +13,8 @@
     />
     <link rel="stylesheet" href="{{ asset('css/kasir-global.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/admincopy.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/penjualan-filter.css') }}">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
