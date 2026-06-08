@@ -33,6 +33,13 @@ Route::get('/', function () {
     return view('splash');
 });
 
+Route::get('/tes', function () {
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Railway works'
+    ]);
+});
+
 Route::get('/dashboard', function () {
     $roleId = Auth::user()->role_id;
     if ($roleId == 1) return redirect('/admin/dashboard');
