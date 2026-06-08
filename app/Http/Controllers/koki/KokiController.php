@@ -20,7 +20,7 @@ class KokiController extends Controller
                 $query->where('orders.is_open_bill', 1)
                       ->orWhere(function($q) {
                           $q->where('orders.is_open_bill', 0)
-                            ->where('orders.payment_status', 'paid');
+                            ->where('orders.payment_status', 'pending');
                       });
             })
             ->orderBy('orders.created_at', 'asc')
@@ -63,7 +63,7 @@ class KokiController extends Controller
         $baseQuery = DB::table('orders')->where(function($query) {
             $query->where('is_open_bill', 1)
                   ->orWhere(function($q) {
-                      $q->where('is_open_bill', 0)->where('payment_status', 'paid');
+                      $q->where('is_open_bill', 0);
                   });
         });
 
