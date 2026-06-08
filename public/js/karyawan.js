@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Ambil CSRF Token dari meta tag head HTML Laravel
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
   /* ============================================================
-     1. TAB FILTER JABATAN
+     1. TAB FILTER JABATANa
      Klik tab → update active state + filter card + filter tabel
   ============================================================ */
 

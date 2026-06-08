@@ -50,6 +50,6 @@ class Menu extends Model
 
     public function moods(): BelongsToMany
     {
-        return $this->belongsToMany(Mood::class, 'menu_mood', 'menu_id', 'mood_id');
+        return $this->belongsToMany(Mood::class, 'menu_moods', 'menu_id', 'mood_id');
     }
 }
