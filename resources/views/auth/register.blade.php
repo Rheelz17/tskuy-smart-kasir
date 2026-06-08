@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <!-- Pastikan nama file CSS lu udah bener -->
-    <link rel="stylesheet" href="{{ asset('css/style-login&regist.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/style-login-regist.css') }}" />
   </head>
   <body>
     <section class="page page-register" id="page-register">
