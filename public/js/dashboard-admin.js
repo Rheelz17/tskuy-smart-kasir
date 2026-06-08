@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const seeAllBtn = document.getElementById("btn-lihat-semua");
   if (seeAllBtn) {
     seeAllBtn.addEventListener("click", function () {
-      window.location.href = "/admin/penjualan.html";
+      window.location.href = "/admin/penjualan";
     });
   }
 });
