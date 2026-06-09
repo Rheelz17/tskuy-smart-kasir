@@ -302,20 +302,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const pdBtnPlus = e.target.closest('.pd-btn-plus');
         if (pdBtnPlus) {
             const valEl = pdBtnPlus.previousElementSibling;
-            if(valEl) valEl.innerText = parseInt(valEl.innerText) + 1;
-            const popup = pdBtnPlus.closest('.pd-content');
-            if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => el.innerText = valEl.innerText);
+            if(valEl) {
+                let maxStock = parseInt(valEl.getAttribute('max')) || 999;
+                let currentVal = parseInt(valEl.value) || 1;
+                
+                if (currentVal < maxStock) {
+                    valEl.value = currentVal + 1;
+                } else {
+                    valEl.value = maxStock; // Kunci di batas maksimum stok
+                }
+
+                const popup = pdBtnPlus.closest('.pd-content');
+                if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => el.value = valEl.value);
+            }
             return;
         }
 
         const pdBtnMin = e.target.closest('.pd-btn-min');
         if (pdBtnMin) {
             const valEl = pdBtnMin.nextElementSibling;
-            let v = parseInt(valEl.innerText);
-            if(v > 1) {
-                valEl.innerText = v - 1;
-                const popup = pdBtnMin.closest('.pd-content');
-                if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => el.innerText = valEl.innerText);
+            if (valEl) {
+                let currentVal = parseInt(valEl.value) || 1;
+                if(currentVal > 1) {
+                    valEl.value = currentVal - 1;
+                    
+                    // Sinkronisasi nilai antara input desktop & mobile di popup ini
+                    const popup = pdBtnMin.closest('.pd-content');
+                    if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => el.value = valEl.value);
+                }
             }
             return;
         }
@@ -328,11 +342,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const popup = btnAddDetailV2.closest('.pd-content');
             
             let qty = 1;
-            if(popup) {
+            let maxStock = 999;
+
+            if(popup) { 
                 const mobileQty = popup.querySelector('.mobile-qty .pd-qty-val');
                 const desktopQty = popup.querySelector('.desktop-qty .pd-qty-val');
-                if(mobileQty && mobileQty.offsetParent !== null) qty = parseInt(mobileQty.innerText);
-                else if(desktopQty) qty = parseInt(desktopQty.innerText);
+                // Mengambil nilai .value (bukan .innerText)
+                if(mobileQty && mobileQty.offsetParent !== null) {
+                    qty = parseInt(mobileQty.value) || 1;
+                    maxStock = parseInt(mobileQty.getAttribute('max')) || 999;
+                } else if(desktopQty) {
+                    qty = parseInt(desktopQty.value) || 1;
+                    maxStock = parseInt(desktopQty.getAttribute('max')) || 999;
+                }
             }
 
             if(card) { 
@@ -344,6 +366,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 
                 const existing = cartItems.find(item => item.id == menuData.id);
+                let currentCartQty = existing ? existing.qty : 0;
+
+                // VALIDASI: Cek apakah gabungan item di keranjang + inputan baru melebihi stok database
+                if (currentCartQty + qty > maxStock) {
+                    alert(`Stok tidak mencukupi! Stok maksimal tersedia: ${maxStock} porsi. Di keranjang Anda saat ini sudah terisi ${currentCartQty} porsi.`);
+                    return;
+                }
+                
                 if (existing) { 
                     existing.qty += qty; 
                 } else {
@@ -355,6 +385,43 @@ document.addEventListener('DOMContentLoaded', () => {
             closePopup(); return;
         }
 
+        document.addEventListener("input", function(e) {
+            const qtyInput = e.target.closest('.pd-qty-val');
+            if (qtyInput) {
+                let maxStock = parseInt(qtyInput.getAttribute('max')) || 1;
+                let currentVal = qtyInput.value;
+
+                if (currentVal === '') return; // Biarkan kosong sementara saat user sedang mengetik/menghapus
+
+                let parsedVal = parseInt(currentVal);
+                if (parsedVal > maxStock) {
+                    qtyInput.value = maxStock; // Paksa turun ke batas stok maksimum
+                } else if (parsedVal < 1) {
+                    qtyInput.value = 1; // Paksa naik ke minimal 1 porsi
+                }
+
+                // Sinkronisasikan teks input antara versi mobile dan desktop
+                const popup = qtyInput.closest('.pd-content');
+                if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => {
+                    if (el !== qtyInput) el.value = qtyInput.value;
+                });
+            }
+        });
+
+        document.addEventListener("change", function(e) {
+            const qtyInput = e.target.closest('.pd-qty-val');
+            if (qtyInput) {
+                // Ketika kursor keluar (blur), jika input ditinggalkan kosong, paksa set ke 1
+                if (qtyInput.value === '' || parseInt(qtyInput.value) < 1) {
+                    qtyInput.value = 1;
+                }
+                const popup = qtyInput.closest('.pd-content');
+                if(popup) popup.querySelectorAll('.pd-qty-val').forEach(el => {
+                    if (el !== qtyInput) el.value = qtyInput.value;
+                });
+            }
+        });
+        
         const btnOpenBillAction = e.target.closest('#choice-open-bill');
         if (btnOpenBillAction) {
             e.stopPropagation();

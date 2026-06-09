@@ -208,7 +208,12 @@
                                 <span class="pd-qty-label">Jumlah Porsi</span>
                                 <div class="pd-qty-control">
                                     <button type="button" class="pd-btn-min">-</button>
-                                    <span class="pd-qty-val">1</span>
+                                    <input type="number" 
+                                            class="pd-qty-val" 
+                                            value="1" 
+                                            min="1" 
+                                            max="{{ $menu->stock }}" 
+                                            oninput="this.value = !!this.value && Math.abs(this.value) >= 1 ? this.value : 1">
                                     <button type="button" class="pd-btn-plus">+</button>
                                 </div>
                             </div>
@@ -235,16 +240,21 @@
                         <div class="pd-note">
                             <div class="pd-note-header">
                                 <span class="pd-note-title">Catatan Tambahan</span>
-                                <span class="pd-note-subtitle">Opsional</span>
+                                <span class="pd-note-subtitle">Opsional (Maksimal 150 Karakter)</span>
                             </div>
-                            <input type="text" placeholder="Contoh: Jangan diaduk, telor acak" class="pd-note-input" id="note-{{ $menu->id }}">
+                            <input type="text" placeholder="Contoh: Jangan diaduk, telor acak" class="pd-note-input" id="note-{{ $menu->id }}" maxlength="150">
                         </div>
 
                         <div class="pd-qty-section mobile-qty">
                             <span class="pd-qty-label">Jumlah Porsi</span>
                             <div class="pd-qty-control">
                                 <button type="button" class="pd-btn-min">-</button>
-                                <span class="pd-qty-val">1</span>
+                                <input type="number" 
+                                        class="pd-qty-val" 
+                                        value="1" 
+                                        min="1" 
+                                        max="{{ $menu->stock }}" 
+                                        oninput="this.value = !!this.value && Math.abs(this.value) >= 1 ? this.value : 1">
                                 <button type="button" class="pd-btn-plus">+</button>
                             </div>
                         </div>
