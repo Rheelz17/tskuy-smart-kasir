@@ -556,8 +556,8 @@
             </div>
         </div>
         <div class="menu-detail-catatan">
-            <p class="menu-detail-label">Catatan Khusus</p>
-            <input type="text" class="catatan-input" id="catatan-{{ $menu->id }}" placeholder="Contoh: Sayur banyakin, telornya di acak">
+            <p class="menu-detail-label">Catatan Khusus (Maksimal 150 Karakte)</p>
+            <input type="text" class="catatan-input" id="catatan-{{ $menu->id }}" placeholder="Contoh: Sayur banyakin, telornya di acak" maxlength="150">
         </div>
         <div class="menu-detail-footer">
             <button class="popup-btn btn-add-from-detail"

@@ -185,35 +185,35 @@ function submitOrderToDatabase(orderType) {
     });
 }
 
-function payNow()
-{
-    if (cartItems.length === 0) {
-        alert("Keranjang kosong");
-        return;
-    }
-    const csrfToken =
-        document.querySelector(
-            'meta[name="csrf-token"]'
-        ).content;
-    fetch('/pelanggan/checkout/pay-now', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken
-        },
-        body: JSON.stringify({
-            items: cartItems
-        })
-    })
-    .then(async res => {
-        const data = await res.json();
-        console.log(data);
-        snap.pay(data.snap_token);
-    })
-    .catch(err => {
-        console.error(err);
-    });
-}
+// function payNow()
+// {
+//     if (cartItems.length === 0) {
+//         alert("Keranjang kosong");
+//         return;
+//     }
+//     const csrfToken =
+//         document.querySelector(
+//             'meta[name="csrf-token"]'
+//         ).content;
+//     fetch('/pelanggan/checkout/pay-now', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRF-TOKEN': csrfToken
+//         },
+//         body: JSON.stringify({
+//             items: cartItems
+//         })
+//     })
+//     .then(async res => {
+//         const data = await res.json();
+//         console.log(data);
+//         snap.pay(data.snap_token);
+//     })
+//     .catch(err => {
+//         console.error(err);
+//     });
+// }
 
 let activeKategori = "all";
 let activeMood = "all";
@@ -433,7 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.target.closest('#choice-pay-now');
         if (btnPayNowAction) {
             e.stopPropagation();
-            payNow();
+            // payNow();
+            submitOrderToDatabase('pay_now')
             return;
         }
 
@@ -459,16 +460,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tambahkan di riwayat.js atau script di riwayat.blade.php
     function showDetailModal(order) {
-    // 1. Munculin Modal (seperti gambar image_b9efd9.png)
-    // 2. Tombol "Tambah Pesanan"
-    document.getElementById('btn-add-more').onclick = () => {
-        window.location.href = `/pelanggan/orders/${order.id}/add`;
-    };
-    // 3. Tombol "Selesaikan Pesanan"
-    document.getElementById('btn-finish').onclick = () => {
-        window.location.href = `/pelanggan/payment/qris/${order.order_code}`;
-    };
-}
+        // 1. Munculin Modal (seperti gambar image_b9efd9.png)
+        // 2. Tombol "Tambah Pesanan"
+        document.getElementById('btn-add-more').onclick = () => {
+            window.location.href = `/pelanggan/orders/${order.id}/add`;
+        };
+        // 3. Tombol "Selesaikan Pesanan"
+        document.getElementById('btn-finish').onclick = () => {
+            window.location.href = `/pelanggan/payment/qris/${order.order_code}`;
+        };
+    }
 
     renderCart();
 });
