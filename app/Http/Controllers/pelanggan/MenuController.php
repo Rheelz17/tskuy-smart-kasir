@@ -231,35 +231,75 @@ class MenuController extends Controller
                 'updated_at'       => now(),
             ]);
 
-            // 4. Jika Pay Now, Bikin Snap Token Midtrans
-            if ($request->type === 'pay_now') {
+            // // 4. Jika Pay Now, Bikin Snap Token Midtrans
+            // if ($request->type === 'pay_now') {
+            //     $transactionId = 'ORDER-' . $orderId . '-' . time();
+            //     $params = [
+            //         'transaction_details' => ['order_id' => $transactionId, 'gross_amount' => (int)$total],
+            //         'customer_details'    => ['first_name' => $user->name, 'email' => $user->email]
+            //     ];
+            //     $snapToken = Snap::getSnapToken($params);
+                
+            //     DB::table('orders')->where('id', $orderId)->update([
+            //         'transaction_id' => $transactionId, 'snap_token' => $snapToken
+            //     ]);
+            //     DB::commit();
+                
+            //     return response()->json([
+            //         'success' => true, 'snap_token' => $snapToken, 'order_code' => $orderCode
+            //     ]);
+            // }
+
+            // Jika Open Bill, langsung sukses masuk Dapur
+            DB::commit();
+            // return response()->json([
+            //     'success' => true, 'message' => 'Pesanan dikirim ke dapur!', 'redirect_url' => route('pelanggan.riwayat')
+            // ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+        // ─────────────────────────────────────────────────────────
+        // TAHAP 2: PROSES LUAR TRANSAKSI (HUBUNGI API MIDTRANS)
+        // ─────────────────────────────────────────────────────────
+        if ($request->type === 'pay_now') {
+            try {
                 $transactionId = 'ORDER-' . $orderId . '-' . time();
                 $params = [
                     'transaction_details' => ['order_id' => $transactionId, 'gross_amount' => (int)$total],
                     'customer_details'    => ['first_name' => $user->name, 'email' => $user->email]
                 ];
+                
+                // Pemanggilan API eksternal dilakukan dengan aman tanpa mengunci database row lagi
                 $snapToken = Snap::getSnapToken($params);
                 
+                // Update token hasil dari Midtrans ke baris order yang sudah di-commit tadi
                 DB::table('orders')->where('id', $orderId)->update([
-                    'transaction_id' => $transactionId, 'snap_token' => $snapToken
+                    'transaction_id' => $transactionId, 
+                    'snap_token'     => $snapToken
                 ]);
-                DB::commit();
                 
                 return response()->json([
-                    'success' => true, 'snap_token' => $snapToken, 'order_code' => $orderCode
+                    'success' => true, 
+                    'snap_token' => $snapToken, 
+                    'order_code' => $orderCode
                 ]);
+                
+            } catch (\Exception $e) {
+                // Jika koneksi Midtrans bermasalah, kirim respon error ke pelanggan
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Gagal terhubung ke Midtrans: ' . $e->getMessage()
+                ], 500);
             }
-
-            // Jika Open Bill, langsung sukses masuk Dapur
-            DB::commit();
-            return response()->json([
-                'success' => true, 'message' => 'Pesanan dikirim ke dapur!', 'redirect_url' => route('pelanggan.riwayat')
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+
+        // Jika Open Bill, langsung sukses arahkan ke riwayat dapur
+        return response()->json([
+            'success' => true, 
+            'message' => 'Pesanan dikirim ke dapur!', 
+            'redirect_url' => route('pelanggan.riwayat')
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────
