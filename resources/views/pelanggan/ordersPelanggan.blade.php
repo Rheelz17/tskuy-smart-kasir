@@ -270,6 +270,101 @@
 
 @push('script')
 <script>
-    
+document.addEventListener('DOMContentLoaded', function() {
+    const btnOpenBill = document.getElementById('choice-open-bill');
+    const btnPayNow = document.getElementById('choice-pay-now');
+
+    // 1. TRIGGER UNTUK OPEN BILL
+    if (btnOpenBill) {
+        btnOpenBill.addEventListener('click', function() {
+            processCheckout('/pelanggan/checkout', 'open_bill');
+        });
+    }
+
+    // 2. TRIGGER UNTUK PAY NOW (MIDTRANS)
+    if (btnPayNow) {
+        btnPayNow.addEventListener('click', function() {
+            processCheckout('/pelanggan/checkout/pay-now', 'pay_now');
+        });
+    }
+});
+
+// Fungsi Global untuk Mengirim Keranjang ke Controller
+function processCheckout(url, type) {
+    // Asumsi: Variabel global `cartItems` Anda berisi array object seperti:
+    // [{ id: 1, name: 'Kopi', qty: 2, note: 'Less sugar', level: 0 }]
+    if (typeof cartItems === 'undefined' || cartItems.length === 0) {
+        alert("Keranjang belanja lu masih kosong!");
+        return;
+    }
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    // Tampilkan loading statis (opsional namun disarankan)
+    console.log("Mengirim pesanan dan memotong stok di server...");
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            items: cartItems // Kirim seluruh list item keranjang ke backend
+        })
+    })
+    .then(async response => {
+        const data = await response.json();
+        
+        if (!response.ok || data.success === false) {
+            // Jika stok tidak cukup atau ada error dari controller, lemparkan pesan error
+            throw new Error(data.message || "Terjadi kesalahan pada sistem.");
+        }
+        
+        return data;
+    })
+    .then(data => {
+        // --- JIKA BACKEND SELESAI MEMVALIDASI & MEMOTONG STOK ---
+        
+        // 1. Kosongkan keranjang di browser secara instan
+        cartItems = [];
+        if (typeof renderCart === 'function') renderCart(); // Update tampilan UI keranjang
+        
+        // 2. Tutup popup pilihan metode pembayaran
+        // (Sesuaikan dengan fungsi penutup popup bawaan template Anda, misal menambahkan class 'hidden' atau bootstrap modal close)
+        const activePopup = document.getElementById('popup-payment');
+        if (activePopup) activePopup.style.display = 'none'; 
+
+        // 3. Alur percabangan berdasarkan tipe pembayaran
+        if (type === 'open_bill') {
+            alert("Pesanan berhasil diteruskan ke dapur! Sesi Open Bill dimulai.");
+            window.location.href = '/pelanggan/riwayat'; // Arahkan ke halaman riwayat/status order
+        } 
+        else if (type === 'pay_now' && data.snap_token) {
+            // Jalankan widget pop-up Midtrans Snap
+            snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    window.location.href = `/pelanggan/payment/success/${data.order_code || ''}`;
+                },
+                onPending: function(result) {
+                    window.location.href = '/pelanggan/riwayat';
+                },
+                onError: function(result) {
+                    alert("Pembayaran via Midtrans gagal, silakan cek menu riwayat.");
+                    window.location.href = '/pelanggan/riwayat';
+                },
+                onClose: function() {
+                    alert('Lu menutup halaman pembayaran sebelum selesai.');
+                    window.location.href = '/pelanggan/riwayat';
+                }
+            });
+        }
+    })
+    .catch(error => {
+        // Menampilkan pesan gagal jika stok habis di server
+        alert("Gagal memproses pesanan: " + error.message);
+    });
+}
 </script>
 @endpush

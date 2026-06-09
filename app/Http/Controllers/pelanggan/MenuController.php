@@ -166,8 +166,7 @@ class MenuController extends Controller
             
             // ─── VALIDASI STOK SERVER-SIDE (PENCEGAHAN UTAMA) ───
             foreach ($request->items as $item) {
-                $menu = Menu::findOrFail($item['id']);
-                
+                $menu = Menu::where('id', $item['id'])->lockForUpdate()->findOrFail();                
                 if ($menu->stock < $item['qty']) {
                     return response()->json([
                         'success' => false, 
@@ -286,6 +285,14 @@ class MenuController extends Controller
                 ]);
                 
             } catch (\Exception $e) {
+                // ─── AMAN: KEMBALIKAN STOK JIKA API MIDTRANS TIMEOUT/DOWN ───
+                foreach ($request->items as $item) {
+                    Menu::where('id', $item['id'])->increment('stock', $item['qty']);
+                }
+                
+                // Tandai order & payment sebagai gagal agar tidak menjadi data sampah menggantung
+                DB::table('orders')->where('id', $orderId)->update(['status' => 'CANCELLED', 'payment_status' => 'failed']);
+                DB::table('payments')->where('order_id', $orderId)->update(['status' => 'FAILED']);
                 // Jika koneksi Midtrans bermasalah, kirim respon error ke pelanggan
                 return response()->json([
                     'success' => false, 
