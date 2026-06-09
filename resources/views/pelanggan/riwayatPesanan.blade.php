@@ -2,6 +2,9 @@
 
 @section('title', 'Riwayat Pesanan - Warkop Tskuy')
 
+@section('header_title', 'Riwayat Transaksi')
+@section('header_subtitle', 'Daftar riwayat transaksi anda terlihat disini.')
+
 @section('content')
 <main class="content-area">
     <section class="page-title-section" style="display: block; padding: 0 0 16px 0;">
